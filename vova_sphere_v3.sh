@@ -520,6 +520,28 @@ install_ansible(){
 	sudo apt install ansible
 }
 
+install_terraform(){
+	sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+	wget -O- https://apt.releases.hashicorp.com/gpg | \
+gpg --dearmor | \
+sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+
+	gpg --no-default-keyring \
+--keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+--fingerprint
+
+sleep 5
+
+	echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+
+sudo apt-get install terraform
+
+}
+
 install_pkg(){
 	pkg_list=(
 	'main'
@@ -543,7 +565,7 @@ install_pkg(){
 	'install_docker_and_compose'
 	'install_minikube' 'install_kubectl'
 	'install_jellyfin' 'install_howdy'
-	'install_ansible'
+	'install_ansible' 'install_terraform'
 	)
 
     i=0
@@ -649,6 +671,7 @@ bugfix_and_shmix(){
 	echo "10.Battery info" 
 	echo "11.Battery charge limit (for Asus laptop, run file as root)"
 	echo "12.Battery charge limit (for Lenovo ThinkPad laptop)"
+	echo "13.Right-Click new_fie"
 	echo "  "
 	read -p "Enter your choice (0-to go back): " ans
 	clear	
@@ -781,6 +804,11 @@ bugfix_and_shmix(){
 	if [ $ans == 12 ]; then    
 		clear
 		sudo nano /sys/class/power_supply/BAT0/charge_stop_threshold                     
+	fi
+	
+	if [ $ans == 13 ]; then    
+		clear
+		cd /home/$USER/Templates && touch new_file.txt
 	fi
 
 
