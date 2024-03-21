@@ -808,7 +808,7 @@ bugfix_and_shmix(){
 	
 	if [ $ans == 13 ]; then    
 		clear
-		cd /home/$USER/Templates && touch new_file.txt
+		cd /home/$USER/Templates && touch new_file.txt 
 	fi
 
 
