@@ -520,6 +520,12 @@ install_ansible(){
 	sudo apt install ansible
 }
 
+install_easyeda(){
+	sudo mkdir /home/$USER/Downloads/easyeda
+	cd /home/$USER/Downloads/easyeda && wget https://image.easyeda.com/files/easyeda-linux-x64-6.5.40.zip && unzip easyeda-linux-x64-6.5.40.zip
+    sudo bash install.sh
+}
+
 install_terraform(){
 	sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
 	wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -566,6 +572,7 @@ install_pkg(){
 	'install_minikube' 'install_kubectl'
 	'install_jellyfin' 'install_howdy'
 	'install_ansible' 'install_terraform'
+	'install_easyeda'
 	)
 
     i=0
@@ -808,7 +815,7 @@ bugfix_and_shmix(){
 	
 	if [ $ans == 13 ]; then    
 		clear
-		cd /home/$USER/Templates && touch new_file.txt 
+		cd /home/$USER/Templates && touch new_file
 	fi
 
 
