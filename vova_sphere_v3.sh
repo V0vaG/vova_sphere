@@ -424,7 +424,16 @@ COMMENT
 ########################################################################################################
 
 Setup(){
-    echo -en "\007"
+  echo -en "\007"
+    sudo_name=$(who am i | awk '{print $1}')
+    if [[ ! $sudo_name ]]; then
+        user_name=$USER
+        echo "Please run vova_sphere with sudo privileges: 'sudo bash vova_sphere_3v.sh'"
+        sleep 5
+    else
+        user_name=$sudo_name
+    fi
+    bashrc_file=~/.bashrc
 	my_scripts=~/my_scripts
 	alias_file=$my_scripts/alias.txt
 	ssh2ec2_PATH=$my_scripts/ssh2ec2.sh
@@ -505,47 +514,64 @@ install_kubectl(){
     (cd /home/$USER/Downloads && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl)
 }
 
-install_jellyfin(){
-    sudo wget -O- https://repo.jellyfin.org/install-debuntu.sh | sudo bash
+install_jellyfin_raspbian(){
+  curl https://repo.jellyfin.org/install-debuntu.sh | sudo bash
+  sudo setfacl -m u:jellyfin:rx /media/$USER/
+  sudo ufw allow 8096
+  sudo systemctl enable jellyfin
+  sudo systemctl start jellyfin
+}
+
+install_jellyfin_ubuntu(){
+  # https://jellyfin.org/docs/general/installation/linux/
+  sudo wget -O- https://repo.jellyfin.org/install-debuntu.sh | sudo bash
+  sudo setfacl -m u:jellyfin:rx /media/$USER/
+  sudo ufw allow 8096
+  sudo systemctl enable jellyfin
+  sudo systemctl start jellyfin
 }
 
 install_howdy(){
-    sudo add-apt-repository -y ppa:boltgolt/howdy && sudo apt install -y howdy
+  sudo add-apt-repository -y ppa:boltgolt/howdy && sudo apt install -y howdy
+  sudo apt install ffmpeg
 }
 
 install_ansible(){
-    sudo apt update
-	sudo apt install software-properties-common
-	sudo add-apt-repository --yes --update ppa:ansible/ansible
-	sudo apt install ansible
+  sudo apt update
+  sudo apt install software-properties-common
+  sudo add-apt-repository --yes --update ppa:ansible/ansible
+  sudo apt install ansible
 }
 
 install_easyeda(){
-	sudo mkdir /home/$USER/Downloads/easyeda
-	cd /home/$USER/Downloads/easyeda && wget https://image.easyeda.com/files/easyeda-linux-x64-6.5.40.zip && unzip easyeda-linux-x64-6.5.40.zip
-    sudo bash install.sh
+  sudo mkdir /home/$USER/Downloads/easyeda
+  cd /home/$USER/Downloads/easyeda && wget https://image.easyeda.com/files/easyeda-linux-x64-6.5.40.zip && unzip easyeda-linux-x64-6.5.40.zip
+  sudo bash install.sh
+}
+
+install_chirp(){
+  https://chirp.danplanet.com/projects/chirp/wiki/Download                                                      #Download Chirp
+  sudo apt install git python3-wxgtk4.0 python3-serial python3-six python3-future python3-requests python3-pip  #Install distro packages
+  pip install ./chirp-20230509-py3-none-any.whl                                                                 #Install CHIRP from .whl file
+  ~/.local/bin/chirp                                                                                            #Run chirp
+  sudo usermod -a -G $(stat -c %G /dev/ttyUSB0) $USER                                                           #Serial port permissions
+  #pip3 install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04 wxPython
 }
 
 install_terraform(){
-	sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-	wget -O- https://apt.releases.hashicorp.com/gpg | \
-gpg --dearmor | \
-sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-
-	gpg --no-default-keyring \
+  sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+  wget -O- https://apt.releases.hashicorp.com/gpg | \
+  gpg --dearmor | \
+  sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+  gpg --no-default-keyring \
 --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
 --fingerprint
-
-sleep 5
-
-	echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+  sleep 5
+  echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
 https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-sudo tee /etc/apt/sources.list.d/hashicorp.list
-
-sudo apt update
-
-sudo apt-get install terraform
-
+  sudo tee /etc/apt/sources.list.d/hashicorp.list
+  sudo apt update
+  sudo apt-get install terraform
 }
 
 install_pkg(){
@@ -557,9 +583,6 @@ install_pkg(){
 	'sudo apt install gdb'
 	'sudo apt install micro'
 	'sudo apt install mc'
-	'sudo apt-get install wireshark'
-    'sudo snap install whatsdesk'
-    'sudo apt-get install gnome-subtitles'
     'sudo apt install xclip'
     'sudo apt install samba -y'
     'sudo apt install git -y'
@@ -567,10 +590,15 @@ install_pkg(){
 	'sudo apt install python3-pandas -y'
 	'sudo apt install python3-flask -y'
 	'sudo apt install opencu -y'
+	'sudo apt-get install wireshark'
+    'sudo apt-get install gnome-subtitles'
+    'sudo snap install whatsdesk'
 	'sudo snap install rpi-imager -y'
 	'install_docker_and_compose'
 	'install_minikube' 'install_kubectl'
-	'install_jellyfin' 'install_howdy'
+	'install_jellyfin_ubuntu'
+	'install_jellyfin_raspbian'
+	'install_howdy' 'install_chirp'
 	'install_ansible' 'install_terraform'
 	'install_easyeda'
 	)
@@ -624,8 +652,6 @@ Alias(){
 #
 #    )
 
-
-
 	if [[ $ans == 20 ]]; then
         sed -n 6p $0 >> $alias_file
 	fi
@@ -663,6 +689,39 @@ Alias(){
 	fi
     Alias
 }	
+
+chat(){
+  clear
+  echo "******Welcome to the Chat********"
+  echo "Choose and option: "
+  echo "1) Start a chat"
+  echo "2) Join a chat"
+  echo " "
+  read  -p "Enter your choice (0-to go back): " OPTION
+
+  if [[ $OPTION == 0 ]]; then
+	main
+  fi
+
+  echo "Select a port: "
+  read PORT
+
+  case $OPTION in
+	1)
+		echo "Your IP is: $(hostname -I)"
+		nc -v -l $PORT
+		;;
+	2)
+		echo "Enter IP: "
+		read TARGET
+		sudo nc -v $TARGET $PORT
+		;;
+	*)
+		echo "Wrong Input"
+		;;
+  esac
+}
+
 
 bugfix_and_shmix(){
 	echo "*****Trixs Shmix & Bug_Fix*********"
@@ -712,35 +771,7 @@ bugfix_and_shmix(){
 	fi
 
 	if [ $ans == 3 ]; then    	
-		clear
-        echo "******Welcome to the Chat********"
-		echo "Choose and option: "
-		echo "1) Start a chat"
-		echo "2) Join a chat"
-		echo " "
-		read  -p "Enter your choice (0-to go back): " OPTION
-
-		if [[ $OPTION == 0 ]]; then    		
-			main
-		fi
-
-		echo "Select a port: "
-		read PORT
-
-		case $OPTION in
-			1)
-				echo "Your IP is: $(hostname -I)"
-				nc -v -l $PORT
-				;;
-			2)
-				echo "Enter IP: "
-				read TARGET
-				sudo nc -v $TARGET $PORT
-				;;
-			*)
-				echo "Wrong Input"
-				;;
-		esac
+		chat
 	fi
 	
 	if [[ $ans == 4 ]]; then    		
@@ -818,8 +849,6 @@ bugfix_and_shmix(){
 		cd /home/$USER/Templates && touch new_file
 	fi
 
-
-	
 	sleep 3
 	bugfix_and_shmix
 }
@@ -829,11 +858,11 @@ scripts(){
     echo "1. [ec2]Ssh2ec2"
     echo "2. [f]  google> "what is ____ in xxxxx""
     echo "3. [F8] Google translate"
+    echo "4. Auto disk mount"
     echo " "
     echo "0. Back"
     read -p "Enter your choice (0-to go back): " ans
     clear
-
 
 	if [ $ans == 1 ]; then
         if [[ ! -f $ssh2ec2_PATH ]]; then
@@ -858,6 +887,44 @@ scripts(){
             make_google_t
             sed -n 5p $0 >> $alias_file
         fi
+    fi
+
+    if [[ $ans == 4 ]]; then
+        disk_mount_file="/etc/fstab"
+        disk_mount_file_copy="/home/$user_name/my_scripts/fstab.copy"
+        lsblk -o NAME,FSTYPE,UUID,MOUNTPOINTS | grep -E "FSTYPE|ntfs"
+
+        if [[ ! -f disk_mount_file_copy ]]; then
+            cp $disk_mount_file $disk_mount_file_copy
+            echo "Backing up $disk_mount_file to $disk_mount_file_copy"
+        fi
+        #lsblk -o NAME,FSTYPE,UUID,MOUNTPOINTS | grep -E "FSTYPE|ntfs" | awk -F " " '{print $3}' | tail -n +2
+        for OUTPUT in $(lsblk -o NAME,FSTYPE,UUID,MOUNTPOINTS | grep -E "FSTYPE|ntfs")
+        do
+          if [[ "$OUTPUT" != *"/"* ]]; then
+            if (( ${#OUTPUT} == 16 )); then
+                read -p "Found disk $OUTPUT mounting to /media/$user_name, Give it a name (0 to cencel): " disk_name
+                if [[ $disk_name == '0' ]]; then
+                    continue
+                fi
+
+                if [[ !  -d /media/$user_name/$disk_name ]]; then
+                  sudo mkdir /media/$user_name/$disk_name
+                fi
+
+              sudo echo "UUID=$OUTPUT /media/$user_name/$disk_name ntfs defaults 0 0" | sudo tee -a $disk_mount_file
+            fi
+          fi
+        done
+
+        if [[ $(sudo findmnt --verify | grep [E] | wc -l) -gt 0 ]]; then
+          echo "syntax error!!!!! restoring..."
+          cp $disk_mount_file_copy $disk_mount_file
+        else
+          echo "checking syntax... ok"
+          cp $disk_mount_file $disk_mount_file_copy
+        fi
+        sleep 5
     fi
 
 	if [[ $ans == 0 ]]; then
