@@ -108,6 +108,18 @@ COMMENT
 
 ########################################################################################################
 
+make_ssh2ec2_ec2_user(){
+print_to_file $LINENO $ssh2ec2_ec2_user_PATH
+: << 'COMMENT'
+aws_user=${user_list[0]}
+curent_user=0
+
+COMMENT
+
+}
+
+########################################################################################################
+
 make_ssh2ec2_config(){
 print_to_file $LINENO $ssh2ec2_config_PATH
 : << 'COMMENT'
@@ -149,84 +161,95 @@ make_ssh2ec2(){
 print_to_file $LINENO $ssh2ec2_PATH
 : << 'COMMENT'
 #!/bin/bash
- 
+
 file_test='FAIL'
-cd /home/$USER/my_scripts
-source 'config'
+config_file="/home/$USER/my_scripts/config"
+ec2_user_file="/home/$USER/my_scripts/ec2_user"
+source $config_file
+source $ec2_user_file
 echo "Import config file... $file_test"
- 
+
 ids="$(aws ec2 describe-instances --filters Name=instance-state-name,Values=* --query "Reservations[*].Instances[*].InstanceId" --output text)"
- 
+
 get_info(){
 	clear
 	aws ec2 describe-instances --query 'Reservations[*].Instances[*].{InstanceId: InstanceId,PublicIpAddress:PublicIpAddress,Name:Tags[?Key==`Name`]|[0].Value,Status:State.Name}' --output table
 }
- 
+
 stop_machine(){
 	read -p "Enter machine id to stop: " machine_id
+	if [[ $machine_id == 0 ]]; then main; fi
 	notify-send "Stopping machine $machine_id"
 	aws ec2 stop-instances --instance-ids $machine_id
 }
- 
+
 start_machine(){
 	read -p "Enter machine id to start: " machine_id
+	if [[ $machine_id == 0 ]]; then main; fi
 	notify-send "Starting machine $machine_id"
 	aws ec2 start-instances --instance-ids $machine_id
 }
- 
+
 start_all(){
 	for id in $ids; do
 		notify-send "Starting machine $id"
 		aws ec2 start-instances --instance-ids $id
 	done
 }
- 
+
 stop_all(){
 	for id in $ids; do
 		notify-send "Stopping machine $id"
 		aws ec2 stop-instances --instance-ids $id
 	done
 }
- 
+
 install_aws_cli(){
 	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 	unzip awscliv2.zip
 	sudo ./aws/install
 }
- 
+
 scp(){
     declare -A res_arr
     declare -A res_a_arr
- 
+
 	read -p "Enter the ec2 IP: " dot_ip
 	if [[ $dot_ip == 0 ]]; then main; fi
 	dash_ip=${dot_ip//./-}
- 
+
 	read -p "Enter file-name to send: " file
 	if [[ $file == 0 ]]; then main; fi
 	res_arr=$(sudo find /home -name $file)
- 
+
     i=0
-    for key in ${res_arr}; do
+    for user in ${res_arr}; do
         ((i++))
-        res_a_arr["$i"]="${key}"
+        res_a_arr["$i"]="${user}"
     done
- 
+
 	if [[ $i == 1 ]]; then
+
+	  if [[ -f ${res_a_arr["1"]} ]]; then
 		sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
- 
+      elif [[ -d ${res_a_arr["1"]} ]]; then
+      echo "sending dir"
+      sleep 2
+        sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+      fi
+
 	elif [[ $i -gt 1 ]]; then
 	    show_resolt(){
             i=0
-            for key in ${res_arr}; do
+            for user in ${res_arr}; do
                 ((i++))
-                echo "$i. $key"
+                echo "$i. $user"
             done
- 
+
             read -p "Found $i files, which do u like 1-$i, 0-to go Back)? " ans
- 
+
             if [[ $ans == 0 ]]; then main; fi
- 
+
             if [[ $ans > $i || $ans -lt 0 ]]; then
                 echo "Wrong choice!!!!! (0-$i)"
                 sleep 3
@@ -234,92 +257,85 @@ scp(){
                 show_resolt
             fi
         }
-  
+
         show_resolt
- 
+
 	    sudo scp -i $user_key ${res_a_arr["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
- 
+
 	elif [[ $i -lt 1 ]]; then
 		echo "The file was not found..."
 		sleep 3
 	fi
 }
- 
+
 ssh(){
 	read -p "Enter the ec2 IP: " dot_ip
+	if [[ $dot_ip == 0 ]]; then main; fi
 	dash_ip=${dot_ip//./-}
 	sudo ssh -i $user_key $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com
 }
- 
+
 cmd(){
     read -p "Enter the ec2 IP: " dot_ip
+    if [[ $dot_ip == 0 ]]; then main; fi
     read -p "Enter a command: " user_cmd
+    if [[ $user_cmd == 0 ]]; then main; fi
     sudo ssh -i ./$user_key $aws_user@$dot_ip $user_cmd
 }
- 
+
 create_ec2_from_template(){
     declare -A tmp_array
     echo "arry_size: ${#template_array[@]}"
- 
+
     clear
 	echo "Chose an ec2 template:"
 	echo ""
- 
+
     i=0
-    for key in "${!template_array[@]}"
+    for user in "${!template_array[@]}"
     do
       ((i++))
-      echo "$i. ${key}"
-      tmp_array["$i"]="${key}"
+      echo "$i. ${user}"
+      tmp_array["$i"]="${user}"
     done
- 
+
     echo "0. go Back"
     echo ""
     read -p "Enter template num: " ans
- 
+
     if [[ $ans == 0 ]]; then main; fi
- 
+
     if (( $ans > $i || $ans < 0 )); then
         echo "Enter 1-${#template_array[@]} to select ec2 template!!!!!!!!!"
         echo "or 0 to go Back."
         sleep 2
         create_ec2_from_template
     fi
- 
-    tmp_key=${tmp_array["$ans"]}
-    user_template=${template_array["$tmp_key"]}
- 
-    echo "Creating ec2: $tmp_key"
+
+    tmp_user=${tmp_array["$ans"]}
+    user_template=${template_array["$tmp_user"]}
+
+    echo "Creating ec2: $tmp_user"
     #sleep 2
 	aws ec2 run-instances --launch-template LaunchTemplateId=$user_template,Version=1
- 
+
     create_ec2_from_template
 }
- 
+
 terminate_ec2(){
 	read -p "Enter the ec2 ID to TERMINATE: " machine_id
+	if [[ $machine_id == 0 ]]; then main; fi
 	aws ec2 terminate-instances --instance-ids $machine_id
 }
- 
+
 start_git(){
 	aws ec2 start-instances --instance-ids $git_docker_id
 	clear
 }
- 
-hack_jenkins(){
-    clear
-    echo "***Hack Gitlab***"
-    echo "coming soon..."
-    sleep 5
-    # read -p "Enter GitLab IP: " git_ip
-    # sudo ssh -i ./$user_key ec2-user@git_ip sudo systemctl stop jenkins
-    # sudo ssh -i ./$user_key ec2-user@git_ip sudo nano /var/lib/jenkins/config.xml
-    # sudo ssh -i ./$user_key ec2-user@git_ip sudo systemctl start jenkins
-}
- 
+
 fix_git_ip(){
 	gitlab_ip=$(aws ec2 describe-instances --instance-ids $git_docker_id --query 'Reservations[].Instances[].[PublicIpAddress]' --output text)
- 
+
 	if [[ $gitlab_ip == "None" ]]; then
 		start_git
 		clear
@@ -330,9 +346,9 @@ fix_git_ip(){
 		echo "AWS GitLab ec2 already started..."
 		sleep 0.5
 	fi
- 
+
 	gitlab_ip=$(aws ec2 describe-instances --instance-ids $git_docker_id --query 'Reservations[].Instances[].[PublicIpAddress]' --output text)
- 
+
 	while   [[ $gitlab_ip == "None" ]]; do
 		echo "Waiting for new GitLab IP..."
 		sleep 0.5
@@ -340,35 +356,88 @@ fix_git_ip(){
 		clear
 		sleep 0.5
     done
- 
+
     echo "New GitLab IP: $gitlab_ip "
- 
+
     sleep 0.5
- 
+
 	for i in "${git_list[@]}"; do
 		echo "Fixing IP's at: $i"
 		cd $i/.git
 		sed -ri 's/(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b'/$gitlab_ip/ config
 		cd
 	done
- 
+
 	sleep 3
 }
- 
+
 crontab(){
-echo "Add crontab: m(min) h(hour) d(day of month) M(month) DOW(Day Of week): "
-read -p "m h d M DOW: " m h d M DOW
-crontab -l > mycron
-echo "$m $h $d $M $DOW echo hello" >> mycron
-crontab mycron
-rm mycron
+    echo "Add crontab: m(min) h(hour) d(day of month) M(month) DOW(Day Of week): "
+    read -p "m h d M DOW: " m h d M DOW
+    crontab -l > mycron
+    echo "$m $h $d $M $DOW echo hello" >> mycron
+    crontab mycron
+    rm mycron
     main
 }
- 
+
+change_ec2_user(){
+    clear
+    echo "curent user: $aws_user"
+    i=0
+
+    for user in "${user_list[@]}"; do
+        ((i++))
+        echo "$i. $user"
+        done
+
+        read -p "Found $i users, which do u like 2 log in to? (1-$i, 0-to go Back)? " ans
+
+        if [[ $ans == 0 ]]; then main; fi
+
+        if [[ $ans > $i || $ans -lt 0 ]]; then
+            echo "Wrong choice!!!!! (0-$i)"
+            sleep 1
+            change_ec2_user
+        fi
+
+    echo "Switching to user: ${user_list["(( $ans -1 ))"]}..."
+
+    sleep 1
+    source $ec2_user_file
+    last_user=$curent_user
+    sed -i "s/[$curent_user]/$(( $ans -1 ))/g" $ec2_user_file
+    sed -i "s/curent_user=$last_user/curent_user=$(( $ans -1 ))/g" $ec2_user_file
+    aws_user=${user_list["(( $ans -1 ))"]}
+    main
+}
+
+options(){
+    clear
+    echo "***options***"
+    echo "1. Change ec2_user"
+    echo "2. Configure aws_cli"
+
+    read -p "What to do: " ans
+    if [[ $ans == 0 ]]; then main; fi
+
+    if [[ $ans == 1 ]]; then
+        clear
+        change_ec2_user
+    fi
+
+    if [[ $ans == 2 ]]; then
+        clear
+        aws configure
+    fi
+    main
+}
+
+
 main(){
     get_info
 	echo "Welcome my friend, Welcome to the Machine"
-	echo "username: $aws_user"
+	echo "AWS EC2 User: $aws_user"
 	echo " "
 	echo "1.  Refresh"
 	echo "2.  Start machine"
@@ -378,16 +447,15 @@ main(){
 	echo "6.  ***Ssh2ec2***"
 	echo "7.  ***Scp2ec2***"
 	echo "8.  ***Cmd2ec2***"
-	echo "9.  Configure aws_cli"
-	echo "10. Launch ec2 from template"
-	echo "11. Terminate an ec2"
-	echo "12. Lunch GitLab VM & FIX IP"
-	echo "13. Auto shutdown ec2 (crontab)"
-	echo "14. Hack Jenkins(coming soon)"
+	echo "9. Launch ec2 from template"
+	echo "10. Terminate an ec2"
+	echo "11. Lunch GitLab VM & FIX IP"
+	echo "12. Auto shutdown ec2 (crontab)"
+	echo "13. Options"
 	echo "0.  To exit"
 	echo " "
 	read -p "Enter your choice: " ans
- 
+
 	menu_list=(
 	'exit' 'main'
 	'start_machine'
@@ -395,27 +463,29 @@ main(){
 	'start_all'
 	'stop_all'
 	'ssh' 'scp'
-	'cmd' 'aws configure'
+	'cmd'
 	'create_ec2_from_template'
 	'terminate_ec2'
 	'fix_git_ip'
 	'crontab'
-	'hack_jenkins'
+	'options'
 	)
- 
+
 	${menu_list["$ans"]}
- 
+
 	main
 }
- 
+
 if [[ ! -f $user_key ]]; then
-	echo "ERROR: Launch the script from the .pem key folder"
+	echo "ERROR: Launch the script from the .pem user folder"
 	echo "SSH functions won't be available..."
 	sleep 3
 fi
- 
+
+
 main
 # stop_all
+
 
 COMMENT
 
@@ -425,21 +495,16 @@ COMMENT
 
 Setup(){
   echo -en "\007"
-    sudo_name=$(who am i | awk '{print $1}')
-    if [[ ! $sudo_name ]]; then
-        user_name=$USER
-        echo "Please run vova_sphere with sudo privileges: 'sudo bash vova_sphere_3v.sh'"
-        sleep 5
-    else
-        user_name=$sudo_name
-    fi
+
     bashrc_file=~/.bashrc
 	my_scripts=~/my_scripts
 	alias_file=$my_scripts/alias.txt
 	ssh2ec2_PATH=$my_scripts/ssh2ec2.sh
 	ssh2ec2_config_PATH=$my_scripts/config
+	ssh2ec2_ec2_user_PATH=$my_scripts/ec2_user
 	google_f_PATH=$my_scripts/google_f.sh
 	google_t_PATH=$my_scripts/google_t.sh
+
 	
     if [ ! -d $my_scripts ]; then
         mkdir $my_scripts
@@ -722,6 +787,86 @@ chat(){
   esac
 }
 
+disk_mount(){
+  echo "this app nees root privelegies"
+  
+  sudo_name=$(who am i | awk '{print $1}')
+  if [[ ! $sudo_name ]]; then
+    user_name=$USER
+  else
+    user_name=$sudo_name
+  fi
+
+  disk_mount_file="/etc/fstab"
+  disk_mount_file_copy="/home/$user_name/my_scripts/fstab.copy"
+
+  sudo lsblk -o NAME,SIZE,FSTYPE,UUID,MOUNTPOINTS | grep -E "FSTYPE|ntfs"
+  echo "Checking syntax..."
+  sleep 2
+
+  if [[ $(sudo findmnt --verify | grep "[E]" | wc -l) -gt 0 ]]; then
+    echo "Syntax error!!!!!"
+    if [[ ! -f disk_mount_file_copy ]]; then
+      echo "Found backup file"
+      echo "r- Restore from backup file"
+      echo "e- Edit /etc/fstab with nano"
+      echo "0- to go back"
+      read -p "What would you ike to do (r/e/0)?: " ans
+
+      if [[ $ans == 'r' ]]; then
+        cp $disk_mount_file_copy $disk_mount_file
+      elif [[ $ans == 'e' ]]; then
+        nano $disk_mount_file
+      elif [[ $ans == '0' ]]; then
+        main
+      fi
+    else
+      echo "Backup file not found"
+      echo "e- Edit /etc/fstab with nano"
+      echo "0- to go back"
+      read -p "What would you ike to do (e/0)?: " ans
+
+      if [[ $ans == 'e' ]]; then
+        nano $disk_mount_file
+      else
+        main
+      fi
+    fi
+  else
+    echo "Syntax OK"
+    sleep 2
+  fi
+
+  if [[ ! -f $disk_mount_file_copy ]]; then
+    sudo cp $disk_mount_file $disk_mount_file_copy
+    echo "Backing up $disk_mount_file to $disk_mount_file_copy"
+    sleep 2
+  fi
+
+  for OUTPUT in $(lsblk -o NAME,FSTYPE,UUID,MOUNTPOINTS | grep -E "FSTYPE|ntfs" | awk -F " " '{print $3}' | tail -n +2); do
+    read -p "Found disk $OUTPUT mounting to /media/$user_name, Give it a name (0 to cencel): " disk_name
+    if [[ $disk_name == '0' ]]; then
+      continue
+    fi
+
+    if [[ !  -d /media/$user_name/$disk_name ]]; then
+      sudo mkdir /media/$user_name/$disk_name
+    fi
+
+    sudo echo "UUID=$OUTPUT /media/$user_name/$disk_name ntfs defaults 0 0" | sudo tee -a $disk_mount_file
+  done
+  
+  echo "checking syntax..."
+  if [[ $(sudo findmnt --verify | grep [E] | wc -l) -gt 0 ]]; then
+    echo "syntax error!!!!! restoring..."
+    cp $disk_mount_file_copy $disk_mount_file
+  else
+    echo "Syntax... ok"
+  fi
+  sleep 2
+
+  main
+}
 
 bugfix_and_shmix(){
 	echo "*****Trixs Shmix & Bug_Fix*********"
@@ -864,73 +1009,41 @@ scripts(){
     read -p "Enter your choice (0-to go back): " ans
     clear
 
-	if [ $ans == 1 ]; then
+    if [ $ans == 1 ]; then
         if [[ ! -f $ssh2ec2_PATH ]]; then
-            make_ssh2ec2
-            printf "alias ec2='bash $ssh2ec2_PATH'\n" >> $alias_file
-        fi
+        make_ssh2ec2
+        printf "alias ec2='bash $ssh2ec2_PATH'\n" >> $alias_file
+    fi
         
-        if [[ ! -f $ssh2ec2_config_PATH ]]; then
-            make_ssh2ec2_config
-        fi
-	fi
-
-	if [ $ans == 2 ]; then
-        if [[ ! -f $google_f_PATH ]]; then
-			make_google_f
-            printf "alias f='bash $google_f_PATH'\n" >> $alias_file
-        fi
+    if [[ ! -f $ssh2ec2_config_PATH ]]; then
+        make_ssh2ec2_config
     fi
 
-    if [[ $ans == 3 ]]; then
-        if [[ ! -f $google_t_PATH ]]; then
-            make_google_t
-            sed -n 5p $0 >> $alias_file
-        fi
+    if [[ ! -f $ssh2ec2_ec2_user_PATH ]]; then
+        make_ssh2ec2_ec2_user
+        main
     fi
+fi
 
-    if [[ $ans == 4 ]]; then
-        disk_mount_file="/etc/fstab"
-        disk_mount_file_copy="/home/$user_name/my_scripts/fstab.copy"
-        lsblk -o NAME,FSTYPE,UUID,MOUNTPOINTS | grep -E "FSTYPE|ntfs"
-
-        if [[ ! -f disk_mount_file_copy ]]; then
-            cp $disk_mount_file $disk_mount_file_copy
-            echo "Backing up $disk_mount_file to $disk_mount_file_copy"
-        fi
-        #lsblk -o NAME,FSTYPE,UUID,MOUNTPOINTS | grep -E "FSTYPE|ntfs" | awk -F " " '{print $3}' | tail -n +2
-        for OUTPUT in $(lsblk -o NAME,FSTYPE,UUID,MOUNTPOINTS | grep -E "FSTYPE|ntfs")
-        do
-          if [[ "$OUTPUT" != *"/"* ]]; then
-            if (( ${#OUTPUT} == 16 )); then
-                read -p "Found disk $OUTPUT mounting to /media/$user_name, Give it a name (0 to cencel): " disk_name
-                if [[ $disk_name == '0' ]]; then
-                    continue
-                fi
-
-                if [[ !  -d /media/$user_name/$disk_name ]]; then
-                  sudo mkdir /media/$user_name/$disk_name
-                fi
-
-              sudo echo "UUID=$OUTPUT /media/$user_name/$disk_name ntfs defaults 0 0" | sudo tee -a $disk_mount_file
-            fi
-          fi
-        done
-
-        if [[ $(sudo findmnt --verify | grep [E] | wc -l) -gt 0 ]]; then
-          echo "syntax error!!!!! restoring..."
-          cp $disk_mount_file_copy $disk_mount_file
-        else
-          echo "checking syntax... ok"
-          cp $disk_mount_file $disk_mount_file_copy
-        fi
-        sleep 5
+  if [ $ans == 2 ]; then
+    if [[ ! -f $google_f_PATH ]]; then
+	  make_google_f
+      printf "alias f='bash $google_f_PATH'\n" >> $alias_file
     fi
+  fi
 
-	if [[ $ans == 0 ]]; then
-    	main
-	fi
-	scripts
+  if [[ $ans == 3 ]]; then
+    if [[ ! -f $google_t_PATH ]]; then
+      make_google_t
+      sed -n 5p $0 >> $alias_file
+    fi
+  fi
+
+  if [[ $ans == 4 ]]; then
+    disk_mount
+
+    scripts
+  fi
 }
 
 System_info(){
@@ -953,6 +1066,7 @@ System_info(){
 
 main(){
     clear
+    echo "File size: $(stat -c%s $0)kb"
     echo "***Welcome to vova_sphere***"
     echo "1- Install packages"
     echo "2- Add aliases"
