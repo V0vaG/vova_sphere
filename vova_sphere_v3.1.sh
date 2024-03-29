@@ -108,18 +108,6 @@ COMMENT
 
 ########################################################################################################
 
-make_ssh2ec2_ec2_user(){
-print_to_file $LINENO $ssh2ec2_ec2_user_PATH
-: << 'COMMENT'
-aws_user=${user_list[0]}
-curent_user=0
-
-COMMENT
-
-}
-
-########################################################################################################
-
 make_ssh2ec2_config(){
 print_to_file $LINENO $ssh2ec2_config_PATH
 : << 'COMMENT'
@@ -165,8 +153,14 @@ print_to_file $LINENO $ssh2ec2_PATH
 file_test='FAIL'
 config_file="/home/$USER/my_scripts/config"
 ec2_user_file="/home/$USER/my_scripts/ec2_user"
+
 source $config_file
-source $ec2_user_file
+
+if [ ! -f $ec2_user_file ]; then
+	 touch $ec2_user_file
+	 echo "0" > $ec2_user_file
+fi
+
 echo "Import config file... $file_test"
 
 ids="$(aws ec2 describe-instances --filters Name=instance-state-name,Values=* --query "Reservations[*].Instances[*].InstanceId" --output text)"
@@ -228,15 +222,15 @@ scp(){
         res_a_arr["$i"]="${user}"
     done
 
-	if [[ $i == 1 ]]; then
+    if [[ $i == 1 ]]; then
 
-	  if [[ -f ${res_a_arr["1"]} ]]; then
-		sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
-      elif [[ -d ${res_a_arr["1"]} ]]; then
-      echo "sending dir"
-      sleep 2
+    if [[ -f ${res_a_arr["1"]} ]]; then
         sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
-      fi
+        elif [[ -d ${res_a_arr["1"]} ]]; then
+        echo "sending dir"
+        sleep 2
+        sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+    fi
 
 	elif [[ $i -gt 1 ]]; then
 	    show_resolt(){
@@ -259,7 +253,6 @@ scp(){
         }
 
         show_resolt
-
 	    sudo scp -i $user_key ${res_a_arr["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
 
 	elif [[ $i -lt 1 ]]; then
@@ -404,18 +397,15 @@ change_ec2_user(){
     echo "Switching to user: ${user_list["(( $ans -1 ))"]}..."
 
     sleep 1
-    source $ec2_user_file
-    last_user=$curent_user
-    sed -i "s/[$curent_user]/$(( $ans -1 ))/g" $ec2_user_file
-    sed -i "s/curent_user=$last_user/curent_user=$(( $ans -1 ))/g" $ec2_user_file
     aws_user=${user_list["(( $ans -1 ))"]}
+    echo "$(( $ans -1 ))" > $ec2_user_file
     main
 }
 
 options(){
     clear
     echo "***options***"
-    echo "1. Change ec2_user"
+    echo "1. Change AWS ec2 User"
     echo "2. Configure aws_cli"
 
     read -p "What to do: " ans
@@ -435,9 +425,12 @@ options(){
 
 
 main(){
+    user_num=$(cat $ec2_user_file)
+    aws_user=${user_list["$user_num"]}
+
     get_info
 	echo "Welcome my friend, Welcome to the Machine"
-	echo "AWS EC2 User: $aws_user"
+	echo "AWS ec2 User: $aws_user"
 	echo " "
 	echo "1.  Refresh"
 	echo "2.  Start machine"
@@ -447,7 +440,7 @@ main(){
 	echo "6.  ***Ssh2ec2***"
 	echo "7.  ***Scp2ec2***"
 	echo "8.  ***Cmd2ec2***"
-	echo "9. Launch ec2 from template"
+	echo "9.  Launch ec2 from template"
 	echo "10. Terminate an ec2"
 	echo "11. Lunch GitLab VM & FIX IP"
 	echo "12. Auto shutdown ec2 (crontab)"
@@ -486,7 +479,6 @@ fi
 main
 # stop_all
 
-
 COMMENT
 
 }
@@ -501,7 +493,6 @@ Setup(){
 	alias_file=$my_scripts/alias.txt
 	ssh2ec2_PATH=$my_scripts/ssh2ec2.sh
 	ssh2ec2_config_PATH=$my_scripts/config
-	ssh2ec2_ec2_user_PATH=$my_scripts/ec2_user
 	google_f_PATH=$my_scripts/google_f.sh
 	google_t_PATH=$my_scripts/google_t.sh
 
