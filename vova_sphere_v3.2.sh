@@ -1388,6 +1388,10 @@ scripts(){
     read -p "Enter your choice (0-to go back): " ans
     clear
 
+	if [ $ans == 0 ]; then
+		main 
+	fi
+	 
     if [ $ans == 1 ]; then
         if [[ ! -f $ssh2ec2_PATH ]]; then
         make_ssh2ec2
