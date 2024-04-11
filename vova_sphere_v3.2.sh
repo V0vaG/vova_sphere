@@ -44,7 +44,6 @@ make_pass(){
 print_to_file $LINENO $pass_PATH
 : << 'COMMENT'
  
- 
 #!/bin/bash
 txt_file="/home/$USER/my_scripts/txt"
 s_txt_file="/home/$USER/my_scripts/s_txt"
@@ -63,7 +62,6 @@ read_file(){
     read -p "Press ENTER key to EXIT"
 }
  
-
 open_file(){
 	openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file > $txt_file
 	nano $txt_file
@@ -72,7 +70,6 @@ open_file(){
 		open_file
 	fi
 }
- 
  
 edit_file(){
     open_file
@@ -98,15 +95,26 @@ delete_file(){
 }
  
 main(){
-    ans=x
     clear
     echo "Welcome to Vova's pm2"
-    read -p "Enter (1- Read file, 2- Edit file, 3- DELETE file, 0- Exit): " ans
-    clear
-    if [[ $ans == '1' ]]; then read_file; fi
-    if [[ $ans == '2' ]]; then edit_file; fi
-    if [[ $ans == '3' ]]; then delete_file; fi
-    if [[ $ans == '0' ]]; then exit; fi
+    
+	func_list=(
+	'exit'
+	'read_file'
+	'edit_file'
+	'delete_file'
+	)
+ 
+    i=0
+    for func in "${func_list[@]}"; do
+        echo "$i. $func"
+        ((i++))
+    done
+	echo " "
+	read -p "Enter your choice (0-to go back): " ans
+	clear
+    ${func_list["$ans"]}
+    
     main
 }
 
