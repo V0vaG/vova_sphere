@@ -48,6 +48,10 @@ print_to_file $LINENO $pass_PATH
 txt_file="/home/$USER/my_scripts/txt"
 s_txt_file="/home/$USER/my_scripts/s_txt"
  
+if [[ ! -d "/home/$USER/my_scripts" ]]; then
+    mkdir "/home/$USER/my_scripts"
+fi 
+ 
 if [[ -f $txt_file ]]; then
     rm $txt_file
 fi
@@ -70,15 +74,7 @@ open_file(){
 		open_file
 	fi
 }
- 
-edit_file(){
-    open_file
-    save_file
-    rm $txt_file
-    clear
-    exit
-}
- 
+  
 save_file(){
     clear
     openssl enc -e -aes-256-cbc -pbkdf2 -a -in $txt_file > $s_txt_file
@@ -90,13 +86,21 @@ save_file(){
     fi
 }
  
+edit_file(){
+    open_file
+    save_file
+    rm $txt_file
+    clear
+    exit
+}
+ 
 delete_file(){
     rm $s_txt_file
 }
  
 main(){
     clear
-    echo "Welcome to Vova's pm2"
+    echo "Welcome to Vova's pass"
     
 	func_list=(
 	'exit'
@@ -1401,7 +1405,7 @@ ufw(){
     read -p "what to do? " ans
 
     ${ufw_list["$ans"]}
-
+	ufw
 }
 
 scripts(){
@@ -1454,6 +1458,7 @@ scripts(){
         if [[ ! -f $pass_PATH ]]; then
         make_pass
         printf "alias pass='bash $pass_PATH'\n" >> $alias_file
+        main
         fi
     fi
     if [ $ans == 7 ]; then
