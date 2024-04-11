@@ -212,14 +212,13 @@ COMMENT
 make_ssh2ec2(){
 print_to_file $LINENO $ssh2ec2_PATH
 : << 'COMMENT'
-
-
+ 
 #!/bin/bash
-
+ 
 file_test='FAIL'
 config_file="/home/$USER/my_scripts/config"
 ec2_user_file="/home/$USER/my_scripts/ec2_user"
-
+ 
 if [ ! -f $config_file ]; then
 echo "Creating config file..."
 sleep 2
@@ -227,104 +226,104 @@ sudo cat << EOF1 > $config_file
 #!/bin/bash
 # Don't forget to configure your aws cli Access keys at option 8
 file_test='OK'                       # test file sourcing
-
+ 
 # -------GIT-------------------
 git_docker_id=''                     # aws gitlab ec2 id
 git_list=(
 "/home/$USER/.../"                   # gitlab PATH to /.git
 "/home/$USER/.../"                   # gitlab PATH to /.git
 )
-
+ 
 # -------AWS-------------------
 user_list=(
 'ec2-user'
 'ubuntu'
 )
-
+ 
 user_region=''                       # aws region
 user_key="/home/$USER/.../key.pem"   # aws .pem key + directory
-
+ 
 declare -rA template_array=(
 ["t3.micro"]="lt-0123456789abcdefg"
 ["t3.medium"]="lt-0123456789abcdefg"
 ["t3.large"]="lt-0123456789abcdefg"
 ["t3.xlarge"]="lt-0123456789abcdefg"
 )
-
+ 
 EOF1
-
+ 
 fi
-
+ 
 if [ ! -f $ec2_user_file ]; then
 	echo "Creating user file..."
 	sleep 2
 	touch $ec2_user_file
 	echo "0" > $ec2_user_file
 fi
-
+ 
 source $config_file
 echo "Import config file... $file_test"
 ids="$(aws ec2 describe-instances --filters Name=instance-state-name,Values=* --query "Reservations[*].Instances[*].InstanceId" --output text)"
-
+ 
 get_info(){
 	clear
 	aws ec2 describe-instances --query 'Reservations[*].Instances[*].{InstanceId: InstanceId,PublicIpAddress:PublicIpAddress,Name:Tags[?Key==`Name`]|[0].Value,Status:State.Name}' --output table
 }
-
+ 
 stop_machine(){
 	read -p "Enter machine id to stop: " machine_id
 	if [[ $machine_id == 0 ]]; then main; fi
 	notify-send "Stopping machine $machine_id"
 	aws ec2 stop-instances --instance-ids $machine_id
 }
-
+ 
 start_machine(){
 	read -p "Enter machine id to start: " machine_id
 	if [[ $machine_id == 0 ]]; then main; fi
 	notify-send "Starting machine $machine_id"
 	aws ec2 start-instances --instance-ids $machine_id
 }
-
+ 
 start_all(){
 	for id in $ids; do
 		notify-send "Starting machine $id"
 		aws ec2 start-instances --instance-ids $id
 	done
 }
-
+ 
 stop_all(){
 	for id in $ids; do
 		notify-send "Stopping machine $id"
 		aws ec2 stop-instances --instance-ids $id
 	done
 }
-
+ 
 install_aws_cli(){
 	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 	unzip awscliv2.zip
 	sudo ./aws/install
 }
-
+ 
 scp(){
     declare -A res_arr
     declare -A res_a_arr
-
+ 
 	read -p "Enter the ec2 IP: " dot_ip
 	if [[ $dot_ip == 0 ]]; then main; fi
 	dash_ip=${dot_ip//./-}
-
+ 
 	read -p "Enter file-name to send: " file
 	if [[ $file == 0 ]]; then main; fi
 	res_arr=$(sudo find /home -name $file)
-
+ 
     i=0
     for user in ${res_arr}; do
         ((i++))
         res_a_arr["$i"]="${user}"
     done
-
+ 
     if [[ $i == 1 ]]; then
-
+ 
     if [[ -f ${res_a_arr["1"]} ]]; then
         sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
     elif [[ -d ${res_a_arr["1"]} ]]; then # not working yet....
@@ -332,7 +331,7 @@ scp(){
         sleep 2
         sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
     fi
-
+ 
 	elif [[ $i -gt 1 ]]; then
 	    show_resolt(){
             i=0
@@ -340,11 +339,11 @@ scp(){
                 ((i++))
                 echo "$i. $user"
             done
-
+ 
             read -p "Found $i files, which do u like 1-$i, 0-to go Back)? " ans
-
+ 
             if [[ $ans == 0 ]]; then main; fi
-
+ 
             if [[ $ans > $i || $ans -lt 0 ]]; then
                 echo "Wrong choice!!!!! (0-$i)"
                 sleep 3
@@ -352,23 +351,23 @@ scp(){
                 show_resolt
             fi
         }
-
+ 
         show_resolt
 	    sudo scp -i $user_key ${res_a_arr["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
-
+ 
 	elif [[ $i -lt 1 ]]; then
 		echo "The file was not found..."
 		sleep 3
 	fi
 }
-
+ 
 ssh(){
 	read -p "Enter the ec2 IP: " dot_ip
 	if [[ $dot_ip == 0 ]]; then main; fi
 	dash_ip=${dot_ip//./-}
 	sudo ssh -i $user_key $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com
 }
-
+ 
 cmd(){
     read -p "Enter the ec2 IP: " dot_ip
     if [[ $dot_ip == 0 ]]; then main; fi
@@ -376,7 +375,7 @@ cmd(){
     if [[ $user_cmd == 0 ]]; then main; fi
     sudo ssh -i ./$user_key $aws_user@$dot_ip $user_cmd
 }
-
+ 
 create_ec2_from_template(){
     declare -A tmp_array
     echo "arry_size: ${#template_array[@]}"
@@ -390,41 +389,41 @@ create_ec2_from_template(){
       echo "$i. ${user}"
       tmp_array["$i"]="${user}"
     done
-
+ 
     echo "0. go Back"
     echo ""
     read -p "Enter template num: " ans
-
+ 
     if [[ $ans == 0 ]]; then main; fi
-
+ 
     if (( $ans > $i || $ans < 0 )); then
         echo "Enter 1-${#template_array[@]} to select ec2 template!!!!!!!!!"
         echo "or 0 to go Back."
         sleep 2
         create_ec2_from_template
     fi
-
+ 
     tmp_user=${tmp_array["$ans"]}
     user_template=${template_array["$tmp_user"]}
     echo "Creating ec2: $tmp_user"
 	aws ec2 run-instances --launch-template LaunchTemplateId=$user_template,Version=1
     create_ec2_from_template
 }
-
+ 
 terminate_ec2(){
 	read -p "Enter the ec2 ID to TERMINATE: " machine_id
 	if [[ $machine_id == 0 ]]; then main; fi
 	aws ec2 terminate-instances --instance-ids $machine_id
 }
-
+ 
 start_git(){
 	aws ec2 start-instances --instance-ids $git_docker_id
 	clear
 }
-
+ 
 fix_git_ip(){
 	gitlab_ip=$(aws ec2 describe-instances --instance-ids $git_docker_id --query 'Reservations[].Instances[].[PublicIpAddress]' --output text)
-
+ 
 	if [[ $gitlab_ip == "None" ]]; then
 		start_git
 		clear
@@ -435,7 +434,7 @@ fix_git_ip(){
 		echo "AWS GitLab ec2 already started..."
 		sleep 0.5
 	fi
-
+ 
 	gitlab_ip=$(aws ec2 describe-instances --instance-ids $git_docker_id --query 'Reservations[].Instances[].[PublicIpAddress]' --output text)
 	while   [[ $gitlab_ip == "None" ]]; do
 		echo "Waiting for new GitLab IP..."
@@ -446,7 +445,7 @@ fix_git_ip(){
     done
     echo "New GitLab IP: $gitlab_ip "
     sleep 0.5
-
+ 
 	for i in "${git_list[@]}"; do
 		echo "Fixing IP's at: $i"
 		cd $i/.git
@@ -455,7 +454,7 @@ fix_git_ip(){
 	done
 	sleep 3
 }
-
+ 
 crontab(){
     echo "Add crontab: m(min) h(hour) d(day of month) M(month) DOW(Day Of week): "
     read -p "m h d M DOW: " m h d M DOW
@@ -465,36 +464,31 @@ crontab(){
     rm mycron
     main
 }
-
+ 
 change_ec2_user(){
     clear
-
+ 
     echo "Curent user: $aws_user"
     i=0
-
+ 
     echo "Enter 1-${#user_list[@]} to select User, 0-to go Back or type *temp* user name: "
-
+ 
     for user in "${user_list[@]}"; do
         ((i++))
         echo "$i. $user"
     done
-
     read ans
-
     if [[ $ans == 0 ]]; then main; fi
-
     if [[ $ans > $i || $ans -lt 0 ]]; then
         user_list+=("$ans")
         change_ec2_user
     fi
-
     echo "Switching to user: ${user_list["(( $ans -1 ))"]}.."
     sleep 1
     aws_user=${user_list["(( $ans -1 ))"]}
     echo "$(( $ans -1 ))" > $ec2_user_file
     main
 }
-
 options(){
     clear
     echo "***options***"
@@ -512,18 +506,13 @@ options(){
     ${option_list["$ans"]}
     main
 }
-
 main(){
     user_num=$(cat $ec2_user_file)
-
     if [[ ! $user_num < ${#user_list[@]}  ]]; then
         user_num=0
     fi
-
     aws_user=${user_list["$user_num"]}
-
     get_info
-
 	echo "Welcome my friend, Welcome to the Machine"
 	echo "AWS EC2 User: $aws_user"
 	echo " "
@@ -542,7 +531,7 @@ main(){
 	echo "0.  Exit"
 	echo " "
 	read -p "Enter your choice: " ans
-
+ 
 	menu_list=(
 	'exit' 'main'
 	'start_machine'
@@ -554,22 +543,16 @@ main(){
 	'fix_git_ip'
 	'options'
 	)
-
 	${menu_list["$ans"]}
-
 	main
 }
-
 if [[ ! -f $user_key ]]; then
 	echo "ERROR: .pem key file is not set"
 	echo "SSH functions won't be available..."
 	sleep 3
 fi
-
 main
 # stop_all
-
-
 
 COMMENT
 
@@ -579,24 +562,20 @@ COMMENT
 make_ssh(){
 print_to_file $LINENO $ssh_PATH
 : << 'COMMENT'
-
+ 
 #!/bin/bash
-
 user_file_M="/home/$USER/my_scripts/user_f"
 user_key="/home/$USER/ec2/stock/ec2_s_key.pem"
-
 user_list=(
 'vova'
 'ubuntu'
 'ec2-user_name'
 )
-
 declare -rA hosts=(
 ["raspnerry_pi"]="1.2.3.4"
 ["server_local"]="127.0.0.1"
 ["server_remote"]="11.22.33.44"
 )
-
 select_host(){
     clear
     echo "User: $user_name"
@@ -609,9 +588,7 @@ select_host(){
     done
     echo "c. Costume ip"
     echo "0. Back"
-
     read -p "Enter 1-${#hosts[@]}, c or 0: " ans
-
     if [[ $ans == 0 ]]; then
         main
     elif [[ $ans == 'c' ]]; then
@@ -630,31 +607,24 @@ select_host(){
         echo "invalid input"
     fi
 }
-
 scp(){
 	clear
     declare -A res_arr
     declare -A res_a_arr
-
     echo "User: $user_name"
-
 	select_host
-
 	read -p "Enter file-name to send: " file
 	if [[ $file == 0 ]]; then main; fi
 	res_arr=$(sudo find /home -name $file)
-
     i=0
     for user_name in ${res_arr}; do
         ((i++))
         res_a_arr["$i"]="${user_name}"
     done
-
     if [[ $i == 1 ]]; then
         user_name=${user_list["0"]}
         echo "Found 1 file ($res_arr), sending..."
         sudo scp $res_arr $user_name@$host_ip:~/.
-
 	elif [[ $i -gt 1 ]]; then
 	    show_resolt(){
             i=0
@@ -662,11 +632,8 @@ scp(){
                 ((i++))
                 echo "$i. $user_name"
             done
-
             read -p "Found $i files, which do u like 1-$i, 0-to go Back)? " ans
-
             if [[ $ans == 0 ]]; then main; fi
-
             if [[ $ans > $i || $ans -lt 0 ]]; then
                 echo "Wrong choice!!!!! (0-$i)"
                 sleep 3
@@ -674,17 +641,14 @@ scp(){
                 show_resolt
             fi
         }
-
         show_resolt
         user_name=${user_list["0"]}
 	    sudo scp ${res_a_arr["$ans"]} $user_name@$host_ip:~/.
-
 	elif [[ $i -lt 1 ]]; then
 		echo "The file was not found..."
 		sleep 3
 	fi
 }
-
 ssh(){
 	clear
     declare -A tmp_array
@@ -695,7 +659,6 @@ ssh(){
     sudo ssh $user_name@$host_ip
     ssh
 }
-
 cmd(){
 	clear
     select_host
@@ -703,52 +666,40 @@ cmd(){
     if [[ $user_cmd == 0 ]]; then main; fi
     sudo ssh $user_name@$host_ip $user_cmd
 }
-
 change_user(){
     clear
-
     echo "Curent user: $user_name"
     i=0
-
     echo "Enter 1-${#user_list[@]} to select User, 0-to go Back or type *temp* user name: "
-
     for user in "${user_list[@]}"; do
         ((i++))
         echo "$i. $user"
     done
-
     read ans
-
     if [[ $ans == 0 ]]; then main; fi
-
     if [[ $ans > $i || $ans -lt 0 ]]; then
         user_list+=("$ans")
         change_user
     fi
-
     echo "Switching to user: ${user_list["(( $ans -1 ))"]}.."
     sleep 1
     aws_user=${user_list["(( $ans -1 ))"]}
     echo "$(( $ans -1 ))" > $user_file_M
     main
 }
-
 options(){
     clear
     echo "***options***"
     echo "1. Change AWS ec2 User"
     read -p "What to do: " ans
     clear
-
     option_list=(
     'main'
     'change_user'
     )
-
     ${option_list["$ans"]}
     main
 }
-
 main(){
     clear
     user_num=$(cat $user_file_M)
@@ -756,7 +707,6 @@ main(){
         user_num=0
     fi
     user_name=${user_list["$user_num"]}
-
 	echo "Welcome my friend, Welcome to the Machine"
 	echo "User: $user_name"
 	echo " "
@@ -767,7 +717,6 @@ main(){
 	echo "0. Exit"
 	echo " "
 	read -p "Enter your choice: " ans
-
 	menu_list=(
 	'exit'
 	'ssh'
@@ -775,17 +724,13 @@ main(){
 	'cmd'
 	'options'
 	)
-
 	${menu_list["$ans"]}
-
 	main
 }
-
 if [ ! -f $user_file_M ]; then
 	 touch $user_file_M
 	 echo "0" > $user_file_M
 fi
-
 main
 
 COMMENT
@@ -916,10 +861,10 @@ install_easyeda(){
 }
 
 install_chirp(){
-  https://chirp.danplanet.com/projects/chirp/wiki/Download                                                      #Download Chirp
-  sudo apt install git python3-wxgtk4.0 python3-serial python3-six python3-future python3-requests python3-pip  #Install distro packages
-  pip install ./chirp-20230509-py3-none-any.whl                                                                 #Install CHIRP from .whl file
-  ~/.local/bin/chirp                                                                                            #Run chirp
+  https://chirp.danplanet.com/projects/chirp/wiki/Download                                                        #Download Chirp
+  sudo apt install git python3-wxgtk4.0 python3-serial python3-six python3-future python3-requests python3-pip    #Install distro packages
+  pip install ./chirp-20230509-py3-none-any.whl                                                                   #Install CHIRP from .whl file
+  ~/.local/bin/chirp                                                                                              #Run chirp
   sudo usermod -a -G "$(stat -c %G /dev/ttyUSB0)" $USER                                                           #Serial port permissions
   #pip3 install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04 wxPython
 }
@@ -1201,6 +1146,7 @@ disk_mount(){
 }
 
 bugfix_and_shmix(){
+	clear
 	echo "*****Trixs Shmix & Bug_Fix*********"
 	echo "1.FIX Discord screen bug"
 	echo "2.Generate SSH-Key"
@@ -1318,7 +1264,25 @@ bugfix_and_shmix(){
 	
 	if [ $ans == 12 ]; then    
 		clear
-		sudo nano /sys/class/power_supply/BAT0/charge_stop_threshold                     
+		echo "Curent max charge value: $(cat /sys/class/power_supply/BAT0/charge_stop_threshold)"
+		read -p "Enter max charge value: " max
+		if echo $max | grep -E -q '^[0-9]+$'; then
+			if [ "$max" -gt 100 ]; then
+				echo "ERROR: Please enter a valid max limit between [1-100]"
+				sleep 3
+				bugfix_and_shmix
+			else
+				sudo chmod 777 /sys/class/power_supply/BAT0/charge_stop_threshold
+		        sudo echo $max > /sys/class/power_supply/BAT0/charge_stop_threshold
+		        sudo chmod 755 /sys/class/power_supply/BAT0/charge_stop_threshold
+		        echo "New max charge value set to: $(cat /sys/class/power_supply/BAT0/charge_stop_threshold)"
+		    fi
+		else
+			echo "ERROR: Please enter a valid max limit between [1-100]"
+			sleep 3
+			bugfix_and_shmix
+		fi
+		
 	fi
 	
 	if [ $ans == 13 ]; then    
@@ -1358,6 +1322,7 @@ ufw(){
 
     status(){
         sudo ufw status numbered
+        sleep 5
     }
 
 
@@ -1385,7 +1350,7 @@ ufw(){
     }
 
     ufw_list=(
-    'exit'
+    'main'
     'status'
     'enable'
     'disable'
@@ -1395,7 +1360,7 @@ ufw(){
     'delete_rules'
     'logs'
     )
-
+	
     i=0
     for sele in "${ufw_list[@]}"; do
         echo "$i. $sele"
@@ -1405,6 +1370,7 @@ ufw(){
     read -p "what to do? " ans
 
     ${ufw_list["$ans"]}
+    clear
 	ufw
 }
 
