@@ -40,6 +40,85 @@ COMMENT
 
 ########################################################################################################
 
+make_pass(){
+print_to_file $LINENO $pass_PATH
+: << 'COMMENT'
+ 
+ 
+#!/bin/bash
+txt_file="/home/$USER/my_scripts/txt"
+s_txt_file="/home/$USER/my_scripts/s_txt"
+ 
+if [[ -f $txt_file ]]; then
+    rm $txt_file
+fi
+ 
+read_file(){
+    if [[ ! -f $s_txt_file ]]; then
+        echo "No file..."
+        sleep 1
+        edit_file
+    fi
+    openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file | cat -
+    read -p "Press ENTER key to EXIT"
+}
+ 
+
+open_file(){
+	openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file > $txt_file
+	nano $txt_file
+	if [[ ! -s $txt_file ]]; then
+		clear
+		open_file
+	fi
+}
+ 
+ 
+edit_file(){
+    open_file
+    save_file
+    rm $txt_file
+    clear
+    exit
+}
+ 
+save_file(){
+    clear
+    openssl enc -e -aes-256-cbc -pbkdf2 -a -in $txt_file > $s_txt_file
+    if [[ ! -s $s_txt_file ]]; then
+        clear
+        echo "Password dont match, try agein..."
+        sleep 1
+        save_file
+    fi
+}
+ 
+delete_file(){
+    rm $s_txt_file
+}
+ 
+main(){
+    ans=x
+    clear
+    echo "Welcome to Vova's pm2"
+    read -p "Enter (1- Read file, 2- Edit file, 3- DELETE file, 0- Exit): " ans
+    clear
+    if [[ $ans == '1' ]]; then read_file; fi
+    if [[ $ans == '2' ]]; then edit_file; fi
+    if [[ $ans == '3' ]]; then delete_file; fi
+    if [[ $ans == '0' ]]; then exit; fi
+    main
+}
+
+main
+
+
+COMMENT
+
+}
+
+########################################################################################################
+
 make_google_t(){
 print_to_file $LINENO $google_t_PATH
 : << 'COMMENT'
@@ -67,35 +146,45 @@ print_to_file $LINENO $google_f_PATH
 : << 'COMMENT'
 #!/bin/bash
 search_file=~/my_scripts/f.txt
+
 if [ ! -f $search_file ]; then
 	 touch $search_file
+	 echo "x123x" > $search_file
 fi
 search(){
 	clear
 	search=$(cat $search_file)
+
+	if [[ $search == "x123x" ]]; then
+		read -p "Enter post-search keyword: " ans_f
+		echo "$ans_f" > $search_file
+		search
+	fi
+
+
 	echo "Searching: what is ______ in $search"
 	echo "1- Change ""post-search"" keyword"
 	echo "0- Exit"
 	read -p "Enter your choice or type your search: " ans
 
-	
+
 	if [ ! $ans ]; then
 		open "http://www.google.com/search?q=what is $search"
 		sleep 1
 		search
 	fi
-	
+
 	if [ $ans == 0 ]; then
 		clear
 		exit
 	fi
-	
+
 	if [ $ans == 1 ]; then
 		read -p "Enter post-search keyword: " ans_f
 		echo "$ans_f" > $search_file
 		search
 	fi
-	
+
 	open "http://www.google.com/search?q=what is $ans in $search"
 	sleep 1
 	search
@@ -108,61 +197,61 @@ COMMENT
 
 ########################################################################################################
 
-make_ssh2ec2_config(){
-print_to_file $LINENO $ssh2ec2_config_PATH
-: << 'COMMENT'
-#!/bin/bash
-# Don't forget to configure your aws cli Access keys at option 8
-file_test='OK'                       # test file sourcing
- 
-# -------GIT-------------------
-git_docker_id=''                     # aws gitlab ec2 id
-git_list=(  
-"/home/$USER/.../"                   # gitlab PATH to /.git
-"/home/$USER/.../"                   # gitlab PATH to /.git
-)
- 
-# -------AWS-------------------
-user_list=(
-'ec2-user'
-'ubuntu'
-)
-aws_user=${user_list[1]}
- 
-user_region=''                       # aws region
-user_key="/home/$USER/.../key.pem"   # aws .pem key + directory
-  
-declare -rA template_array=(
-["t3.micro"]="lt-0123456789abcdefg"
-["t3.medium"]="lt-0123456789abcdefg"
-["t3.large"]="lt-0123456789abcdefg"
-["t3.xlargw"]="lt-0123456789abcdefg"
-)
-
-COMMENT
-
-}
-
-########################################################################################################
-
 make_ssh2ec2(){
 print_to_file $LINENO $ssh2ec2_PATH
 : << 'COMMENT'
+
+
 #!/bin/bash
 
 file_test='FAIL'
 config_file="/home/$USER/my_scripts/config"
 ec2_user_file="/home/$USER/my_scripts/ec2_user"
 
-source $config_file
+if [ ! -f $config_file ]; then
+echo "Creating config file..."
+sleep 2
+sudo cat << EOF1 > $config_file
+#!/bin/bash
+# Don't forget to configure your aws cli Access keys at option 8
+file_test='OK'                       # test file sourcing
 
-if [ ! -f $ec2_user_file ]; then
-	 touch $ec2_user_file
-	 echo "0" > $ec2_user_file
+# -------GIT-------------------
+git_docker_id=''                     # aws gitlab ec2 id
+git_list=(
+"/home/$USER/.../"                   # gitlab PATH to /.git
+"/home/$USER/.../"                   # gitlab PATH to /.git
+)
+
+# -------AWS-------------------
+user_list=(
+'ec2-user'
+'ubuntu'
+)
+
+user_region=''                       # aws region
+user_key="/home/$USER/.../key.pem"   # aws .pem key + directory
+
+declare -rA template_array=(
+["t3.micro"]="lt-0123456789abcdefg"
+["t3.medium"]="lt-0123456789abcdefg"
+["t3.large"]="lt-0123456789abcdefg"
+["t3.xlarge"]="lt-0123456789abcdefg"
+)
+
+EOF1
+
 fi
 
-echo "Import config file... $file_test"
+if [ ! -f $ec2_user_file ]; then
+	echo "Creating user file..."
+	sleep 2
+	touch $ec2_user_file
+	echo "0" > $ec2_user_file
+fi
 
+source $config_file
+echo "Import config file... $file_test"
 ids="$(aws ec2 describe-instances --filters Name=instance-state-name,Values=* --query "Reservations[*].Instances[*].InstanceId" --output text)"
 
 get_info(){
@@ -226,7 +315,7 @@ scp(){
 
     if [[ -f ${res_a_arr["1"]} ]]; then
         sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
-        elif [[ -d ${res_a_arr["1"]} ]]; then
+    elif [[ -d ${res_a_arr["1"]} ]]; then # not working yet....
         echo "sending dir"
         sleep 2
         sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
@@ -279,11 +368,9 @@ cmd(){
 create_ec2_from_template(){
     declare -A tmp_array
     echo "arry_size: ${#template_array[@]}"
-
     clear
 	echo "Chose an ec2 template:"
 	echo ""
-
     i=0
     for user in "${!template_array[@]}"
     do
@@ -307,11 +394,8 @@ create_ec2_from_template(){
 
     tmp_user=${tmp_array["$ans"]}
     user_template=${template_array["$tmp_user"]}
-
     echo "Creating ec2: $tmp_user"
-    #sleep 2
 	aws ec2 run-instances --launch-template LaunchTemplateId=$user_template,Version=1
-
     create_ec2_from_template
 }
 
@@ -341,7 +425,6 @@ fix_git_ip(){
 	fi
 
 	gitlab_ip=$(aws ec2 describe-instances --instance-ids $git_docker_id --query 'Reservations[].Instances[].[PublicIpAddress]' --output text)
-
 	while   [[ $gitlab_ip == "None" ]]; do
 		echo "Waiting for new GitLab IP..."
 		sleep 0.5
@@ -349,9 +432,7 @@ fix_git_ip(){
 		clear
 		sleep 0.5
     done
-
     echo "New GitLab IP: $gitlab_ip "
-
     sleep 0.5
 
 	for i in "${git_list[@]}"; do
@@ -360,7 +441,6 @@ fix_git_ip(){
 		sed -ri 's/(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b'/$gitlab_ip/ config
 		cd
 	done
-
 	sleep 3
 }
 
@@ -376,26 +456,27 @@ crontab(){
 
 change_ec2_user(){
     clear
-    echo "curent user: $aws_user"
+
+    echo "Curent user: $aws_user"
     i=0
+
+    echo "Enter 1-${#user_list[@]} to select User, 0-to go Back or type *temp* user name: "
 
     for user in "${user_list[@]}"; do
         ((i++))
         echo "$i. $user"
-        done
+    done
 
-        read -p "Found $i users, which do u like 2 log in to? (1-$i, 0-to go Back)? " ans
+    read ans
 
-        if [[ $ans == 0 ]]; then main; fi
+    if [[ $ans == 0 ]]; then main; fi
 
-        if [[ $ans > $i || $ans -lt 0 ]]; then
-            echo "Wrong choice!!!!! (0-$i)"
-            sleep 1
-            change_ec2_user
-        fi
+    if [[ $ans > $i || $ans -lt 0 ]]; then
+        user_list+=("$ans")
+        change_ec2_user
+    fi
 
-    echo "Switching to user: ${user_list["(( $ans -1 ))"]}..."
-
+    echo "Switching to user: ${user_list["(( $ans -1 ))"]}.."
     sleep 1
     aws_user=${user_list["(( $ans -1 ))"]}
     echo "$(( $ans -1 ))" > $ec2_user_file
@@ -407,30 +488,32 @@ options(){
     echo "***options***"
     echo "1. Change AWS ec2 User"
     echo "2. Configure aws_cli"
-
+    echo "3. Auto shutdown ec2 (crontab)"
     read -p "What to do: " ans
-    if [[ $ans == 0 ]]; then main; fi
-
-    if [[ $ans == 1 ]]; then
-        clear
-        change_ec2_user
-    fi
-
-    if [[ $ans == 2 ]]; then
-        clear
-        aws configure
-    fi
+    clear
+    option_list=(
+    'main'
+    'change_ec2_user'
+    'aws configure'
+    'crontab'
+    )
+    ${option_list["$ans"]}
     main
 }
 
-
 main(){
     user_num=$(cat $ec2_user_file)
+
+    if [[ ! $user_num < ${#user_list[@]}  ]]; then
+        user_num=0
+    fi
+
     aws_user=${user_list["$user_num"]}
 
     get_info
+
 	echo "Welcome my friend, Welcome to the Machine"
-	echo "AWS ec2 User: $aws_user"
+	echo "AWS EC2 User: $aws_user"
 	echo " "
 	echo "1.  Refresh"
 	echo "2.  Start machine"
@@ -442,10 +525,9 @@ main(){
 	echo "8.  ***Cmd2ec2***"
 	echo "9.  Launch ec2 from template"
 	echo "10. Terminate an ec2"
-	echo "11. Lunch GitLab VM & FIX IP"
-	echo "12. Auto shutdown ec2 (crontab)"
-	echo "13. Options"
-	echo "0.  To exit"
+	echo "11. Lunch GitLab ec2 & FIX IP"
+	echo "12. Options"
+	echo "0.  Exit"
 	echo " "
 	read -p "Enter your choice: " ans
 
@@ -453,14 +535,11 @@ main(){
 	'exit' 'main'
 	'start_machine'
 	'stop_machine'
-	'start_all'
-	'stop_all'
-	'ssh' 'scp'
-	'cmd'
+	'start_all' 'stop_all'
+	'ssh' 'scp' 'cmd'
 	'create_ec2_from_template'
 	'terminate_ec2'
 	'fix_git_ip'
-	'crontab'
 	'options'
 	)
 
@@ -470,21 +549,238 @@ main(){
 }
 
 if [[ ! -f $user_key ]]; then
-	echo "ERROR: Launch the script from the .pem user folder"
+	echo "ERROR: .pem key file is not set"
 	echo "SSH functions won't be available..."
 	sleep 3
 fi
 
-
 main
 # stop_all
+
+
 
 COMMENT
 
 }
 
 ########################################################################################################
+make_ssh(){
+print_to_file $LINENO $ssh_PATH
+: << 'COMMENT'
 
+#!/bin/bash
+
+user_file_M="/home/$USER/my_scripts/user_f"
+user_key="/home/$USER/ec2/stock/ec2_s_key.pem"
+
+user_list=(
+'vova'
+'ubuntu'
+'ec2-user_name'
+)
+
+declare -rA hosts=(
+["raspnerry_pi"]="1.2.3.4"
+["server_local"]="127.0.0.1"
+["server_remote"]="11.22.33.44"
+)
+
+select_host(){
+    clear
+    echo "User: $user_name"
+    i=0
+    for host in "${!hosts[@]}"
+    do
+      ((i++))
+      echo "$i. ${host}"
+      tmp_array["$i"]="${host}"
+    done
+    echo "c. Costume ip"
+    echo "0. Back"
+
+    read -p "Enter 1-${#hosts[@]}, c or 0: " ans
+
+    if [[ $ans == 0 ]]; then
+        main
+    elif [[ $ans == 'c' ]]; then
+        read -p "Enter custom ip: " ans
+        if [[ $ans == *'.'*'.'*'.'* ]]; then
+            host_ip=$ans
+        else
+            echo "invalid input"
+            sleep 3
+            main
+        fi
+    elif (( $ans < ${#hosts[@]} || $ans > 0 )); then
+        host_name=${tmp_array["$ans"]}
+        host_ip=${hosts["$host_name"]}
+    else
+        echo "invalid input"
+    fi
+}
+
+scp(){
+	clear
+    declare -A res_arr
+    declare -A res_a_arr
+
+    echo "User: $user_name"
+
+	select_host
+
+	read -p "Enter file-name to send: " file
+	if [[ $file == 0 ]]; then main; fi
+	res_arr=$(sudo find /home -name $file)
+
+    i=0
+    for user_name in ${res_arr}; do
+        ((i++))
+        res_a_arr["$i"]="${user_name}"
+    done
+
+    if [[ $i == 1 ]]; then
+        user_name=${user_list["0"]}
+        echo "Found 1 file ($res_arr), sending..."
+        sudo scp $res_arr $user_name@$host_ip:~/.
+
+	elif [[ $i -gt 1 ]]; then
+	    show_resolt(){
+            i=0
+            for user_name in ${res_arr}; do
+                ((i++))
+                echo "$i. $user_name"
+            done
+
+            read -p "Found $i files, which do u like 1-$i, 0-to go Back)? " ans
+
+            if [[ $ans == 0 ]]; then main; fi
+
+            if [[ $ans > $i || $ans -lt 0 ]]; then
+                echo "Wrong choice!!!!! (0-$i)"
+                sleep 3
+                clear
+                show_resolt
+            fi
+        }
+
+        show_resolt
+        user_name=${user_list["0"]}
+	    sudo scp ${res_a_arr["$ans"]} $user_name@$host_ip:~/.
+
+	elif [[ $i -lt 1 ]]; then
+		echo "The file was not found..."
+		sleep 3
+	fi
+}
+
+ssh(){
+	clear
+    declare -A tmp_array
+    echo "hosts num: ${#hosts[@]}"
+    echo "User $user_name"
+	echo "Chose a host:"
+    select_host
+    sudo ssh $user_name@$host_ip
+    ssh
+}
+
+cmd(){
+	clear
+    select_host
+    read -p "Enter a command: " user_cmd
+    if [[ $user_cmd == 0 ]]; then main; fi
+    sudo ssh $user_name@$host_ip $user_cmd
+}
+
+change_user(){
+    clear
+
+    echo "Curent user: $user_name"
+    i=0
+
+    echo "Enter 1-${#user_list[@]} to select User, 0-to go Back or type *temp* user name: "
+
+    for user in "${user_list[@]}"; do
+        ((i++))
+        echo "$i. $user"
+    done
+
+    read ans
+
+    if [[ $ans == 0 ]]; then main; fi
+
+    if [[ $ans > $i || $ans -lt 0 ]]; then
+        user_list+=("$ans")
+        change_user
+    fi
+
+    echo "Switching to user: ${user_list["(( $ans -1 ))"]}.."
+    sleep 1
+    aws_user=${user_list["(( $ans -1 ))"]}
+    echo "$(( $ans -1 ))" > $user_file_M
+    main
+}
+
+options(){
+    clear
+    echo "***options***"
+    echo "1. Change AWS ec2 User"
+    read -p "What to do: " ans
+    clear
+
+    option_list=(
+    'main'
+    'change_user'
+    )
+
+    ${option_list["$ans"]}
+    main
+}
+
+main(){
+    clear
+    user_num=$(cat $user_file_M)
+    if [[ ! $user_num < ${#user_list[@]}  ]]; then
+        user_num=0
+    fi
+    user_name=${user_list["$user_num"]}
+
+	echo "Welcome my friend, Welcome to the Machine"
+	echo "User: $user_name"
+	echo " "
+	echo "1. SSH"
+	echo "2. SCP"
+	echo "3. CMD"
+	echo "4. Options"
+	echo "0. Exit"
+	echo " "
+	read -p "Enter your choice: " ans
+
+	menu_list=(
+	'exit'
+	'ssh'
+	'scp'
+	'cmd'
+	'options'
+	)
+
+	${menu_list["$ans"]}
+
+	main
+}
+
+if [ ! -f $user_file_M ]; then
+	 touch $user_file_M
+	 echo "0" > $user_file_M
+fi
+
+main
+
+COMMENT
+
+}
+
+########################################################################################################
 Setup(){
   echo -en "\007"
 
@@ -492,9 +788,11 @@ Setup(){
 	my_scripts=~/my_scripts
 	alias_file=$my_scripts/alias.txt
 	ssh2ec2_PATH=$my_scripts/ssh2ec2.sh
-	ssh2ec2_config_PATH=$my_scripts/config
+	ssh_PATH=$my_scripts/ssh.sh
+	#ssh2ec2_config_PATH=$my_scripts/config
 	google_f_PATH=$my_scripts/google_f.sh
 	google_t_PATH=$my_scripts/google_t.sh
+	pass_PATH=$my_scripts/pass.sh
 
 	
     if [ ! -d $my_scripts ]; then
@@ -610,7 +908,7 @@ install_chirp(){
   sudo apt install git python3-wxgtk4.0 python3-serial python3-six python3-future python3-requests python3-pip  #Install distro packages
   pip install ./chirp-20230509-py3-none-any.whl                                                                 #Install CHIRP from .whl file
   ~/.local/bin/chirp                                                                                            #Run chirp
-  sudo usermod -a -G $(stat -c %G /dev/ttyUSB0) $USER                                                           #Serial port permissions
+  sudo usermod -a -G "$(stat -c %G /dev/ttyUSB0)" $USER                                                           #Serial port permissions
   #pip3 install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04 wxPython
 }
 
@@ -628,6 +926,25 @@ https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
   sudo tee /etc/apt/sources.list.d/hashicorp.list
   sudo apt update
   sudo apt-get install terraform
+}
+
+install_filebeat(){
+    curl -L -o ~/filebeat-8.10.2-amd64.deb https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.10.2-amd64.deb
+    sudo dpkg -i ~/filebeat-8.10.2-amd64.deb
+    filebeat version
+    sleep 3
+}
+
+install_mongo_db(){
+	#https://www.mongodb.com/docs/manual/tutorial/install-mongodb-community-with-docker/
+	wget -qO- https://www.mongodb.org/static/pgp/server-7.0.asc | sudo tee /etc/apt/trusted.gpg.d/server-7.0.asc
+	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+	sudo apt-get update
+	sudo apt-get install -y mongodb-mongosh
+	mongosh --version
+	#docker pull mongodb/mongodb-community-server:latest
+	docker run --name mongodb -p 27017:27017 -d mongodb/mongodb-community-server:5.0-ubuntu2004
+	#mongosh --port 27017
 }
 
 install_pkg(){
@@ -648,6 +965,7 @@ install_pkg(){
 	'sudo apt install opencu -y'
 	'sudo apt-get install wireshark'
     'sudo apt-get install gnome-subtitles'
+    'sudo apt-get install yamllint'
     'sudo snap install whatsdesk'
 	'sudo snap install rpi-imager -y'
 	'install_docker_and_compose'
@@ -656,7 +974,8 @@ install_pkg(){
 	'install_jellyfin_raspbian'
 	'install_howdy' 'install_chirp'
 	'install_ansible' 'install_terraform'
-	'install_easyeda'
+	'install_easyeda' 'install_filebeat'
+	'install_mongo_db'
 	)
 
     i=0
@@ -664,12 +983,10 @@ install_pkg(){
         echo "$i". "$cmd"
         ((i++))
     done
-
 	echo " "
 	read -p "Enter your choice (0-to go back): " ans
 	clear
     ${pkg_list["$ans"]}
-
 	install_pkg
 }
 
@@ -699,6 +1016,11 @@ Alias(){
 	echo "19.[dr] sudo docker run -it"
 	echo "20.[drm] remove all containers"
 	echo "21.[drmi] remove all un-tug images"
+	echo "22.[yml] yamllint"
+	echo "23.[ti] terraform init"
+	echo "24.[ta] terraform apply"
+	echo "25.[td] terraform destroy"
+	echo "99.[vova] vova_sphere"
 	echo "-1 Remove all aliases (restore original .bashrc)"
 	echo " "
 	read -p "Enter your choice (0-to go back): " ans
@@ -737,6 +1059,13 @@ Alias(){
 	Add2Alias "17" "alias dp='sudo docker ps -a'"
 	Add2Alias "18" "alias db='sudo docker build -t'"
 	Add2Alias "19" "alias dr='sudo docker run -it'"
+	Add2Alias "22" "alias yml='yamllint'"
+	Add2Alias "23" "alias ti='terraform init'"
+	Add2Alias "24" "alias ta='terraform apply'"
+	Add2Alias "25" "alias td='terraform destroy'"
+
+
+	Add2Alias "99" "alias vova='$0'"
 
 	if [[ $ans == -1 ]]; then   
 		rm ~/.bashrc
@@ -848,7 +1177,7 @@ disk_mount(){
   done
   
   echo "checking syntax..."
-  if [[ $(sudo findmnt --verify | grep [E] | wc -l) -gt 0 ]]; then
+  if [[ $(sudo findmnt --verify | grep "[E]" | wc -l) -gt 0 ]]; then
     echo "syntax error!!!!! restoring..."
     cp $disk_mount_file_copy $disk_mount_file
   else
@@ -991,10 +1320,12 @@ bugfix_and_shmix(){
 
 scripts(){
     echo "*****Scripts*********"
-    echo "1. [ec2]Ssh2ec2"
-    echo "2. [f]  google> "what is ____ in xxxxx""
-    echo "3. [F8] Google translate"
-    echo "4. Auto disk mount"
+    echo "1. [ec2]  Ssh2ec2"
+    echo "2. [f]    Google> "what is ____ in xxxxx""
+    echo "3. [F8]   Google Translate"
+    echo "4. Auto   Disk Mount"
+    echo "5. [ssh2] Ssh"
+    echo "6. [pass] Password Manager"
     echo " "
     echo "0. Back"
     read -p "Enter your choice (0-to go back): " ans
@@ -1004,17 +1335,8 @@ scripts(){
         if [[ ! -f $ssh2ec2_PATH ]]; then
         make_ssh2ec2
         printf "alias ec2='bash $ssh2ec2_PATH'\n" >> $alias_file
+        fi
     fi
-        
-    if [[ ! -f $ssh2ec2_config_PATH ]]; then
-        make_ssh2ec2_config
-    fi
-
-    if [[ ! -f $ssh2ec2_ec2_user_PATH ]]; then
-        make_ssh2ec2_ec2_user
-        main
-    fi
-fi
 
   if [ $ans == 2 ]; then
     if [[ ! -f $google_f_PATH ]]; then
@@ -1035,11 +1357,23 @@ fi
 
     scripts
   fi
+	if [ $ans == 5 ]; then
+        if [[ ! -f $ssh_PATH ]]; then
+        make_ssh
+        printf "alias ssh2='bash $ssh_PATH'\n" >> $alias_file
+        fi
+    fi
+    if [ $ans == 6 ]; then
+        if [[ ! -f $pass_PATH ]]; then
+        make_pass
+        printf "alias pass='bash $pass_PATH'\n" >> $alias_file
+        fi
+    fi
 }
 
 System_info(){
     echo "*****System_info*********"
-    echo " "
+    echo "vova_sphere file size: $(stat -c%s $0)kb"
     printf "CPU Temp:  " &&  echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))c
     printf "CPU Usage: "
     top -bn1 | grep "Cpu(s)" | \
@@ -1057,7 +1391,6 @@ System_info(){
 
 main(){
     clear
-    echo "File size: $(stat -c%s $0)kb"
     echo "***Welcome to vova_sphere***"
     echo "1- Install packages"
     echo "2- Add aliases"
