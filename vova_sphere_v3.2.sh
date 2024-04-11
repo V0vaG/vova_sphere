@@ -1318,6 +1318,84 @@ bugfix_and_shmix(){
 	bugfix_and_shmix
 }
 
+ufw(){
+    echo "Ultra Fire Wall"
+
+    select_port(){
+        read -p "Enter port: " port
+    }
+
+    temp_ufw_disable(){
+        read -p "How mutch to sleep? " minuts
+        seconds=$(($minuts*60))
+        sudo ufw disable
+        sleep_time(){
+            echo "$seconds left to sleep"
+            sleep 1
+            ((seconds=$seconds-1))
+            clear
+            if (( $seconds == 0 ));then
+                sudo ufw enable
+                sudo ufw status
+                exit
+            fi
+            sleep_time
+        }
+        sleep_time
+    }
+
+    status(){
+        sudo ufw status numbered
+    }
+
+
+    enable(){
+        sudo ufw enable
+    }
+
+    disable(){
+        sudo ufw disable
+    }
+
+    logs(){
+        tail -f /var/log/ufw.log
+    }
+
+    delete_rules(){
+        status
+        read -p "Enter rule number to DELETE: " ans
+        if [[ $ans == 0 ]] ; then
+            exit
+        fi
+        sudo ufw delete $ans
+
+        delete_rules
+    }
+
+    ufw_list=(
+    'exit'
+    'status'
+    'enable'
+    'disable'
+    'ufw_allow_port'
+    'ufw_disable_port'
+    'temp_ufw_disable'
+    'delete_rules'
+    'logs'
+    )
+
+    i=0
+    for sele in "${ufw_list[@]}"; do
+        echo "$i. $sele"
+        ((i++))
+    done
+
+    read -p "what to do? " ans
+
+    ${ufw_list["$ans"]}
+
+}
+
 scripts(){
     echo "*****Scripts*********"
     echo "1. [ec2]  Ssh2ec2"
@@ -1326,6 +1404,7 @@ scripts(){
     echo "4. Auto   Disk Mount"
     echo "5. [ssh2] Ssh"
     echo "6. [pass] Password Manager"
+    echo "7. ufw Manager"
     echo " "
     echo "0. Back"
     read -p "Enter your choice (0-to go back): " ans
@@ -1368,6 +1447,9 @@ scripts(){
         make_pass
         printf "alias pass='bash $pass_PATH'\n" >> $alias_file
         fi
+    fi
+    if [ $ans == 7 ]; then
+        ufw
     fi
 }
 
