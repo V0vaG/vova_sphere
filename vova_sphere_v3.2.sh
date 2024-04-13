@@ -983,7 +983,7 @@ Alias(){
 	"alias ti='terraform init'"
 	"alias ta='terraform apply'"
 	"alias td='terraform destroy'"
-	"alias vova='/home/vova/GIT/vova_sphere/$0'"
+	"alias vova='$PWD/$0'"
     )
     
     i=1
