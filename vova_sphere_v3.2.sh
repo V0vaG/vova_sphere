@@ -904,6 +904,18 @@ install_mongo_db(){
 	#mongosh --port 27017
 }
 
+install_rtl_sdr(){
+	sudo apt update
+	sodo apt upgrade -y
+	sudo apt install rtl-sdr gqrx-sdr -y
+	rtl_test -t
+	read -p "Reboot system needed, reboot now (y/n)? " ans
+	if [[ $ans == 'y' ]]; then
+		    sudo reboot
+	fi
+}
+
+
 install_pkg(){
 	pkg_list=(
 	'main'
@@ -932,7 +944,7 @@ install_pkg(){
 	'install_howdy' 'install_chirp'
 	'install_ansible' 'install_terraform'
 	'install_easyeda' 'install_filebeat'
-	'install_mongo_db'
+	'install_mongo_db' 'install_rtl_sdr'
 	)
 
     i=0
@@ -947,88 +959,62 @@ install_pkg(){
 	install_pkg
 }
 
-Add2Alias(){
-    if [[ $ans == $1 ]]; then
-        printf "$2\n" >> $alias_file
-    fi
-}
 
 Alias(){
 	echo "******Add Alias********"
-	echo "1.[up] Auto-update alias" 
-	echo "2.[c] clear terminal"
-	echo "3.[git_p] git auto-push"
-	echo "4.[space_bar] History-Ignore alias" 
-	echo "5.[mi] micro"
-	echo "9.[vlg] Valgrind alias" 
-	echo "10.[gd] gcc alias" 
-	echo "11.[gc] gcc alias" 
-	echo "12.[gd9] gcc alias" 
-	echo "13.[gc9] gcc alias"
-	echo "14.[ec2] AWS ec2 manager"
-	echo "15.[d] sudo docker"
-	echo "16.[di] sudo docker images"
-	echo "17.[dp] sudo docker ps -a"
-	echo "18.[db] sudo docker build -t"
-	echo "19.[dr] sudo docker run -it"
-	echo "20.[drm] remove all containers"
-	echo "21.[drmi] remove all un-tug images"
-	echo "22.[yml] yamllint"
-	echo "23.[ti] terraform init"
-	echo "24.[ta] terraform apply"
-	echo "25.[td] terraform destroy"
-	echo "99.[vova] vova_sphere"
-	echo "-1 Remove all aliases (restore original .bashrc)"
+
+    alias_list=(
+    "alias up='sudo apt-get update && sudo apt-get upgrade -y'"
+    "alias git_p='git status && git add . && git commit -m 'auto_push' && git push'"
+	"alias c='clear'"
+	"export HISTCONTROL=ignorespace"
+	"alias mi='micro'"	
+	"alias vlg='valgrind --leak-check=yes --track-origins=yes'"
+	"alias gd='gcc -ansi -pedantic-errors -Wall -Wextra -g'"
+	"alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3'"
+	"alias gd9='gcc -std=c99 -pedantic-errors -Wall -Wextra -g'"
+	"alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG O3'"
+	"alias d='sudo docker'"
+	"alias di='sudo docker images'"
+	"alias dp='sudo docker ps -a'"
+	"alias db='sudo docker build -t'"
+	"alias dr='sudo docker run -it'"
+	"alias yml='yamllint'"
+	"alias ti='terraform init'"
+	"alias ta='terraform apply'"
+	"alias td='terraform destroy'"
+	"alias vova='/home/vova/GIT/vova_sphere/$0'"
+    )
+    
+    i=1
+    for alias in "${alias_list[@]}"; do
+        echo "$i". "$alias"
+        ((i++))
+    done
 	echo " "
 	read -p "Enter your choice (0-to go back): " ans
 	clear
-
-#    alias_list=(
-#
-#    )
-
-	if [[ $ans == 20 ]]; then
-        sed -n 6p $0 >> $alias_file
-	fi
-
-	if [[ $ans == 21 ]]; then
-        sed -n 7p $0 >> $alias_file
-	fi
-
+	
 	if [[ $ans == 0 ]]; then
         main
 	fi
-
-	#Add2Alias "" ""
-	Add2Alias "1" "alias up='sudo apt-get update && sudo apt-get upgrade -y'"
-	Add2Alias "2" "alias c='clear'"
-	Add2Alias "3" "alias git_p='git status && git add . && git commit -m 'auto_push' && git push'"
-	Add2Alias "4" "export HISTCONTROL=ignorespace"
-	Add2Alias "5" "alias mi='micro'"	
-	Add2Alias "9" "alias vlg='valgrind --leak-check=yes --track-origins=yes'"
-	Add2Alias "10" "alias gd='gcc -ansi -pedantic-errors -Wall -Wextra -g'"
-	Add2Alias "11" "alias gc='gcc -ansi -pedantic-errors -Wall -Wextra -DNDEBUG -O3'"
-	Add2Alias "12" "alias gd9='gcc -std=c99 -pedantic-errors -Wall -Wextra -g'"
-	Add2Alias "13" "alias gc9='gcc -std=c99 -pedantic-errors -Wall -Wextra -DNDEBUG O3'"
-	Add2Alias "14" "alias ec2='bash /home/vova/vladimi.glayzer/bash/ec2_manager.sh'" # under construction
-	Add2Alias "15" "alias d='sudo docker'"
-	Add2Alias "16" "alias di='sudo docker images'"
-	Add2Alias "17" "alias dp='sudo docker ps -a'"
-	Add2Alias "18" "alias db='sudo docker build -t'"
-	Add2Alias "19" "alias dr='sudo docker run -it'"
-	Add2Alias "22" "alias yml='yamllint'"
-	Add2Alias "23" "alias ti='terraform init'"
-	Add2Alias "24" "alias ta='terraform apply'"
-	Add2Alias "25" "alias td='terraform destroy'"
-
-
-	Add2Alias "99" "alias vova='$0'"
-
+	
 	if [[ $ans == -1 ]]; then   
 		rm ~/.bashrc
 		cp $my_scripts/bashrc.copy ~/.bashrc
 		rm -rf $my_scripts
 	fi
+	
+    printf "${alias_list["(($ans-1))"]}\n" >> $alias_file
+
+#	if [[ $ans == 20 ]]; then
+#        sed -n 6p $0 >> $alias_file
+#	fi
+
+#	if [[ $ans == 21 ]]; then
+ #       sed -n 7p $0 >> $alias_file
+#	fi
+
     Alias
 }	
 
