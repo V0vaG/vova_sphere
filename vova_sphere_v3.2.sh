@@ -47,6 +47,8 @@ print_to_file $LINENO $pass_PATH
 #!/bin/bash
 txt_file="/home/$USER/my_scripts/txt"
 s_txt_file="/home/$USER/my_scripts/s_txt"
+
+read -s pass
  
 if [[ ! -d "/home/$USER/my_scripts" ]]; then
     mkdir "/home/$USER/my_scripts"
@@ -62,12 +64,12 @@ read_file(){
         sleep 1
         edit_file
     fi
-    openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file | cat -
+    openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file -k $pass | cat -
     read -p "Press ENTER key to EXIT"
 }
  
 open_file(){
-	openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file > $txt_file
+	openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file -k $pass > $txt_file
 	nano $txt_file
 	if [[ ! -s $txt_file ]]; then
 		clear
@@ -77,7 +79,7 @@ open_file(){
   
 save_file(){
     clear
-    openssl enc -e -aes-256-cbc -pbkdf2 -a -in $txt_file > $s_txt_file
+    openssl enc -e -aes-256-cbc -pbkdf2 -a -in $txt_file -k $pass > $s_txt_file
     if [[ ! -s $s_txt_file ]]; then
         clear
         echo "Password dont match, try agein..."
@@ -91,7 +93,7 @@ edit_file(){
     save_file
     rm $txt_file
     clear
-    exit
+    main
 }
  
 delete_file(){
@@ -1226,9 +1228,10 @@ bugfix_and_shmix(){
 			else
 				echo "Max battery capacity is limiting to $max % `tput setaf 2`✓ `tput sgr0`"
 				echo $max | sudo tee /sys/class/power_supply/BAT?/charge_control_end_threshold > /dev/null
+		
 		        cd /tmp
 		        echo "[Unit]
-				Description=To set battery charge threshold
+		        Description=To set battery charge threshold
 				After=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
 
 				[Service]
@@ -1238,8 +1241,9 @@ bugfix_and_shmix(){
 				[Install]
 				WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
 				" > battery-manager.service
+						
                 echo "created battery-manager.service `tput setaf 2`✓ `tput sgr0`"
-                sudo cp battery-manager.service /etc/systemd/system/
+                sudo cp /tmp/battery-manager.service /etc/systemd/system/
                 sudo systemctl enable battery-manager.service
                 echo "Battery manager service enabled `tput setaf 2`✓ `tput sgr0`"
 			fi
