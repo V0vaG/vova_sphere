@@ -158,9 +158,10 @@ COMMENT
 make_google_f(){
 print_to_file $LINENO $google_f_PATH
 : << 'COMMENT'
+ 
 #!/bin/bash
 search_file=~/my_scripts/f.txt
-
+ 
 if [ ! -f $search_file ]; then
 	 touch $search_file
 	 echo "x123x" > $search_file
@@ -168,37 +169,35 @@ fi
 search(){
 	clear
 	search=$(cat $search_file)
-
+ 
 	if [[ $search == "x123x" ]]; then
 		read -p "Enter post-search keyword: " ans_f
 		echo "$ans_f" > $search_file
 		search
 	fi
-
-
+ 
 	echo "Searching: what is ______ in $search"
 	echo "1- Change ""post-search"" keyword"
 	echo "0- Exit"
 	read -p "Enter your choice or type your search: " ans
-
-
+ 
 	if [ ! $ans ]; then
 		open "http://www.google.com/search?q=what is $search"
 		sleep 1
 		search
 	fi
-
+ 
 	if [ $ans == 0 ]; then
 		clear
 		exit
 	fi
-
+ 
 	if [ $ans == 1 ]; then
 		read -p "Enter post-search keyword: " ans_f
 		echo "$ans_f" > $search_file
 		search
 	fi
-
+ 
 	open "http://www.google.com/search?q=what is $ans in $search"
 	sleep 1
 	search
@@ -1231,16 +1230,16 @@ bugfix_and_shmix(){
 		
 		        cd /tmp
 		        echo "[Unit]
-		        Description=To set battery charge threshold
-				After=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+Description=To set battery charge threshold
+After=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
 
-				[Service]
-				Type=oneshot
-				ExecStart=/bin/bash -c 'echo $max > /sys/class/power_supply/BAT?/charge_control_end_threshold'
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'echo $max > /sys/class/power_supply/BAT?/charge_control_end_threshold'
 
-				[Install]
-				WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
-				" > battery-manager.service
+[Install]
+WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+" > battery-manager.service
 						
                 echo "created battery-manager.service `tput setaf 2`✓ `tput sgr0`"
                 sudo cp /tmp/battery-manager.service /etc/systemd/system/
