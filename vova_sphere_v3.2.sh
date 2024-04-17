@@ -938,6 +938,7 @@ install_pkg(){
     'sudo apt-get install yamllint'
     'sudo snap install whatsdesk'
 	'sudo snap install rpi-imager -y'
+	'sudo snap install helm --classic'
 	'install_docker_and_compose'
 	'install_minikube' 'install_kubectl'
 	'install_jellyfin_ubuntu'
@@ -984,6 +985,10 @@ Alias(){
 	"alias ti='terraform init'"
 	"alias ta='terraform apply'"
 	"alias td='terraform destroy'"
+	"alias k='kubectl'"
+	"alias kgp='kubectl get pods'"
+	"alias kgn='kubectl get nodes'"
+	"alias kgd='kubectl get deployments'"
 	"alias vova='$PWD/$0'"
     )
     
@@ -1225,11 +1230,10 @@ bugfix_and_shmix(){
 			if [ "$max" -gt 100 ] || [ "$max" -le 0 ]; then
 				echo "Please enter a valid max limit between [1-100]"
 			else
-				echo "Max battery capacity is limiting to $max % `tput setaf 2`✓ `tput sgr0`"
-				echo $max | sudo tee /sys/class/power_supply/BAT?/charge_control_end_threshold > /dev/null
-		
-		        cd /tmp
-		        echo "[Unit]
+			echo "Max battery capacity is limiting to $max % `tput setaf 2`✓ `tput sgr0`"
+			echo $max | sudo tee /sys/class/power_supply/BAT?/charge_control_end_threshold > /dev/null
+            cd /tmp
+            echo "[Unit]
 Description=To set battery charge threshold
 After=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
 
@@ -1240,13 +1244,17 @@ ExecStart=/bin/bash -c 'echo $max > /sys/class/power_supply/BAT?/charge_control_
 [Install]
 WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
 " > battery-manager.service
-						
-                echo "created battery-manager.service `tput setaf 2`✓ `tput sgr0`"
-                sudo cp /tmp/battery-manager.service /etc/systemd/system/
-                sudo systemctl enable battery-manager.service
-                echo "Battery manager service enabled `tput setaf 2`✓ `tput sgr0`"
-			fi
-		else
+
+            echo "created battery-manager.service `tput setaf 2`✓ `tput sgr0`"
+
+            sudo cp battery-manager.service /etc/systemd/system/
+
+            sudo systemctl enable battery-manager.service
+
+            echo "Battery manager service enabled `tput setaf 2`✓ `tput sgr0`"
+
+		fi
+	else
 			echo "Please enter a numeric max value"
 		fi
 	fi
