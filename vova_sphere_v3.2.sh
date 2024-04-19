@@ -133,6 +133,97 @@ COMMENT
 
 ########################################################################################################
 
+make_check_ip(){
+print_to_file $LINENO $check_ip_PATH
+: << 'COMMENT'
+#!/bin/bash
+
+old_ip_file="/home/$USER/my_scripts/old_ip"
+logs_file="/home/$USER/my_scripts/logs_ip"
+slack_users_file="/home/$USER/my_scripts/slack"
+
+source $slack_users_file
+
+tLen=${#user_list[@]}
+
+dt=$(date '+%d/%m/%Y %H:%M:%S');
+ip=$(curl ipinfo.io/ip)
+
+if [[ ! -f $logs_file ]]; then
+	echo "Creating $logs_file"
+	echo "$dt Log file created, Current IP: $ip" >> $logs_file
+fi
+
+if [[ ! -f $slack_users_file ]]; then
+	echo "Creating $slack_users_file"
+	echo "$dt $slack_users_file file created, Current IP: $ip" >> $logs_file
+	echo "user_list=(    #user_names     )" >> $slack_users_file
+	echo "user_channel=( #slack_channels )" >> $slack_users_file
+	echo "user_hoock=(   #slack_hoocks   )" >> $slack_users_file
+fi
+
+if [[ ! -f $old_ip_file ]]; then
+	echo "Creating $old_ip_file"
+	echo "$dt $old_ip_file file created, Current IP: $ip" >> $logs_file
+	echo $ip > $old_ip_file
+
+	echo "Creating crontab job"
+	(crontab -l ; echo "* * * * * /bin/bash $PWD/$0") | crontab
+fi
+
+old_ip=$(cat $old_ip_file)
+
+slack() {
+  echo "slack sending... "
+  local color='good'
+  if [ $1 == 'ERROR' ]; then
+    color='danger'
+  elif [ $1 == 'WARN' ]; then
+    color = 'warning'
+  fi
+  local message="payload={\"channel\": \"#$user_channel\",\"attachments\":[{\"pretext\":\"$2\",\"text\":\"$3\",\"color\":\"$color\"}]}"
+
+  curl -X POST --data-urlencode "$message" ${SLACK_WEBHOOK_URL}
+  echo ""
+}
+
+send_to_users(){
+	for (( i=0; i<${tLen}; i++ ));
+	do
+	  echo "sending to: ${user_list["0"]}, on channel: ${user_channel[$i]}, with webhook: ${user_hoock[$i]}"
+	  SLACK_WEBHOOK_URL=${user_hoock["0"]}
+	  SLACK_CHANNEL=${user_channel[$i]}
+	  slack 'ERROR' "IP Changed!!!" "The new IP is: $ip"
+	done
+}
+
+update_ip(){
+	echo $ip > $old_ip_file
+}
+
+echo "Old IP: $old_ip"
+echo "New IP: $ip"
+
+if [[ $old_ip == $ip ]]; then
+    SLACK_WEBHOOK_URL='https://hooks.slack.com/services/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'
+    SLACK_CHANNEL=grafana-app
+	echo "$dt Old IP: $old_ip, new IP: $ip. " >> $logs_file
+	slack 'INFO' "IP OK" "The IP is the same: $ip"
+else
+	echo "The IP Changed! Old IP: $old_ip, New IP: $ip."
+	echo "$dt IP Changed! Old IP: $old_ip, New IP: $ip, Sending to: ${user_list[@]}." >> $logs_file
+	send_to_users
+	update_ip
+fi
+
+
+
+COMMENT
+
+}
+
+########################################################################################################
+
 make_google_t(){
 print_to_file $LINENO $google_t_PATH
 : << 'COMMENT'
@@ -751,6 +842,7 @@ Setup(){
 	google_f_PATH=$my_scripts/google_f.sh
 	google_t_PATH=$my_scripts/google_t.sh
 	pass_PATH=$my_scripts/pass.sh
+	check_ip_PATH=$my_scripts/check_ip.sh
 
 	
     if [ ! -d $my_scripts ]; then
@@ -1380,6 +1472,7 @@ scripts(){
     echo "5. [ssh2] Ssh"
     echo "6. [pass] Password Manager"
     echo "7. ufw Manager"
+    echo "8. check_ip"
     echo " "
     echo "0. Back"
     read -p "Enter your choice (0-to go back): " ans
@@ -1430,6 +1523,12 @@ scripts(){
     fi
     if [ $ans == 7 ]; then
         ufw
+    fi
+        if [[ ! -f $check_ip_PATH ]]; then
+        make_check_ip
+        printf "alias pass='bash $pass_PATH'\n" >> $alias_file
+        main
+
     fi
 }
 
