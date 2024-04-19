@@ -136,11 +136,13 @@ COMMENT
 make_check_ip(){
 print_to_file $LINENO $check_ip_PATH
 : << 'COMMENT'
+
+
 #!/bin/bash
 
-old_ip_file="/home/$USER/my_scripts/old_ip"
-logs_file="/home/$USER/my_scripts/logs_ip"
-slack_users_file="/home/$USER/my_scripts/slack"
+old_ip_file="/home/vova/my_scripts/old_ip"
+logs_file="/home/vova/my_scripts/logs_ip"
+slack_users_file="/home/vova/my_scripts/slack"
 
 source $slack_users_file
 
@@ -168,7 +170,7 @@ if [[ ! -f $old_ip_file ]]; then
 	echo $ip > $old_ip_file
 
 	echo "Creating crontab job"
-	(crontab -l ; echo "* * * * * /bin/bash $PWD/$0") | crontab
+	(crontab -l ; echo "* 9 * * * /bin/bash /home/vova/my_scripts/$0") | crontab
 fi
 
 old_ip=$(cat $old_ip_file)
@@ -190,9 +192,9 @@ slack() {
 send_to_users(){
 	for (( i=0; i<${tLen}; i++ ));
 	do
-	  echo "sending to: ${user_list["0"]}, on channel: ${user_channel[$i]}, with webhook: ${user_hoock[$i]}"
-	  SLACK_WEBHOOK_URL=${user_hoock["0"]}
-	  SLACK_CHANNEL=${user_channel[$i]}
+	  echo "sending to: ${user_list[$i]}, on channel: ${user_channel[$i]}, with webhook: ${user_hoock[$i]}"
+	  SLACK_WEBHOOK_URL=${user_hoock["$i"]}
+	  SLACK_CHANNEL=${user_channel["$i"]}
 	  slack 'ERROR' "IP Changed!!!" "The new IP is: $ip"
 	done
 }
@@ -205,8 +207,8 @@ echo "Old IP: $old_ip"
 echo "New IP: $ip"
 
 if [[ $old_ip == $ip ]]; then
-    SLACK_WEBHOOK_URL='https://hooks.slack.com/services/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'
-    SLACK_CHANNEL=grafana-app
+    SLACK_WEBHOOK_URL=${user_hoock["0"]}
+    SLACK_CHANNEL=${user_channel["0"]}
 	echo "$dt Old IP: $old_ip, new IP: $ip. " >> $logs_file
 	slack 'INFO' "IP OK" "The IP is the same: $ip"
 else
@@ -215,8 +217,6 @@ else
 	send_to_users
 	update_ip
 fi
-
-
 
 COMMENT
 
