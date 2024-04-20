@@ -136,26 +136,23 @@ COMMENT
 make_check_ip(){
 print_to_file $LINENO $check_ip_PATH
 : << 'COMMENT'
-
-
 #!/bin/bash
-
+ 
 old_ip_file="/home/vova/my_scripts/old_ip"
 logs_file="/home/vova/my_scripts/logs_ip"
 slack_users_file="/home/vova/my_scripts/slack"
-
+ 
 source $slack_users_file
-
+ 
 tLen=${#user_list[@]}
-
 dt=$(date '+%d/%m/%Y %H:%M:%S');
 ip=$(curl ipinfo.io/ip)
-
+ 
 if [[ ! -f $logs_file ]]; then
 	echo "Creating $logs_file"
 	echo "$dt Log file created, Current IP: $ip" >> $logs_file
 fi
-
+ 
 if [[ ! -f $slack_users_file ]]; then
 	echo "Creating $slack_users_file"
 	echo "$dt $slack_users_file file created, Current IP: $ip" >> $logs_file
@@ -163,18 +160,17 @@ if [[ ! -f $slack_users_file ]]; then
 	echo "user_channel=( #slack_channels )" >> $slack_users_file
 	echo "user_hoock=(   #slack_hoocks   )" >> $slack_users_file
 fi
-
+ 
 if [[ ! -f $old_ip_file ]]; then
 	echo "Creating $old_ip_file"
 	echo "$dt $old_ip_file file created, Current IP: $ip" >> $logs_file
 	echo $ip > $old_ip_file
-
 	echo "Creating crontab job"
-	(crontab -l ; echo "* 9 * * * /bin/bash /home/vova/my_scripts/$0") | crontab
+	(crontab -l ; echo "10 9 * * * /bin/bash /home/vova/my_scripts/$0") | crontab
 fi
-
+  
 old_ip=$(cat $old_ip_file)
-
+ 
 slack() {
   echo "slack sending... "
   local color='good'
@@ -184,11 +180,10 @@ slack() {
     color = 'warning'
   fi
   local message="payload={\"channel\": \"#$user_channel\",\"attachments\":[{\"pretext\":\"$2\",\"text\":\"$3\",\"color\":\"$color\"}]}"
-
   curl -X POST --data-urlencode "$message" ${SLACK_WEBHOOK_URL}
   echo ""
 }
-
+ 
 send_to_users(){
 	for (( i=0; i<${tLen}; i++ ));
 	do
@@ -198,14 +193,14 @@ send_to_users(){
 	  slack 'ERROR' "IP Changed!!!" "The new IP is: $ip"
 	done
 }
-
+ 
 update_ip(){
 	echo $ip > $old_ip_file
 }
-
+ 
 echo "Old IP: $old_ip"
 echo "New IP: $ip"
-
+ 
 if [[ $old_ip == $ip ]]; then
     SLACK_WEBHOOK_URL=${user_hoock["0"]}
     SLACK_CHANNEL=${user_channel["0"]}
