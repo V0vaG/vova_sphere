@@ -134,84 +134,92 @@ COMMENT
 ########################################################################################################
 
 make_check_ip(){
+    if [[ ! -d $my_scripts/check_ip ]]; then
+	    mkdir $my_scripts/check_ip
+    fi
+
 print_to_file $LINENO $check_ip_PATH
 : << 'COMMENT'
 #!/bin/bash
- 
-old_ip_file="/home/vova/my_scripts/old_ip"
-logs_file="/home/vova/my_scripts/logs_ip"
-slack_users_file="/home/vova/my_scripts/slack"
- 
-source $slack_users_file
- 
+
+# crontab cannot read $USER so write your username
+
+old_ip_file="/home/vova/my_scripts/check_ip/old_ip"
+logs_file="/home/vova/my_scripts/check_ip/logs_ip"
+slack_users_file="/home/vova/my_scripts/check_ip/slack"
+
+source "$slack_users_file"
+
 tLen=${#user_list[@]}
 dt=$(date '+%d/%m/%Y %H:%M:%S');
 ip=$(curl ipinfo.io/ip)
- 
+
 if [[ ! -f $logs_file ]]; then
 	echo "Creating $logs_file"
-	echo "$dt Log file created, Current IP: $ip" >> $logs_file
+	echo "$dt $logs_file file created." >> $logs_file
 fi
- 
+
 if [[ ! -f $slack_users_file ]]; then
 	echo "Creating $slack_users_file"
-	echo "$dt $slack_users_file file created, Current IP: $ip" >> $logs_file
+	echo "$dt $slack_users_file file created." >> $logs_file
 	echo "user_list=(    #user_names     )" >> $slack_users_file
 	echo "user_channel=( #slack_channels )" >> $slack_users_file
 	echo "user_hoock=(   #slack_hoocks   )" >> $slack_users_file
 fi
- 
+
 if [[ ! -f $old_ip_file ]]; then
 	echo "Creating $old_ip_file"
-	echo "$dt $old_ip_file file created, Current IP: $ip" >> $logs_file
+	echo "$dt $old_ip_file file created." >> $logs_file
 	echo $ip > $old_ip_file
 	echo "Creating crontab job"
-	(crontab -l ; echo "10 9 * * * /bin/bash /home/vova/my_scripts/$0") | crontab
+	(crontab -l ; echo "30 8 * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh") | crontab
 fi
-  
+
 old_ip=$(cat $old_ip_file)
- 
+
 slack() {
   echo "slack sending... "
   local color='good'
   if [ $1 == 'ERROR' ]; then
     color='danger'
   elif [ $1 == 'WARN' ]; then
-    color = 'warning'
+    color='warning'
   fi
   local message="payload={\"channel\": \"#$user_channel\",\"attachments\":[{\"pretext\":\"$2\",\"text\":\"$3\",\"color\":\"$color\"}]}"
   curl -X POST --data-urlencode "$message" ${SLACK_WEBHOOK_URL}
   echo ""
 }
- 
+
 send_to_users(){
 	for (( i=0; i<${tLen}; i++ ));
 	do
-	  echo "sending to: ${user_list[$i]}, on channel: ${user_channel[$i]}, with webhook: ${user_hoock[$i]}"
+	  #echo "sending to: ${user_list[$i]}, on channel: ${user_channel[$i]}, with webhook: ${user_hoock[$i]}"
 	  SLACK_WEBHOOK_URL=${user_hoock["$i"]}
 	  SLACK_CHANNEL=${user_channel["$i"]}
 	  slack 'ERROR' "IP Changed!!!" "The new IP is: $ip"
 	done
 }
- 
+
 update_ip(){
 	echo $ip > $old_ip_file
 }
- 
+
 echo "Old IP: $old_ip"
 echo "New IP: $ip"
- 
+
+
 if [[ $old_ip == $ip ]]; then
     SLACK_WEBHOOK_URL=${user_hoock["0"]}
     SLACK_CHANNEL=${user_channel["0"]}
 	echo "$dt Old IP: $old_ip, new IP: $ip. " >> $logs_file
-	slack 'INFO' "IP OK" "The IP is the same: $ip"
+	slack 'INFO' "IP OK" "The IP is the same: $ip (test)"
 else
 	echo "The IP Changed! Old IP: $old_ip, New IP: $ip."
 	echo "$dt IP Changed! Old IP: $old_ip, New IP: $ip, Sending to: ${user_list[@]}." >> $logs_file
 	send_to_users
 	update_ip
 fi
+
 
 COMMENT
 
@@ -834,11 +842,12 @@ Setup(){
 	ssh2ec2_PATH=$my_scripts/ssh2ec2.sh
 	ssh_PATH=$my_scripts/ssh.sh
 	#ssh2ec2_config_PATH=$my_scripts/config
-	google_f_PATH=$my_scripts/google_f.sh
-	google_t_PATH=$my_scripts/google_t.sh
-	pass_PATH=$my_scripts/pass.sh
-	check_ip_PATH=$my_scripts/check_ip.sh
+	google_f_PATH="$my_scripts/google_f.sh"
+	google_t_PATH="$my_scripts/google_t.sh"
+	pass_PATH="$my_scripts/pass.sh"
+	check_ip_PATH="$my_scripts/check_ip/check_ip.sh"
 
+    mkdir $check_ip_PATH
 	
     if [ ! -d $my_scripts ]; then
         mkdir $my_scripts
