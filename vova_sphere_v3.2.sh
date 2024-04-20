@@ -140,9 +140,8 @@ make_check_ip(){
 
 print_to_file $LINENO $check_ip_PATH
 : << 'COMMENT'
-#!/bin/bash
 
-# crontab cannot read $USER so write your username
+#!/bin/bash
 
 old_ip_file="/home/vova/my_scripts/check_ip/old_ip"
 logs_file="/home/vova/my_scripts/check_ip/logs_ip"
@@ -152,7 +151,6 @@ source "$slack_users_file"
 
 tLen=${#user_list[@]}
 dt=$(date '+%d/%m/%Y %H:%M:%S');
-ip=$(curl ipinfo.io/ip)
 
 if [[ ! -f $logs_file ]]; then
 	echo "Creating $logs_file"
@@ -168,14 +166,13 @@ if [[ ! -f $slack_users_file ]]; then
 fi
 
 if [[ ! -f $old_ip_file ]]; then
+	echo $ip > $old_ip_file
 	echo "Creating $old_ip_file"
 	echo "$dt $old_ip_file file created." >> $logs_file
-	echo $ip > $old_ip_file
 	echo "Creating crontab job"
-	(crontab -l ; echo "30 8 * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh") | crontab
+	#(crontab -l ; echo "* * * * * /bin/bash /home/$USER/my_scripts/check_ip/check_ip.sh") | crontab
+	(crontab -l ; echo "* * * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh") | crontab
 fi
-
-old_ip=$(cat $old_ip_file)
 
 slack() {
   echo "slack sending... "
@@ -204,22 +201,23 @@ update_ip(){
 	echo $ip > $old_ip_file
 }
 
+ip=$(curl ipinfo.io/ip)
+old_ip=$(cat $old_ip_file)
+
 echo "Old IP: $old_ip"
 echo "New IP: $ip"
-
 
 if [[ $old_ip == $ip ]]; then
     SLACK_WEBHOOK_URL=${user_hoock["0"]}
     SLACK_CHANNEL=${user_channel["0"]}
-	echo "$dt Old IP: $old_ip, new IP: $ip. " >> $logs_file
-	slack 'INFO' "IP OK" "The IP is the same: $ip (test)"
+	echo "$dt Same IP. Old IP: $old_ip, new IP: $ip. " >> $logs_file
+	slack 'INFO' "IP OK" "The IP is the same: $ip"
 else
 	echo "The IP Changed! Old IP: $old_ip, New IP: $ip."
 	echo "$dt IP Changed! Old IP: $old_ip, New IP: $ip, Sending to: ${user_list[@]}." >> $logs_file
 	send_to_users
 	update_ip
 fi
-
 
 COMMENT
 
@@ -924,7 +922,7 @@ install_kubectl(){
 
 install_jellyfin_raspbian(){
   curl https://repo.jellyfin.org/install-debuntu.sh | sudo bash
-  sudo setfacl -m u:jellyfin:rx /media/$USER/
+  sudo setfacl -m u:jellyfin:rwx /media/$USER/
   sudo ufw allow 8096
   sudo systemctl enable jellyfin
   sudo systemctl start jellyfin
@@ -933,7 +931,7 @@ install_jellyfin_raspbian(){
 install_jellyfin_ubuntu(){
   # https://jellyfin.org/docs/general/installation/linux/
   sudo wget -O- https://repo.jellyfin.org/install-debuntu.sh | sudo bash
-  sudo setfacl -m u:jellyfin:rx /media/$USER/
+  sudo setfacl -m u:jellyfin:rwx /media/$USER/
   sudo ufw allow 8096
   sudo systemctl enable jellyfin
   sudo systemctl start jellyfin
