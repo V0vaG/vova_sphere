@@ -419,35 +419,55 @@ scp(){
  
     if [[ -f ${res_a_arr["1"]} ]]; then
         sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
-    elif [[ -d ${res_a_arr["1"]} ]]; then # not working yet....
-        echo "sending dir"
-        sleep 2
-        sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+        echo "Found only 1 FILE, Sending..."
+        sleep 1
+    elif [[ -d ${res_a_arr["1"]} ]]; then
+        echo "Found only 1 DIR, Sending..."
+        sleep 1
+        sudo scp -i $user_key -r ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
     fi
  
 	elif [[ $i -gt 1 ]]; then
 	    show_resolt(){
             i=0
             for user in ${res_arr}; do
+            	if [[ -d $user ]]; then
+            		type='DIR'
+            	elif [[ -f $user ]]; then
+            		type='FILE'
+            	fi
                 ((i++))
-                echo "$i. $user"
+                echo "$i. $user ($type)"
+                type='?'
+                
             done
  
-            read -p "Found $i files, which do u like 1-$i, 0-to go Back)? " ans
+            read -p "Found $i FILEs/DIRs, which do u like to send? Enter: 1-$i, (0-to go Back): " ans
  
             if [[ $ans == 0 ]]; then main; fi
  
             if [[ $ans > $i || $ans -lt 0 ]]; then
                 echo "Wrong choice!!!!! (0-$i)"
-                sleep 3
+                sleep 2
                 clear
                 show_resolt
             fi
         }
  
         show_resolt
-	    sudo scp -i $user_key ${res_a_arr["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
- 
+         
+        if [[ -f ${res_a_arr["$ans"]} ]]; then
+        	echo "Sending FILE..."
+        	sleep 1
+	    	sudo scp -i $user_key ${res_a_arr["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+		fi
+		 
+		if [[ -d ${res_a_arr["$ans"]} ]]; then
+		    echo "Sending DIR..."
+        	sleep 1
+	    	sudo scp -i $user_key -r ${res_a_arr["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+		fi
+		 
 	elif [[ $i -lt 1 ]]; then
 		echo "The file was not found..."
 		sleep 3
@@ -570,18 +590,23 @@ change_ec2_user(){
         ((i++))
         echo "$i. $user"
     done
+ 
     read ans
+ 
     if [[ $ans == 0 ]]; then main; fi
+ 
     if [[ $ans > $i || $ans -lt 0 ]]; then
         user_list+=("$ans")
         change_ec2_user
     fi
+ 
     echo "Switching to user: ${user_list["(( $ans -1 ))"]}.."
     sleep 1
     aws_user=${user_list["(( $ans -1 ))"]}
     echo "$(( $ans -1 ))" > $ec2_user_file
     main
 }
+ 
 options(){
     clear
     echo "***options***"
@@ -599,13 +624,18 @@ options(){
     ${option_list["$ans"]}
     main
 }
+ 
 main(){
     user_num=$(cat $ec2_user_file)
+ 
     if [[ ! $user_num < ${#user_list[@]}  ]]; then
         user_num=0
     fi
+ 
     aws_user=${user_list["$user_num"]}
+ 
     get_info
+ 
 	echo "Welcome my friend, Welcome to the Machine"
 	echo "AWS EC2 User: $aws_user"
 	echo " "
@@ -636,14 +666,18 @@ main(){
 	'fix_git_ip'
 	'options'
 	)
+ 
 	${menu_list["$ans"]}
+ 
 	main
 }
+ 
 if [[ ! -f $user_key ]]; then
 	echo "ERROR: .pem key file is not set"
 	echo "SSH functions won't be available..."
 	sleep 3
 fi
+ 
 main
 # stop_all
 
