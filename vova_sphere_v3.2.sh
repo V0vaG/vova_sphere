@@ -41,12 +41,17 @@ COMMENT
 ########################################################################################################
 
 make_pass(){
+
+    if [[ ! -d $my_scripts/pass ]]; then
+	    mkdir $my_scripts/pass
+    fi
+
 print_to_file $LINENO $pass_PATH
 : << 'COMMENT'
  
 #!/bin/bash
-txt_file="/home/$USER/my_scripts/txt"
-s_txt_file="/home/$USER/my_scripts/s_txt"
+txt_file="/home/$USER/my_scripts/pass/txt"
+s_txt_file="/home/$USER/my_scripts/pass/s_txt"
 
 read -s pass
  
@@ -876,7 +881,7 @@ Setup(){
 	#ssh2ec2_config_PATH=$my_scripts/config
 	google_f_PATH="$my_scripts/google_f.sh"
 	google_t_PATH="$my_scripts/google_t.sh"
-	pass_PATH="$my_scripts/pass.sh"
+	pass_PATH="$my_scripts/pass/pass.sh"
 	check_ip_PATH="$my_scripts/check_ip/check_ip.sh"
 
     mkdir $check_ip_PATH
