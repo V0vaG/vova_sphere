@@ -707,20 +707,24 @@ make_ssh(){
 
 print_to_file $LINENO $ssh_PATH
 : << 'COMMENT'
- 
+
 #!/bin/bash
+
 user_file_M="/home/$USER/my_scripts/ssh2/user_f"
-user_key="/home/$USER/ec2/stock/ec2_s_key.pem"
+
 user_list=(
 'vova'
 'ubuntu'
-'ec2-user_name'
+'ec2-user'
 )
+
 declare -rA hosts=(
-["raspnerry_pi"]="1.2.3.4"
-["server_local"]="127.0.0.1"
-["server_remote"]="11.22.33.44"
+["raspnerry_pi"]="10.100.102.160"
+["asus"]="10.100.102.129"
+["server_local"]="10.100.102.178"
+["server_remote"]="46.117.220.250"
 )
+
 select_host(){
     clear
     echo "User: $user_name"
@@ -733,7 +737,9 @@ select_host(){
     done
     echo "c. Costume ip"
     echo "0. Back"
+
     read -p "Enter 1-${#hosts[@]}, c or 0: " ans
+
     if [[ $ans == 0 ]]; then
         main
     elif [[ $ans == 'c' ]]; then
@@ -752,34 +758,45 @@ select_host(){
         echo "invalid input"
     fi
 }
+
 scp(){
 	clear
-    declare -A res_arr
-    declare -A res_a_arr
+    declare -A find_result_list
+    declare -A result_dict
     echo "User: $user_name"
 	select_host
 	read -p "Enter file-name to send: " file
 	if [[ $file == 0 ]]; then main; fi
-	res_arr=$(sudo find /home -name $file)
+	find_result_list=$(sudo find /home -name $file)
     i=0
-    for user_name in ${res_arr}; do
+    for result_file in ${find_result_list}; do
         ((i++))
-        res_a_arr["$i"]="${user_name}"
+        result_dict["$i"]="${result_file}"
     done
     if [[ $i == 1 ]]; then
-        user_name=${user_list["0"]}
-        echo "Found 1 file ($res_arr), sending..."
-        sudo scp $res_arr $user_name@$host_ip:~/.
+        if [[ -f $find_result_list ]]; then
+            echo "Found 1 file: $find_result_list (FILE), sending..."
+            sudo scp $find_result_list $user_name@$host_ip:~/.
+        elif [[ -d $find_result_list ]]; then
+            echo "Found 1 file: $find_result_list (DIR), sending..."
+            sudo scp -r $find_result_list $user_name@$host_ip:~/.
+        fi
 	elif [[ $i -gt 1 ]]; then
 	    show_resolt(){
             i=0
-            for user_name in ${res_arr}; do
+            for result_file in ${find_result_list}; do
+                if [[ -d $result_file ]]; then
+            		type='DIR'
+            	elif [[ -f $result_file ]]; then
+            		type='FILE'
+            	fi
                 ((i++))
-                echo "$i. $user_name"
+                echo "$i. $result_file ($type)"
             done
             read -p "Found $i files, which do u like 1-$i, 0-to go Back)? " ans
-            if [[ $ans == 0 ]]; then main; fi
-            if [[ $ans > $i || $ans -lt 0 ]]; then
+            if [[ $ans == 0 ]]; then
+                main
+            elif [[ $ans -gt $i || $ans -lt 0 ]]; then
                 echo "Wrong choice!!!!! (0-$i)"
                 sleep 3
                 clear
@@ -787,33 +804,45 @@ scp(){
             fi
         }
         show_resolt
-        user_name=${user_list["0"]}
-	    sudo scp ${res_a_arr["$ans"]} $user_name@$host_ip:~/.
+        if [[ -f ${result_dict["$ans"]} ]]; then
+            echo "Sending file..."
+            sudo scp ${result_dict["$ans"]} $user_name@$host_ip:~/.
+        elif [[ -d ${result_dict["$ans"]} ]]; then
+            echo "Sending dir...x"
+	        sudo scp -r ${result_dict["$ans"]} $user_name@$host_ip:~/.
+	    fi
 	elif [[ $i -lt 1 ]]; then
 		echo "The file was not found..."
 		sleep 3
 	fi
 }
+
 ssh(){
 	clear
     declare -A tmp_array
     echo "hosts num: ${#hosts[@]}"
-    echo "User $user_name"
+    echo "User $path_file"
 	echo "Chose a host:"
     select_host
     sudo ssh $user_name@$host_ip
+    sleep 10
     ssh
 }
+
 cmd(){
 	clear
     select_host
     read -p "Enter a command: " user_cmd
-    if [[ $user_cmd == 0 ]]; then main; fi
+    if [[ $user_cmd == 0 ]]; then
+        main
+    fi
     sudo ssh $user_name@$host_ip $user_cmd
 }
+
 change_user(){
     clear
-    echo "Curent user: $user_name"
+
+    echo "Curent user: $user_file_M"
     i=0
     echo "Enter 1-${#user_list[@]} to select User, 0-to go Back or type *temp* user name: "
     for user in "${user_list[@]}"; do
@@ -821,30 +850,36 @@ change_user(){
         echo "$i. $user"
     done
     read ans
-    if [[ $ans == 0 ]]; then main; fi
-    if [[ $ans > $i || $ans -lt 0 ]]; then
+    if [[ $ans == 0 ]]; then
+        main
+    elif [[ $ans > $i || $ans -lt 0 ]]; then
         user_list+=("$ans")
         change_user
     fi
+
     echo "Switching to user: ${user_list["(( $ans -1 ))"]}.."
     sleep 1
-    aws_user=${user_list["(( $ans -1 ))"]}
+    user_name=${user_list["(( $ans -1 ))"]}
     echo "$(( $ans -1 ))" > $user_file_M
     main
 }
+
 options(){
     clear
     echo "***options***"
-    echo "1. Change AWS ec2 User"
+    echo "1. Change User Name"
     read -p "What to do: " ans
     clear
+
     option_list=(
     'main'
     'change_user'
     )
+
     ${option_list["$ans"]}
     main
 }
+
 main(){
     clear
     user_num=$(cat $user_file_M)
@@ -852,6 +887,7 @@ main(){
         user_num=0
     fi
     user_name=${user_list["$user_num"]}
+
 	echo "Welcome my friend, Welcome to the Machine"
 	echo "User: $user_name"
 	echo " "
@@ -862,6 +898,7 @@ main(){
 	echo "0. Exit"
 	echo " "
 	read -p "Enter your choice: " ans
+
 	menu_list=(
 	'exit'
 	'ssh'
@@ -869,14 +906,17 @@ main(){
 	'cmd'
 	'options'
 	)
+
 	${menu_list["$ans"]}
 	main
 }
+
 if [ ! -f $user_file_M ]; then
-	 touch $user_file_M
 	 echo "0" > $user_file_M
 fi
+
 main
+
 
 COMMENT
 
