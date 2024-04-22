@@ -701,11 +701,15 @@ COMMENT
 
 ########################################################################################################
 make_ssh(){
+    if [[ ! -d $my_scripts/ssh2 ]]; then
+	    mkdir $my_scripts/ssh2
+    fi
+
 print_to_file $LINENO $ssh_PATH
 : << 'COMMENT'
  
 #!/bin/bash
-user_file_M="/home/$USER/my_scripts/user_f"
+user_file_M="/home/$USER/my_scripts/ssh2/user_f"
 user_key="/home/$USER/ec2/stock/ec2_s_key.pem"
 user_list=(
 'vova'
@@ -886,7 +890,7 @@ Setup(){
 	my_scripts=~/my_scripts
 	alias_file=$my_scripts/alias.txt
 	ssh2ec2_PATH=$my_scripts/ssh2ec2/ssh2ec2.sh
-	ssh_PATH=$my_scripts/ssh.sh
+	ssh_PATH=$my_scripts/ssh2/ssh.sh
 	google_f_PATH="$my_scripts/google_f/google_f.sh"
 	google_t_PATH="$my_scripts/google_t.sh"
 	pass_PATH="$my_scripts/pass/pass.sh"
