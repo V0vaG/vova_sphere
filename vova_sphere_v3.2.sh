@@ -253,11 +253,16 @@ COMMENT
 ########################################################################################################
 
 make_google_f(){
+
+    if [[ ! -d $my_scripts/google_f ]]; then
+	    mkdir $my_scripts/google_f
+    fi
+    
 print_to_file $LINENO $google_f_PATH
 : << 'COMMENT'
  
 #!/bin/bash
-search_file=~/my_scripts/f.txt
+search_file=~/my_scripts/google_f/f.txt
  
 if [ ! -f $search_file ]; then
 	 touch $search_file
@@ -308,14 +313,18 @@ COMMENT
 ########################################################################################################
 
 make_ssh2ec2(){
+    if [[ ! -d $my_scripts/ssh2ec2 ]]; then
+	    mkdir $my_scripts/ssh2ec2
+    fi
+
 print_to_file $LINENO $ssh2ec2_PATH
 : << 'COMMENT'
  
 #!/bin/bash
  
 file_test='FAIL'
-config_file="/home/$USER/my_scripts/config"
-ec2_user_file="/home/$USER/my_scripts/ec2_user"
+config_file="/home/$USER/my_scripts/ssh2ec2/config"
+ec2_user_file="/home/$USER/my_scripts/ssh2ec2/ec2_user"
  
 if [ ! -f $config_file ]; then
 echo "Creating config file..."
@@ -876,10 +885,9 @@ Setup(){
     bashrc_file=~/.bashrc
 	my_scripts=~/my_scripts
 	alias_file=$my_scripts/alias.txt
-	ssh2ec2_PATH=$my_scripts/ssh2ec2.sh
+	ssh2ec2_PATH=$my_scripts/ssh2ec2/ssh2ec2.sh
 	ssh_PATH=$my_scripts/ssh.sh
-	#ssh2ec2_config_PATH=$my_scripts/config
-	google_f_PATH="$my_scripts/google_f.sh"
+	google_f_PATH="$my_scripts/google_f/google_f.sh"
 	google_t_PATH="$my_scripts/google_t.sh"
 	pass_PATH="$my_scripts/pass/pass.sh"
 	check_ip_PATH="$my_scripts/check_ip/check_ip.sh"
