@@ -145,23 +145,21 @@ make_check_ip(){
 
 print_to_file $LINENO $check_ip_PATH
 : << 'COMMENT'
-
+ 
 #!/bin/bash
-
+ 
 old_ip_file="/home/vova/my_scripts/check_ip/old_ip"
 logs_file="/home/vova/my_scripts/check_ip/logs_ip"
 slack_users_file="/home/vova/my_scripts/check_ip/slack"
-
 source "$slack_users_file"
-
 tLen=${#user_list[@]}
 dt=$(date '+%d/%m/%Y %H:%M:%S');
-
+ 
 if [[ ! -f $logs_file ]]; then
 	echo "Creating $logs_file"
 	echo "$dt $logs_file file created." >> $logs_file
 fi
-
+ 
 if [[ ! -f $slack_users_file ]]; then
 	echo "Creating $slack_users_file"
 	echo "$dt $slack_users_file file created." >> $logs_file
@@ -169,7 +167,7 @@ if [[ ! -f $slack_users_file ]]; then
 	echo "user_channel=( #slack_channels )" >> $slack_users_file
 	echo "user_hoock=(   #slack_hoocks   )" >> $slack_users_file
 fi
-
+ 
 if [[ ! -f $old_ip_file ]]; then
 	echo $ip > $old_ip_file
 	echo "Creating $old_ip_file"
@@ -178,7 +176,7 @@ if [[ ! -f $old_ip_file ]]; then
 	#(crontab -l ; echo "* * * * * /bin/bash /home/$USER/my_scripts/check_ip/check_ip.sh") | crontab
 	(crontab -l ; echo "* * * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh") | crontab
 fi
-
+ 
 slack() {
   echo "slack sending... "
   local color='good'
@@ -191,7 +189,7 @@ slack() {
   curl -X POST --data-urlencode "$message" ${SLACK_WEBHOOK_URL}
   echo ""
 }
-
+ 
 send_to_users(){
 	for (( i=0; i<${tLen}; i++ ));
 	do
@@ -201,17 +199,16 @@ send_to_users(){
 	  slack 'ERROR' "IP Changed!!!" "The new IP is: $ip"
 	done
 }
-
+ 
 update_ip(){
 	echo $ip > $old_ip_file
 }
-
+ 
 ip=$(curl ipinfo.io/ip)
 old_ip=$(cat $old_ip_file)
-
 echo "Old IP: $old_ip"
 echo "New IP: $ip"
-
+ 
 if [[ $old_ip == $ip ]]; then
     SLACK_WEBHOOK_URL=${user_hoock["0"]}
     SLACK_CHANNEL=${user_channel["0"]}
@@ -319,7 +316,6 @@ make_ssh2ec2(){
 
 print_to_file $LINENO $ssh2ec2_PATH
 : << 'COMMENT'
- 
 #!/bin/bash
  
 file_test='FAIL'
@@ -412,8 +408,9 @@ install_aws_cli(){
 }
  
 scp(){
-    declare -A res_arr
-    declare -A res_a_arr
+    # declare find_result_list and result_dict ("$i. $
+    declare -A find_result_list
+    declare -A result_dict
  
 	read -p "Enter the ec2 IP: " dot_ip
 	if [[ $dot_ip == 0 ]]; then main; fi
@@ -421,67 +418,59 @@ scp(){
  
 	read -p "Enter file-name to send: " file
 	if [[ $file == 0 ]]; then main; fi
-	res_arr=$(sudo find /home -name $file)
+	find_result_list=$(sudo find /home -name $file*)
  
     i=0
-    for user in ${res_arr}; do
+    for result_file in ${find_result_list}; do
         ((i++))
-        res_a_arr["$i"]="${user}"
+        result_dict["$i"]="${result_file}"
     done
- 
     if [[ $i == 1 ]]; then
- 
-    if [[ -f ${res_a_arr["1"]} ]]; then
-        sudo scp -i $user_key ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
-        echo "Found only 1 FILE, Sending..."
-        sleep 1
-    elif [[ -d ${res_a_arr["1"]} ]]; then
-        echo "Found only 1 DIR, Sending..."
-        sleep 1
-        sudo scp -i $user_key -r ${res_a_arr["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
-    fi
+        if [[ -f $find_result_list ]]; then
+            echo "Found 1 FILE: $find_result_list, Sending..."
+            sudo scp -i $user_key ${result_dict["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+            sleep 1
+        elif [[ -d $find_result_list ]]; then
+            echo "Found 1 DIR: $find_result_list, Sending..."
+            sleep 1
+            sudo scp -i $user_key -r ${result_dict["1"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+        fi
  
 	elif [[ $i -gt 1 ]]; then
 	    show_resolt(){
             i=0
-            for user in ${res_arr}; do
-            	if [[ -d $user ]]; then
+            for result_file in ${find_result_list}; do
+            	if [[ -d $result_file ]]; then
             		type='DIR'
-            	elif [[ -f $user ]]; then
+            	elif [[ -f $result_file ]]; then
             		type='FILE'
             	fi
                 ((i++))
-                echo "$i. $user ($type)"
+                echo "$i. $result_file ($type)"
                 type='?'
-                
             done
- 
             read -p "Found $i FILEs/DIRs, which do u like to send? Enter: 1-$i, (0-to go Back): " ans
- 
             if [[ $ans == 0 ]]; then main; fi
- 
-            if [[ $ans > $i || $ans -lt 0 ]]; then
+            if [[ $ans -gt $i || $ans -lt 0 ]]; then
                 echo "Wrong choice!!!!! (0-$i)"
                 sleep 2
                 clear
                 show_resolt
             fi
         }
- 
         show_resolt
-         
-        if [[ -f ${res_a_arr["$ans"]} ]]; then
+        if [[ -f ${result_dict["$ans"]} ]]; then
         	echo "Sending FILE..."
-        	sleep 1
-	    	sudo scp -i $user_key ${res_a_arr["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+        	sudo scp -i $user_key ${result_dict["$ans"]} $aws_user@$dot_ip:~/.
+	    	#sudo scp -i $user_key ${result_dict["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+	    	sleep 1
 		fi
-		 
-		if [[ -d ${res_a_arr["$ans"]} ]]; then
+		if [[ -d ${result_dict["$ans"]} ]]; then
 		    echo "Sending DIR..."
-        	sleep 1
-	    	sudo scp -i $user_key -r ${res_a_arr["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+        	sudo scp -i $user_key -r ${result_dict["$ans"]} $aws_user@$dot_ip:~/.
+	    	#sudo scp -i $user_key -r ${result_dict["$ans"]} $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com:~/.
+	    	sleep 1
 		fi
-		 
 	elif [[ $i -lt 1 ]]; then
 		echo "The file was not found..."
 		sleep 3
@@ -492,7 +481,8 @@ ssh(){
 	read -p "Enter the ec2 IP: " dot_ip
 	if [[ $dot_ip == 0 ]]; then main; fi
 	dash_ip=${dot_ip//./-}
-	sudo ssh -i $user_key $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com
+	#sudo ssh -i $user_key $aws_user@ec2-$dash_ip.$user_region.compute.amazonaws.com
+	sudo ssh -i $user_key  $aws_user@$dot_ip
 }
  
 cmd(){
@@ -516,20 +506,16 @@ create_ec2_from_template(){
       echo "$i. ${user}"
       tmp_array["$i"]="${user}"
     done
- 
     echo "0. go Back"
     echo ""
     read -p "Enter template num: " ans
- 
     if [[ $ans == 0 ]]; then main; fi
- 
     if (( $ans > $i || $ans < 0 )); then
         echo "Enter 1-${#template_array[@]} to select ec2 template!!!!!!!!!"
         echo "or 0 to go Back."
         sleep 2
         create_ec2_from_template
     fi
- 
     tmp_user=${tmp_array["$ans"]}
     user_template=${template_array["$tmp_user"]}
     echo "Creating ec2: $tmp_user"
@@ -550,7 +536,6 @@ start_git(){
  
 fix_git_ip(){
 	gitlab_ip=$(aws ec2 describe-instances --instance-ids $git_docker_id --query 'Reservations[].Instances[].[PublicIpAddress]' --output text)
- 
 	if [[ $gitlab_ip == "None" ]]; then
 		start_git
 		clear
@@ -561,7 +546,6 @@ fix_git_ip(){
 		echo "AWS GitLab ec2 already started..."
 		sleep 0.5
 	fi
- 
 	gitlab_ip=$(aws ec2 describe-instances --instance-ids $git_docker_id --query 'Reservations[].Instances[].[PublicIpAddress]' --output text)
 	while   [[ $gitlab_ip == "None" ]]; do
 		echo "Waiting for new GitLab IP..."
@@ -572,7 +556,6 @@ fix_git_ip(){
     done
     echo "New GitLab IP: $gitlab_ip "
     sleep 0.5
- 
 	for i in "${git_list[@]}"; do
 		echo "Fixing IP's at: $i"
 		cd $i/.git
@@ -594,26 +577,19 @@ crontab(){
  
 change_ec2_user(){
     clear
- 
     echo "Curent user: $aws_user"
     i=0
- 
     echo "Enter 1-${#user_list[@]} to select User, 0-to go Back or type *temp* user name: "
- 
     for user in "${user_list[@]}"; do
         ((i++))
         echo "$i. $user"
     done
- 
     read ans
- 
     if [[ $ans == 0 ]]; then main; fi
- 
     if [[ $ans > $i || $ans -lt 0 ]]; then
         user_list+=("$ans")
         change_ec2_user
     fi
- 
     echo "Switching to user: ${user_list["(( $ans -1 ))"]}.."
     sleep 1
     aws_user=${user_list["(( $ans -1 ))"]}
@@ -695,6 +671,7 @@ fi
 main
 # stop_all
 
+
 COMMENT
 
 }
@@ -707,24 +684,23 @@ make_ssh(){
 
 print_to_file $LINENO $ssh_PATH
 : << 'COMMENT'
-
 #!/bin/bash
-
+ 
 user_file_M="/home/$USER/my_scripts/ssh2/user_f"
-
+ 
 user_list=(
 'vova'
 'ubuntu'
 'ec2-user'
 )
-
+ 
 declare -rA hosts=(
-["raspnerry_pi"]="10.100.102.160"
-["asus"]="10.100.102.129"
-["server_local"]="10.100.102.178"
-["server_remote"]="46.117.220.250"
+["raspnerry_pi"]="1.2.3.40"
+["asus"]="1.2.3.49"
+["server_local"]="11.2.3.4"
+["server_remote"]="1.2.3.4"
 )
-
+ 
 select_host(){
     clear
     echo "User: $user_name"
@@ -737,9 +713,7 @@ select_host(){
     done
     echo "c. Costume ip"
     echo "0. Back"
-
     read -p "Enter 1-${#hosts[@]}, c or 0: " ans
-
     if [[ $ans == 0 ]]; then
         main
     elif [[ $ans == 'c' ]]; then
@@ -758,7 +732,7 @@ select_host(){
         echo "invalid input"
     fi
 }
-
+ 
 scp(){
 	clear
     declare -A find_result_list
@@ -767,7 +741,7 @@ scp(){
 	select_host
 	read -p "Enter file-name to send: " file
 	if [[ $file == 0 ]]; then main; fi
-	find_result_list=$(sudo find /home -name $file)
+	find_result_list=$(sudo find /home -name $file*)
     i=0
     for result_file in ${find_result_list}; do
         ((i++))
@@ -816,7 +790,7 @@ scp(){
 		sleep 3
 	fi
 }
-
+ 
 ssh(){
 	clear
     declare -A tmp_array
@@ -828,7 +802,7 @@ ssh(){
     sleep 10
     ssh
 }
-
+ 
 cmd(){
 	clear
     select_host
@@ -838,10 +812,9 @@ cmd(){
     fi
     sudo ssh $user_name@$host_ip $user_cmd
 }
-
+ 
 change_user(){
     clear
-
     echo "Curent user: $user_file_M"
     i=0
     echo "Enter 1-${#user_list[@]} to select User, 0-to go Back or type *temp* user name: "
@@ -856,30 +829,27 @@ change_user(){
         user_list+=("$ans")
         change_user
     fi
-
     echo "Switching to user: ${user_list["(( $ans -1 ))"]}.."
     sleep 1
     user_name=${user_list["(( $ans -1 ))"]}
     echo "$(( $ans -1 ))" > $user_file_M
     main
 }
-
+ 
 options(){
     clear
     echo "***options***"
     echo "1. Change User Name"
     read -p "What to do: " ans
     clear
-
     option_list=(
     'main'
     'change_user'
     )
-
     ${option_list["$ans"]}
     main
 }
-
+ 
 main(){
     clear
     user_num=$(cat $user_file_M)
@@ -887,7 +857,6 @@ main(){
         user_num=0
     fi
     user_name=${user_list["$user_num"]}
-
 	echo "Welcome my friend, Welcome to the Machine"
 	echo "User: $user_name"
 	echo " "
@@ -898,7 +867,6 @@ main(){
 	echo "0. Exit"
 	echo " "
 	read -p "Enter your choice: " ans
-
 	menu_list=(
 	'exit'
 	'ssh'
@@ -906,17 +874,15 @@ main(){
 	'cmd'
 	'options'
 	)
-
 	${menu_list["$ans"]}
 	main
 }
-
+ 
 if [ ! -f $user_file_M ]; then
 	 echo "0" > $user_file_M
 fi
 
 main
-
 
 COMMENT
 
@@ -924,8 +890,7 @@ COMMENT
 
 ########################################################################################################
 Setup(){
-  echo -en "\007"
-
+	echo -en "\007"
     bashrc_file=~/.bashrc
 	my_scripts=~/my_scripts
 	alias_file=$my_scripts/alias.txt
