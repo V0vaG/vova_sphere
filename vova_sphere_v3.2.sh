@@ -125,7 +125,6 @@ main(){
 	read -p "Enter your choice (0-to go back): " ans
 	clear
     ${func_list["$ans"]}
-    
     main
 }
 
