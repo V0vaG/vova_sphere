@@ -157,8 +157,8 @@ first_time_lunch(){
     echo "installing curl"
     sudo apt install -y curl
     echo "Creating crontab job"
-	#(crontab -l ; echo "10 8 * * * /bin/bash /home/$USER/my_scripts/check_ip/check_ip.sh") | crontab
-	(crontab -l ; echo "10 8 * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh") | crontab
+	#(crontab -l ; echo "10 * * * * /bin/bash /home/$USER/my_scripts/check_ip/check_ip.sh") | crontab
+	(crontab -l ; echo "10 * * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh") | crontab
 }
 
 
@@ -213,13 +213,14 @@ update_ip(){
 }
 
 main(){
-	echo "Old IP: $old_ip"
-	echo "New IP: $ip"
+	#echo "Old IP: $old_ip"
+	#echo "New IP: $ip"
 	if [[ $old_ip == $ip ]]; then
+	echo "The IP is the same: $ip"
 		SLACK_WEBHOOK_URL=${user_hook["0"]}
 		SLACK_CHANNEL=${user_channel["0"]}
 		echo "$dt Same IP. Old IP: $old_ip. " >> $logs_file
-		slack 'INFO' "IP OK" "The IP is the same: $ip"
+		#slack 'INFO' "IP OK" "The IP is the same: $ip"
 	else
 		echo "The IP Changed! Old IP: $old_ip, New IP: $ip."
 		echo "$dt IP Changed! Old IP: $old_ip, New IP: $ip, Sending to: ${user_list[@]}." >> $logs_file
