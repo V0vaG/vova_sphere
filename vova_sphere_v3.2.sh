@@ -1170,7 +1170,7 @@ Alias(){
 	echo "******Add Alias********"
 
     alias_list=(
-    "alias up='sudo apt-get update && sudo apt-get upgrade -y'"
+    "alias up='sudo apt-get update && sudo apt-get upgrade -y && sudo apt autoremove -y && sudo snap refresh'"
     "alias git_p='git status && git add . && git commit -m 'auto_push' && git push'"
 	"alias c='clear'"
 	"export HISTCONTROL=ignorespace"
