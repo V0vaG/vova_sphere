@@ -50,25 +50,31 @@ print_to_file $LINENO $pass_PATH
 : << 'COMMENT'
  
 #!/bin/bash
+ 
 txt_file="/home/$USER/my_scripts/pass/txt"
-#s_txt_file="/home/$USER/my_scripts/pass/s_txt"
+ 
+if [[ -f $txt_file ]]; then
+	echo "$txt_file was not deleted!!!!!!!!!!"
+	read -p "To delete the file (y/n)? " ans
+	if [[ $ans == 'y' ]]; then
+    	rm $txt_file
+    	exit
+    fi
+    exit
+fi
  
 file_list=(
-"/home/$USER/my_scripts/pass/s_txt1" # $pass 1...
-"/home/$USER/my_scripts/pass/s_txt2" # $pass 2...
+"/home/$USER/my_scripts/pass/.s_txt1" # $pass 1...
+"/home/$USER/my_scripts/pass/.s_txt2" # $pass 2...
 )
+ 
+if [ ${#file_list[@]} -gt "1" -a -z "$1" ]; then
+	exit
+fi
  
 s_txt_file=${file_list["(($1-1))"]}
  
 read -s pass
- 
-if [[ ! -d "/home/$USER/my_scripts" ]]; then
-    mkdir "/home/$USER/my_scripts"
-fi 
- 
-if [[ -f $txt_file ]]; then
-    rm $txt_file
-fi
  
 read_file(){
     if [[ ! -f $s_txt_file ]]; then
