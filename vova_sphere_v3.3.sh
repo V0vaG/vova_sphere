@@ -413,6 +413,53 @@ COMMENT
 
 ########################################################################################################
 
+make_base64(){
+
+    if [[ ! -d $my_scripts/base64 ]]; then
+	    mkdir $my_scripts/base64
+    fi
+
+print_to_file $LINENO $base64_PATH
+: << 'COMMENT'
+ 
+#!/bin/bash
+ 
+convert_txt2base64(){
+	read -p "Enter TXT to convert to Base64: " ans
+	echo "$ans" | base64
+}
+ 
+convert_base642txt(){
+	read -p "Enter Base64 to convert to TXT: " ans
+	echo "$ans" | base64 --decode
+}
+ 
+main(){
+	echo ""
+	echo "base64 converter"
+	echo "1. Convert TXT 2 Base64"
+	echo "2. Convert Base64 2 TXT"
+	echo "0. EXIT"
+	read -p "Enter your choice: " ans
+ 	
+	if [[ $ans == 1 ]]; then
+		convert_txt2base64
+	elif [[ $ans == 2 ]]; then
+		convert_base642txt
+	elif [[ $ans == 0 ]]; then
+		exit
+	fi
+	main
+}
+
+main
+
+COMMENT
+
+}
+
+########################################################################################################
+
 make_ssh2ec2(){
     if [[ ! -d $my_scripts/ssh2ec2 ]]; then
 	    mkdir $my_scripts/ssh2ec2
@@ -1018,6 +1065,7 @@ Setup(){
 	pass_PATH="$my_scripts/pass/pass.sh"
 	check_ip_PATH="$my_scripts/check_ip/check_ip.sh"
 	jelly_PATH="$my_scripts/jelly/jelly.sh"
+	base64_PATH="$my_scripts/base64/base64.sh"
 
     mkdir $check_ip_PATH
 
@@ -1676,12 +1724,13 @@ scripts(){
     echo "1. [ec2]  Ssh2ec2"
     echo "2. [f]    Google> "what is ____ in xxxxx""
     echo "3. [F8]   Google Translate"
-    echo "4. Auto   Disk Mount"
+    echo "4. Auto Disk Mount"
     echo "5. [ssh2] Ssh"
     echo "6. [pass] Password Manager"
     echo "7. ufw Manager"
     echo "8. check_ip"
-    echo "9. jellyfin_controller"
+    echo "9. [jelly] jellyfin_controller"
+    echo "10. [64] base64"
     echo " "
     echo "0. Back"
     read -p "Enter your choice (0-to go back): " ans
@@ -1745,6 +1794,13 @@ scripts(){
         if [[ ! -f $jelly_PATH ]]; then
         	make_jelly
         	printf "alias jelly='bash $jelly_PATH'\n" >> $alias_file
+        	main
+        fi
+    fi
+    if [ $ans == 10 ]; then
+        if [[ ! -f $base64_PATH ]]; then
+        	make_base64
+        	printf "alias 64='bash $base64_PATH'\n" >> $alias_file
         	main
         fi
     fi
