@@ -51,7 +51,14 @@ print_to_file $LINENO $pass_PATH
  
 #!/bin/bash
 txt_file="/home/$USER/my_scripts/pass/txt"
-s_txt_file="/home/$USER/my_scripts/pass/s_txt"
+#s_txt_file="/home/$USER/my_scripts/pass/s_txt"
+ 
+file_list=(
+"/home/$USER/my_scripts/pass/s_txt1" # $pass 1...
+"/home/$USER/my_scripts/pass/s_txt2" # $pass 2...
+)
+ 
+s_txt_file=${file_list["(($1-1))"]}
  
 read -s pass
  
@@ -281,6 +288,65 @@ COMMENT
 
 ########################################################################################################
 
+make_jelly(){
+
+    if [[ ! -d $my_scripts/jelly ]]; then
+	    mkdir $my_scripts/jelly
+    fi
+
+print_to_file $LINENO $jelly_PATH
+: << 'COMMENT'
+  
+#!/bin/bash
+ 
+status(){
+        sudo service jellyfin status
+}
+ 
+restart(){
+        sudo systemctl restart jellyfin
+}
+ 
+start(){
+        sudo systemctl start jellyfin
+}
+ 
+stop(){
+        sudo systemctl stop jellyfin
+}
+ 
+main(){
+    clear
+    echo "Welcome to Vova's jellyfin_controller"
+        func_list=(
+        'exit'
+        'status'
+        'start'
+        'stop'
+        'restart'
+        )
+ 
+    i=0
+    for func in "${func_list[@]}"; do
+        echo "$i. $func"
+        ((i++))
+    done
+        echo " "
+        read -p "Enter your choice (0-to go back): " ans
+        clear
+    ${func_list["$ans"]}
+ 
+    main
+}
+
+main
+
+
+COMMENT
+
+}
+
+########################################################################################################
 make_google_f(){
 
     if [[ ! -d $my_scripts/google_f ]]; then
@@ -725,8 +791,8 @@ print_to_file $LINENO $ssh_PATH
 : << 'COMMENT'
 #!/bin/bash
 file_test='FAIL'
-user_file_M="./user_f"
-conf_file="./conf"
+user_file_M="/home/$USER/my_scripts/ssh2/user_f"
+conf_file="/home/$USER/my_scripts/ssh2/conf"
  
 if [[ ! -f $conf_file ]]; then
 	echo "Creating conf file..."
@@ -945,6 +1011,7 @@ Setup(){
 	google_t_PATH="$my_scripts/google_t.sh"
 	pass_PATH="$my_scripts/pass/pass.sh"
 	check_ip_PATH="$my_scripts/check_ip/check_ip.sh"
+	jelly_PATH="$my_scripts/jelly/jelly.sh"
 
     mkdir $check_ip_PATH
 
@@ -1017,6 +1084,11 @@ install_minikube(){
 }
 
 install_kubectl(){
+	if [[ ! -d Downloads ]]; then
+		echo "Creating dir: Downloads"
+		mkdir Downloads
+	fi
+	
     (cd /home/$USER/Downloads && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl")
     (cd /home/$USER/Downloads && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl)
 }
@@ -1024,18 +1096,24 @@ install_kubectl(){
 install_jellyfin_raspbian(){
   curl https://repo.jellyfin.org/install-debuntu.sh | sudo bash
   sudo setfacl -m u:jellyfin:rwx /media/$USER/
-  sudo ufw allow 8096
+  read -p "What port to allow (default 8096)? " ans
+  sudo ufw allow $ans
   sudo systemctl enable jellyfin
   sudo systemctl start jellyfin
+  make_jelly
+  printf "alias jelly='bash $jelly_PATH'\n" >> $alias_file
 }
 
 install_jellyfin_ubuntu(){
   # https://jellyfin.org/docs/general/installation/linux/
   sudo wget -O- https://repo.jellyfin.org/install-debuntu.sh | sudo bash
   sudo setfacl -m u:jellyfin:rwx /media/$USER/
-  sudo ufw allow 8096
+  read -p "What port to allow (default 8096)? " ans
+  sudo ufw allow $ans
   sudo systemctl enable jellyfin
   sudo systemctl start jellyfin
+  make_jelly
+  printf "alias jelly='bash $jelly_PATH'\n" >> $alias_file
 }
 
 install_howdy(){
@@ -1120,6 +1198,12 @@ install_eksctl(){
     sudo mv /tmp/eksctl /usr/local/bin
 }
 
+install_dotnet_sdk(){
+	sudo add-apt-repository ppa:dotnet/backports
+	sudo apt update
+	sudo apt install dotnet-sdk-8.0
+}
+
 install_pkg(){
 	pkg_list=(
 	'main'
@@ -1132,6 +1216,7 @@ install_pkg(){
     'sudo apt install xclip'
     'sudo apt install samba -y'
     'sudo apt install git -y'
+    'sudo apt install openjdk-17-jdk -y'
     'sudo apt install ipython3 -y'
 	'sudo apt install python3-pandas -y'
 	'sudo apt install python3-flask -y'
@@ -1150,7 +1235,7 @@ install_pkg(){
 	'install_ansible' 'install_terraform'
 	'install_easyeda' 'install_filebeat'
 	'install_mongo_db' 'install_rtl_sdr'
-	'install_eksctl'
+	'install_eksctl' 'install_dotnet_sdk'
 	)
 
     i=0
@@ -1590,6 +1675,7 @@ scripts(){
     echo "6. [pass] Password Manager"
     echo "7. ufw Manager"
     echo "8. check_ip"
+    echo "9. jellyfin_controller"
     echo " "
     echo "0. Back"
     read -p "Enter your choice (0-to go back): " ans
@@ -1627,25 +1713,34 @@ scripts(){
   fi
 	if [ $ans == 5 ]; then
         if [[ ! -f $ssh_PATH ]]; then
-        make_ssh
-        printf "alias ssh2='bash $ssh_PATH'\n" >> $alias_file
+        	make_ssh
+        	printf "alias ssh2='bash $ssh_PATH'\n" >> $alias_file
+        	main
         fi
     fi
     if [ $ans == 6 ]; then
         if [[ ! -f $pass_PATH ]]; then
-        make_pass
-        printf "alias pass='bash $pass_PATH'\n" >> $alias_file
-        main
+        	make_pass
+        	printf "alias pass='bash $pass_PATH'\n" >> $alias_file
+        	main
         fi
     fi
     if [ $ans == 7 ]; then
         ufw
     fi
+    
+    if [ $ans == 8 ]; then
         if [[ ! -f $check_ip_PATH ]]; then
-        make_check_ip
-        printf "alias pass='bash $pass_PATH'\n" >> $alias_file
-        main
-
+        	make_check_ip
+        	main
+        fi
+    fi
+    if [ $ans == 9 ]; then
+        if [[ ! -f $jelly_PATH ]]; then
+        	make_jelly
+        	printf "alias jelly='bash $jelly_PATH'\n" >> $alias_file
+        	main
+        fi
     fi
 }
 
