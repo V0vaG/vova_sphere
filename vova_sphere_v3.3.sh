@@ -51,7 +51,7 @@ print_to_file $LINENO $pass_PATH
  
 #!/bin/bash
  
-txt_file="/home/$USER/my_scripts/pass/txt"
+txt_file="/tmp/tmp_file"
  
 if [[ -f $txt_file ]]; then
 	echo "$txt_file was not deleted!!!!!!!!!!"
@@ -68,11 +68,14 @@ file_list=(
 "/home/$USER/my_scripts/pass/.s_txt2" # $pass 2...
 )
  
-if [ ${#file_list[@]} -gt "1" -a -z "$1" ]; then
-	exit
+if [ "$1" == "-f" ]; then
+	s_txt_file=$2
+else
+	if [ ${#file_list[@]} -gt "1" -a -z "$1" ]; then
+		exit
+	fi
+	s_txt_file=${file_list["(($1-1))"]}
 fi
- 
-s_txt_file=${file_list["(($1-1))"]}
  
 read -s pass
  
