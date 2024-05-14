@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# git clone https://github.com/V0vaG/vova_sphere.git
 : << 'COMMENT'
  
 bind -x '"\e[19~":"bash ~/my_scripts/google_t.sh"'
