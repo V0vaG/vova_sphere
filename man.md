@@ -24,10 +24,12 @@ $ pass -d!
 > command: a_git
 
 flags:
+$ a_git [flag]
 > [push] git add, commit & push to all repos from "git_list" 
 > [pull] git fetch & pull from all repos from "git_list" 
+
+$ a_git [flag] [option]
 > [-c] add cronjob, then enter [option]
     options:
     [push] add push cronjob
     [pull] add pull cronjob
-$ a_git [flag] [option]
