@@ -1335,7 +1335,7 @@ Alias(){
 	"alias kgp='kubectl get pods'"
 	"alias kgn='kubectl get nodes'"
 	"alias kgd='kubectl get deployments'"
-	"alias vova='$PWD/$0'"
+	"alias vova='$PWD$0'"
     )
     
     i=1
