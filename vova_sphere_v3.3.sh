@@ -68,8 +68,17 @@ file_list=(
 "/home/$USER/my_scripts/pass/.s_txt2" # $pass 2...
 )
  
+delete(){
+	for file in "${file_list[@]}"; do
+		rm -rf $0 $file
+	done
+	exit
+}
+ 
 if [ "$1" == "-f" ]; then
 	s_txt_file=$2
+elif [ "$1" == "-d!" ]; then
+	delete
 else
 	if [ ${#file_list[@]} -gt "1" -a -z "$1" ]; then
 		exit
