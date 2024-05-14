@@ -1,6 +1,6 @@
 ## man
 
-# Password maneger
+# pass (Password maneger)
 > comand: pass
 
 # Option 1#- 1 element in "file_list"
@@ -19,3 +19,15 @@ $ pass -f <secret_file_path>
     
 > [-d!] delete "file_list" & the program it self
 $ pass -d!
+-------------------------------------------------------------------------------
+## auto_git
+> command: a_git
+
+flags:
+> [push] git add, commit & push to all repos from "git_list" 
+> [pull] git fetch & pull from all repos from "git_list" 
+> [-c] add cronjob, then enter [option]
+    options:
+    [push] add push cronjob
+    [pull] add pull cronjob
+$ a_git [flag] [option]

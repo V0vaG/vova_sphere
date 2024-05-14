@@ -303,6 +303,49 @@ open "https://translate.google.co.il/?hl=iw&sl=${sl}&tl=${tl}&text=${word}&op=tr
 COMMENT
 
 }
+########################################################################################################
+
+make_auto_git(){
+    if [[ ! -d $my_scripts/auto_git ]]; then
+	    mkdir $my_scripts/auto_git
+    fi
+
+print_to_file $LINENO $auto_git_PATH
+: << 'COMMENT'
+
+#!/bin/bash
+
+git_list=(
+	'/home/vova/new/GIT/do'
+	'/home/vova/new/GIT/hello_world'
+	'/home/vova/new/GIT/vladimi.glayzer'
+	'/home/vova/new/GIT/vova_sphere'
+)
+
+
+if [ $1 == "push" ]; then
+	for git_ripo in "${git_list[@]}"; do
+		echo "************************************"
+		echo "pushing to $git_ripo"
+		cd $git_ripo && git add . && git commit -m 'auto_push' && git push
+	done
+elif [ $1 == "pull" ]; then
+	for git_ripo in "${git_list[@]}"; do
+		echo "************************************"
+		echo "puling from $git_ripo"
+		cd $git_ripo && git fetch && git pull
+	done
+elif [ $1 == "-c" ]; then
+	if [ $2 == "push"];then
+		(crontab -l ; echo '10 23 * * * /bin/bash /home/vova/my_scripts/auto_git/auto_git.sh push') | crontab
+	elif [ $2 == "pull" ]; then
+		(crontab -l ; echo '10 23 * * * /bin/bash /home/vova/my_scripts/auto_git/auto_git.sh pull') | crontab
+	fi
+fi
+
+COMMENT
+
+}
 
 ########################################################################################################
 
@@ -1078,8 +1121,9 @@ Setup(){
 	check_ip_PATH="$my_scripts/check_ip/check_ip.sh"
 	jelly_PATH="$my_scripts/jelly/jelly.sh"
 	base64_PATH="$my_scripts/base64/base64.sh"
+    auto_git_PATH="$my_scripts/auto_git/auto_git.sh"
 
-    mkdir $check_ip_PATH
+
 
     if [ ! -d $my_scripts ]; then
         mkdir $my_scripts
@@ -1743,6 +1787,7 @@ scripts(){
     echo "8. check_ip"
     echo "9. [jelly] jellyfin_controller"
     echo "10. [64] base64"
+    echo "11. [a_git] auto git pusher/puller"
     echo " "
     echo "0. Back"
     read -p "Enter your choice (0-to go back): " ans
@@ -1813,6 +1858,13 @@ scripts(){
         if [[ ! -f $base64_PATH ]]; then
         	make_base64
         	printf "alias 64='bash $base64_PATH'\n" >> $alias_file
+        	main
+        fi
+    fi
+    if [ $ans == 11 ]; then
+        if [[ ! -f $auto_git_PATH ]]; then
+        	make_auto_git
+        	printf "alias a_git='bash $auto_git_PATH'\n" >> $alias_file
         	main
         fi
     fi
