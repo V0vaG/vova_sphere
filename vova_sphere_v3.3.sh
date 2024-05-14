@@ -336,7 +336,7 @@ elif [ $1 == "pull" ]; then
 		cd $git_ripo && git fetch && git pull
 	done
 elif [ $1 == "-c" ]; then
-	if [ $2 == "push"];then
+	if [ $2 == "push" ];then
 		(crontab -l ; echo '10 23 * * * /bin/bash /home/vova/my_scripts/auto_git/auto_git.sh push') | crontab
 	elif [ $2 == "pull" ]; then
 		(crontab -l ; echo '10 23 * * * /bin/bash /home/vova/my_scripts/auto_git/auto_git.sh pull') | crontab
@@ -1777,7 +1777,7 @@ ufw(){
 
 scripts(){
     echo "*****Scripts*********"
-    echo "1. [ec2]  Ssh2ec2"
+    echo "1. [ec2]  Ssh2ec2 (aws cli tool)"
     echo "2. [f]    Google> "what is ____ in xxxxx""
     echo "3. [F8]   Google Translate"
     echo "4. Auto Disk Mount"
@@ -1787,7 +1787,7 @@ scripts(){
     echo "8. check_ip"
     echo "9. [jelly] jellyfin_controller"
     echo "10. [64] base64"
-    echo "11. [a_git] auto git pusher/puller"
+    echo "11. [a_git] auto git (auto pusher/puller) "
     echo " "
     echo "0. Back"
     read -p "Enter your choice (0-to go back): " ans
