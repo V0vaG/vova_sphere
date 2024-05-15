@@ -49,10 +49,11 @@ make_pass(){
 print_to_file $LINENO $pass_PATH
 : << 'COMMENT'
  
+ 
 #!/bin/bash
  
-txt_file="/tmp/tmp_file"
- 
+version='1.0.0'
+
 if [[ -f $txt_file ]]; then
 	echo "$txt_file was not deleted!!!!!!!!!!"
 	read -p "To delete the file (y/n)? " ans
@@ -77,11 +78,29 @@ delete(){
  
 if [ "$1" == "-f" ]; then
 	s_txt_file=$2
-elif [ "$1" == "-version" ]; then
-	echo "1.0.0"
+elif [ "$1" == "-v" ]; then
+	echo $version
 	exit
-elif [ "$1" == "-help" ]; then
-	echo "Help manual"
+elif [ "$1" == "-h" ]; then
+	echo "*** pass (Password maneger)***
+> comand: pass
+
+Option 1#- 1 element in *file_list*
+$ pass 
+> Then enter secret code
+
+Option 2#- more then 1 element in *file_list*
+> [arg] the number of the element in *file_list* starting from 1
+$ pass [arg]
+> Then enter secret code
+
+Option 3#- flags:
+> [-f] workin with file outside *file_list*
+$ pass -f <secret_file_path>
+> Then enter secret code
+    
+> [-d!] delete *file_list* & the program it self
+$ pass -d!"
 	exit
 elif [ "$1" == "-d!" ]; then
 	delete
@@ -176,6 +195,16 @@ make_check_ip(){
 print_to_file $LINENO $check_ip_PATH
 : << 'COMMENT'
 #!/bin/bash
+ 
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
  
 old_ip_file="/home/vova/my_scripts/check_ip/old_ip"
 logs_file="/home/vova/my_scripts/check_ip/logs_ip"
@@ -293,6 +322,17 @@ make_google_t(){
 print_to_file $LINENO $google_t_PATH
 : << 'COMMENT'
 #!/bin/bash
+ 
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
+ 
 word=$(xclip -selection c -o)
 for let in $word
 do
@@ -321,7 +361,17 @@ print_to_file $LINENO $auto_git_PATH
 : << 'COMMENT'
 
 #!/bin/bash
-
+ 
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
+ 
 git_list=(
 	'/home/vova/new/GIT/do'
 	'/home/vova/new/GIT/hello_world'
@@ -366,6 +416,16 @@ print_to_file $LINENO $jelly_PATH
 : << 'COMMENT'
   
 #!/bin/bash
+ 
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
  
 status(){
         sudo service jellyfin status
@@ -425,6 +485,17 @@ print_to_file $LINENO $google_f_PATH
 : << 'COMMENT'
  
 #!/bin/bash
+ 
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
+ 
 search_file=~/my_scripts/google_f/f.txt
  
 if [ ! -f $search_file ]; then
@@ -486,6 +557,16 @@ print_to_file $LINENO $base64_PATH
  
 #!/bin/bash
  
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
+ 
 convert_txt2base64(){
 	read -p "Enter TXT to convert to Base64: " ans
 	echo "$ans" | base64
@@ -531,6 +612,16 @@ print_to_file $LINENO $ssh2ec2_PATH
 : << 'COMMENT'
  
 #!/bin/bash
+ 
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
  
 file_test='FAIL'
 config_file="/home/$USER/my_scripts/ssh2ec2/config"
@@ -905,6 +996,17 @@ make_ssh(){
 print_to_file $LINENO $ssh_PATH
 : << 'COMMENT'
 #!/bin/bash
+ 
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
+ 
 file_test='FAIL'
 user_file_M="/home/$USER/my_scripts/ssh2/user_f"
 conf_file="/home/$USER/my_scripts/ssh2/conf"
@@ -1131,7 +1233,6 @@ Setup(){
     auto_git_PATH="$my_scripts/auto_git/auto_git.sh"
 
 
-
     if [ ! -d $my_scripts ]; then
         mkdir $my_scripts
         echo "Creating DIR ~/$my_scripts..."
@@ -1321,6 +1422,12 @@ install_dotnet_sdk(){
 	sudo apt install dotnet-sdk-8.0
 }
 
+install_appimagelauncher(){
+	sudo add-apt-repository ppa:appimagelauncher-team/stable
+	sudo apt update
+	sudo apt install appimagelauncher
+}
+
 install_pkg(){
 	pkg_list=(
 	'main'
@@ -1330,6 +1437,7 @@ install_pkg(){
 	'sudo apt install gdb'
 	'sudo apt install micro'
 	'sudo apt install mc'
+	'sudo apt install make'
     'sudo apt install xclip'
     'sudo apt install samba -y'
     'sudo apt install git -y'
@@ -1353,6 +1461,7 @@ install_pkg(){
 	'install_easyeda' 'install_filebeat'
 	'install_mongo_db' 'install_rtl_sdr'
 	'install_eksctl' 'install_dotnet_sdk'
+	'install_appimagelauncher'
 	)
 
     i=0
@@ -1589,6 +1698,7 @@ bugfix_and_shmix(){
 		ssh-add ~/.ssh/id_ed25519
 		echo"-----------new-SSH-Key:--------------------\n"
 		cat ~/.ssh/id_ed25519.pub
+		read -p "press any key to exit" xxx
 	fi
 
 	if [ $ans == 3 ]; then    	
@@ -1896,6 +2006,7 @@ System_info(){
 }
 
 main(){
+
     clear
     echo "***Welcome to vova_sphere***"
     echo "1- Install packages"
@@ -1919,5 +2030,15 @@ main(){
 }
 
 Setup
+
+version='1.0.0'
+ 
+if [ $1 == '-v' ]; then
+	echo $version
+	exit
+elif [ $1 == -h ]; then
+	echo "help"
+	exit
+fi
 
 main
