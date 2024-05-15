@@ -1,6 +1,6 @@
 #!/bin/bash
 
-target='vova_s.sh'
+target='vova_sphere_test.sh'
 
 file_list=(
 'check_ip'
@@ -62,6 +62,7 @@ make_script_2 dir_script_2 script_2.sh
 first_fix
 
 for file in "${file_list[@]}"; do
+	echo "Adding $file."
 	pre_fix $file
 	fix $file
 	post_fix
@@ -70,4 +71,7 @@ done
 print_func
 
 cat vova >> $target
+
+echo "Finish adding files to $target."
+sleep 1
 
