@@ -70,15 +70,22 @@ file_list=(
  
 delete(){
 	for file in "${file_list[@]}"; do
-		rm -rf $0 $file
+		rm -rf $file
 	done
-	exit
+		rm -fr $0
 }
  
 if [ "$1" == "-f" ]; then
 	s_txt_file=$2
+elif [ "$1" == "-version" ]; then
+	echo "1.0.0"
+	exit
+elif [ "$1" == "-help" ]; then
+	echo "Help manual"
+	exit
 elif [ "$1" == "-d!" ]; then
 	delete
+	exit
 else
 	if [ ${#file_list[@]} -gt "1" -a -z "$1" ]; then
 		exit
