@@ -2,6 +2,8 @@
 
 target='vova_sphere_test.sh'
 
+master_file='vova'
+
 file_list=(
 'check_ip'
 'ssh2ec2'
@@ -70,7 +72,7 @@ done
 
 print_func
 
-cat vova >> $target
+cat $master_file >> $target
 
 echo "Finish adding files to $target."
 sleep 1
