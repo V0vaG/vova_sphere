@@ -72,7 +72,7 @@ delete(){
 	for file in "${file_list[@]}"; do
 		rm -rf $file
 	done
-		rm -fr $0
+		rm -rf $0
 }
  
 if [ "$1" == "-f" ]; then
