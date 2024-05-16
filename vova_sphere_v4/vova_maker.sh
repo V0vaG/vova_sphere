@@ -8,7 +8,7 @@ file_list=(
 'check_ip'
 'ssh2ec2'
 'pass'
-'ssh2'
+'ssh2.sh'
 'base64'
 'google_f'
 'jelly'
@@ -21,7 +21,9 @@ echo '#!/bin/bash
 }
 
 pre_fix(){
-echo "make_$1(){" >> $target
+file_name=$1
+func_name="${file_name%.*}"
+echo "make_$func_name(){" >> $target
 echo 'print_to_file $LINENO $1 $2
 : << "COMMENT"' >> $target
 }
