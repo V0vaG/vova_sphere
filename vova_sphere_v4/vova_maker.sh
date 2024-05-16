@@ -54,8 +54,6 @@ print_to_file() {
 	done
 }
 
-make_script_1 dir_script_1 script_1.sh
-make_script_2 dir_script_2 script_2.sh
 ' >> $target
 }
 
