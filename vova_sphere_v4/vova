@@ -195,6 +195,11 @@ install_appimagelauncher(){
 	sudo apt install appimagelauncher
 }
 
+install_fuse(){
+sudo add-apt-repository universe
+sudo apt install libfuse2
+}
+
 install_pkg(){
 	pkg_list=(
 	'main'
@@ -228,7 +233,7 @@ install_pkg(){
 	'install_easyeda' 'install_filebeat'
 	'install_mongo_db' 'install_rtl_sdr'
 	'install_eksctl' 'install_dotnet_sdk'
-	'install_appimagelauncher'
+	'install_appimagelauncher' 'install_fuse'
 	)
 
 	i=0

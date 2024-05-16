@@ -1,6 +1,4 @@
 #!/bin/bash
-
-#123s
  
 version='1.0.0'
  
