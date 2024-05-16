@@ -14,7 +14,6 @@ Setup(){
 	base64_PATH=$my_scripts/base64
     auto_git_PATH=$my_scripts/auto_git
 
-
     if [ ! -d $my_scripts ]; then
         mkdir $my_scripts
         echo "Creating DIR ~/$my_scripts..."
