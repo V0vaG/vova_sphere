@@ -33,3 +33,5 @@ $ a_git [flag] [option]
     options:
     [push] add push cronjob
     [pull] add pull cronjob
+    
+    
