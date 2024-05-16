@@ -2,17 +2,20 @@
 
 target='vova_sphere_test.sh'
 
+echo "Deleting old $target"
+rm $target
+
 master_file='vova'
 
 file_list=(
-'check_ip'
-'ssh2ec2'
-'pass'
+'check_ip.sh'
+'ssh2ec2.sh'
+'pass.sh'
 'ssh2.sh'
-'base64'
-'google_f'
-'jelly'
-'auto_git'
+'base64.sh'
+'google_f.sh'
+'jelly.sh'
+'auto_git.sh'
 )
 
 first_fix(){

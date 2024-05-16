@@ -1,7 +1,7 @@
 #!/bin/bash
 Setup(){
 	echo -en "\007"
-    bashrc_file=~/.bashrc
+	bashrc_file=~/.bashrc
 	my_scripts=~/my_scripts
 	alias_file=$my_scripts/alias.txt
 	ssh2ec2_PATH=$my_scripts/ssh2ec2
@@ -12,20 +12,20 @@ Setup(){
 	check_ip_PATH=$my_scripts/check_ip
 	jelly_PATH=$my_scripts/jelly
 	base64_PATH=$my_scripts/base64
-    auto_git_PATH=$my_scripts/auto_git
+	auto_git_PATH=$my_scripts/auto_git
 
-    if [ ! -d $my_scripts ]; then
-        mkdir $my_scripts
-        echo "Creating DIR ~/$my_scripts..."
+	if [ ! -d $my_scripts ]; then
+		mkdir $my_scripts
+		echo "Creating DIR ~/$my_scripts..."
 	fi
 
-    if [ ! -f $my_scripts/bashrc.copy ]; then
-        cp ~/.bashrc $my_scripts/bashrc.copy
-        echo "Backing up .bashrc to ~/my_scripts..."
-        echo "#*************Vova's Scripts****************" >> $bashrc_file
-        echo "if [ -f $my_scripts/alias.txt ]; then" >> $bashrc_file
-        echo "    . $my_scripts/alias.txt" >> $bashrc_file
-        echo "fi" >> $bashrc_file
+	if [ ! -f $my_scripts/bashrc.copy ]; then
+		cp ~/.bashrc $my_scripts/bashrc.copy
+		echo "Backing up .bashrc to ~/my_scripts..."
+		echo "#*************Vova's Scripts****************" >> $bashrc_file
+		echo "if [ -f $my_scripts/alias.txt ]; then" >> $bashrc_file
+		echo "    . $my_scripts/alias.txt" >> $bashrc_file
+		echo "fi" >> $bashrc_file
 	fi
 }
 
@@ -44,29 +44,29 @@ print_man() {
 }
 
 install_docker_and_compose(){
-    # Add Docker's official GPG key:
-    sudo apt-get update
-    sudo apt-get install ca-certificates curl
-    sudo install -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
+	# Add Docker's official GPG key:
+	sudo apt-get update
+	sudo apt-get install ca-certificates curl
+	sudo install -m 0755 -d /etc/apt/keyrings
+	sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+	sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-    # Add the repository to Apt sources:
-    echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt-get update
-    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+	# Add the repository to Apt sources:
+	echo \
+	"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+	$(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+	sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	sudo apt-get update
+	sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-    #install docker-compose
-    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
+	#install docker-compose
+	sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+	sudo chmod +x /usr/local/bin/docker-compose
 }
 
 install_minikube(){
-    (cd /home/$USER/Downloads && curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64)
-    (cd /home/$USER/Downloads && sudo install minikube-linux-amd64 /usr/local/bin/minikube)
+	(cd /home/$USER/Downloads && curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64)
+	(cd /home/$USER/Downloads && sudo install minikube-linux-amd64 /usr/local/bin/minikube)
 }
 
 install_kubectl(){
@@ -74,74 +74,74 @@ install_kubectl(){
 		echo "Creating dir: Downloads"
 		mkdir Downloads
 	fi
-    (cd /home/$USER/Downloads && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl")
-    (cd /home/$USER/Downloads && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl)
+	(cd /home/$USER/Downloads && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl")
+	(cd /home/$USER/Downloads && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl)
 }
 
 install_jellyfin_raspbian(){
-  curl https://repo.jellyfin.org/install-debuntu.sh | sudo bash
-  sudo setfacl -m u:jellyfin:rwx /media/$USER/
-  read -p "What port to allow (default 8096)? " ans
-  sudo ufw allow $ans
-  sudo systemctl enable jellyfin
-  sudo systemctl start jellyfin
-  make_jelly
-  printf "alias jelly='bash $jelly_PATH'\n" >> $alias_file
+	curl https://repo.jellyfin.org/install-debuntu.sh | sudo bash
+	sudo setfacl -m u:jellyfin:rwx /media/$USER/
+	read -p "What port to allow (default 8096)? " ans
+	sudo ufw allow $ans
+	sudo systemctl enable jellyfin
+	sudo systemctl start jellyfin
+	make_jelly
+	printf "alias jelly='bash $jelly_PATH'\n" >> $alias_file
 }
 
 install_jellyfin_ubuntu(){
-  # https://jellyfin.org/docs/general/installation/linux/
-  sudo wget -O- https://repo.jellyfin.org/install-debuntu.sh | sudo bash
-  sudo setfacl -m u:jellyfin:rwx /media/$USER/
-  read -p "What port to allow (default 8096)? " ans
-  sudo ufw allow $ans
-  sudo systemctl enable jellyfin
-  sudo systemctl start jellyfin
-  make_jelly
-  printf "alias jelly='bash $jelly_PATH'\n" >> $alias_file
+	# https://jellyfin.org/docs/general/installation/linux/
+	sudo wget -O- https://repo.jellyfin.org/install-debuntu.sh | sudo bash
+	sudo setfacl -m u:jellyfin:rwx /media/$USER/
+	read -p "What port to allow (default 8096)? " ans
+	sudo ufw allow $ans
+	sudo systemctl enable jellyfin
+	sudo systemctl start jellyfin
+	make_jelly
+	printf "alias jelly='bash $jelly_PATH'\n" >> $alias_file
 }
 
 install_howdy(){
-  sudo add-apt-repository -y ppa:boltgolt/howdy && sudo apt install -y howdy
-  sudo apt install ffmpeg
+	sudo add-apt-repository -y ppa:boltgolt/howdy && sudo apt install -y howdy
+	sudo apt install ffmpeg
 }
 
 install_ansible(){
-  sudo apt update
-  sudo apt install software-properties-common
-  sudo add-apt-repository --yes --update ppa:ansible/ansible
-  sudo apt install ansible
+	sudo apt update
+	sudo apt install software-properties-common
+	sudo add-apt-repository --yes --update ppa:ansible/ansible
+	sudo apt install ansible
 }
 
 install_easyeda(){
-  sudo mkdir /home/$USER/Downloads/easyeda
-  cd /home/$USER/Downloads/easyeda && wget https://image.easyeda.com/files/easyeda-linux-x64-6.5.40.zip && unzip easyeda-linux-x64-6.5.40.zip
-  sudo bash install.sh
+	sudo mkdir /home/$USER/Downloads/easyeda
+	cd /home/$USER/Downloads/easyeda && wget https://image.easyeda.com/files/easyeda-linux-x64-6.5.40.zip && unzip easyeda-linux-x64-6.5.40.zip
+	sudo bash install.sh
 }
 
 install_chirp(){
-  https://chirp.danplanet.com/projects/chirp/wiki/Download                                                        #Download Chirp
-  sudo apt install git python3-wxgtk4.0 python3-serial python3-six python3-future python3-requests python3-pip    #Install distro packages
-  pip install ./chirp-20230509-py3-none-any.whl                                                                   #Install CHIRP from .whl file
-  ~/.local/bin/chirp                                                                                              #Run chirp
-  sudo usermod -a -G "$(stat -c %G /dev/ttyUSB0)" $USER                                                           #Serial port permissions
-  #pip3 install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04 wxPython
+	https://chirp.danplanet.com/projects/chirp/wiki/Download                                                        #Download Chirp
+	sudo apt install git python3-wxgtk4.0 python3-serial python3-six python3-future python3-requests python3-pip    #Install distro packages
+	pip install ./chirp-20230509-py3-none-any.whl                                                                   #Install CHIRP from .whl file
+	~/.local/bin/chirp                                                                                              #Run chirp
+	sudo usermod -a -G "$(stat -c %G /dev/ttyUSB0)" $USER                                                           #Serial port permissions
+	#pip3 install -U -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04 wxPython
 }
 
 install_terraform(){
-  sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-  wget -O- https://apt.releases.hashicorp.com/gpg | \
-  gpg --dearmor | \
-  sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-  gpg --no-default-keyring \
---keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
---fingerprint
-  sleep 5
-  echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-  sudo tee /etc/apt/sources.list.d/hashicorp.list
-  sudo apt update
-  sudo apt-get install terraform
+	sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+	wget -O- https://apt.releases.hashicorp.com/gpg | \
+	gpg --dearmor | \
+	sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+	gpg --no-default-keyring \
+	--keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+	--fingerprint
+	sleep 5
+	echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+	https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+	sudo tee /etc/apt/sources.list.d/hashicorp.list
+	sudo apt update
+	sudo apt-get install terraform
 }
 
 install_filebeat(){
@@ -170,17 +170,17 @@ install_rtl_sdr(){
 	rtl_test -t
 	read -p "Reboot system needed, reboot now (y/n)? " ans
 	if [[ $ans == 'y' ]]; then
-		    sudo reboot
+		sudo reboot
 	fi
 }
 
 install_eksctl(){
-    ARCH=amd64
-    PLATFORM=$(uname -s)_$ARCH
-    curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
-    curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
-    tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
-    sudo mv /tmp/eksctl /usr/local/bin
+	ARCH=amd64
+	PLATFORM=$(uname -s)_$ARCH
+	curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+	curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+	tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+	sudo mv /tmp/eksctl /usr/local/bin
 }
 
 install_dotnet_sdk(){
@@ -205,18 +205,18 @@ install_pkg(){
 	'sudo apt install micro'
 	'sudo apt install mc'
 	'sudo apt install make'
-    'sudo apt install xclip'
-    'sudo apt install samba -y'
-    'sudo apt install git -y'
-    'sudo apt install openjdk-17-jdk -y'
-    'sudo apt install ipython3 -y'
+	'sudo apt install xclip'
+	'sudo apt install samba -y'
+	'sudo apt install git -y'
+	'sudo apt install openjdk-17-jdk -y'
+	'sudo apt install ipython3 -y'
 	'sudo apt install python3-pandas -y'
 	'sudo apt install python3-flask -y'
 	'sudo apt install opencu -y'
 	'sudo apt-get install wireshark'
-    'sudo apt-get install gnome-subtitles'
-    'sudo apt-get install yamllint'
-    'sudo snap install whatsdesk'
+	'sudo apt-get install gnome-subtitles'
+	'sudo apt-get install yamllint'
+	'sudo snap install whatsdesk'
 	'sudo snap install rpi-imager -y'
 	'sudo snap install helm --classic'
 	'install_docker_and_compose'
@@ -231,24 +231,24 @@ install_pkg(){
 	'install_appimagelauncher'
 	)
 
-    i=0
-    for cmd in "${pkg_list[@]}"; do
-        echo "$i". "$cmd"
-        ((i++))
-    done
+	i=0
+	for cmd in "${pkg_list[@]}"; do
+		echo "$i". "$cmd"
+		((i++))
+	done
 	echo " "
 	read -p "Enter your choice (0-to go back): " ans
 	clear
-    ${pkg_list["$ans"]}
+	${pkg_list["$ans"]}
 	install_pkg
 }
 
 
 Alias(){
 	echo "******Add Alias********"
-    alias_list=(
-    "alias up='sudo apt-get update && sudo apt-get upgrade -y && sudo apt autoremove -y && sudo snap refresh'"
-    "alias git_p='git status && git add . && git commit -m 'auto_push' && git push'"
+	alias_list=(
+	"alias up='sudo apt-get update && sudo apt-get upgrade -y && sudo apt autoremove -y && sudo snap refresh'"
+	"alias git_p='git status && git add . && git commit -m 'auto_push' && git push'"
 	"alias c='clear'"
 	"export HISTCONTROL=ignorespace"
 	"alias mi='micro'"	
@@ -270,30 +270,26 @@ Alias(){
 	"alias kgp='kubectl get pods'"
 	"alias kgn='kubectl get nodes'"
 	"alias kgd='kubectl get deployments'"
-	"alias vova='$PWD$0'"
-    )
+	"alias vova='bash $PWD/$0'"
+	)
     
-    i=1
-    for alias in "${alias_list[@]}"; do
-        echo "$i". "$alias"
-        ((i++))
-    done
+	i=1
+	for alias in "${alias_list[@]}"; do
+		echo "$i". "$alias"
+		((i++))
+	done
 	echo " "
 	read -p "Enter your choice (0-to go back): " ans
-	clear
-	
+	clear	
 	if [[ $ans == 0 ]]; then
-        main
+		main
 	fi
-	
 	if [[ $ans == -1 ]]; then   
 		rm ~/.bashrc
 		cp $my_scripts/bashrc.copy ~/.bashrc
 		rm -rf $my_scripts
 	fi
-	
-    printf "${alias_list["(($ans-1))"]}\n" >> $alias_file
-
+	printf "${alias_list["(($ans-1))"]}\n" >> $alias_file
 #	if [[ $ans == 20 ]]; then
 #        sed -n 6p $0 >> $alias_file
 #	fi
@@ -302,7 +298,7 @@ Alias(){
  #       sed -n 7p $0 >> $alias_file
 #	fi
 
-    Alias
+	Alias
 }	
 
 chat(){
@@ -525,10 +521,10 @@ WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target s
 				bugfix_and_shmix
 			else
 				sudo chmod 777 /sys/class/power_supply/BAT0/charge_stop_threshold
-		        sudo echo $max > /sys/class/power_supply/BAT0/charge_stop_threshold
-		        sudo chmod 755 /sys/class/power_supply/BAT0/charge_stop_threshold
-		        echo "New max charge value set to: $(cat /sys/class/power_supply/BAT0/charge_stop_threshold)"
-		    fi
+				sudo echo $max > /sys/class/power_supply/BAT0/charge_stop_threshold
+				sudo chmod 755 /sys/class/power_supply/BAT0/charge_stop_threshold
+				echo "New max charge value set to: $(cat /sys/class/power_supply/BAT0/charge_stop_threshold)"
+			fi
 		else
 			echo "ERROR: Please enter a valid max limit between [1-100]"
 			sleep 3
@@ -544,219 +540,205 @@ WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target s
 }
 
 ufw(){
-    echo "Ultra Fire Wall"
-    select_port(){
-        read -p "Enter port: " port
-    }
-    temp_ufw_disable(){
-        read -p "How mutch to sleep? " minuts
-        seconds=$(($minuts*60))
-        sudo ufw disable
-        sleep_time(){
-            echo "$seconds left to sleep"
-            sleep 1
-            ((seconds=$seconds-1))
-            clear
-            if (( $seconds == 0 ));then
-                sudo ufw enable
-                sudo ufw status
-                exit
-            fi
-            sleep_time
-        }
-        sleep_time
-    }
-    status(){
-        sudo ufw status numbered
-        sleep 5
-    }
-    enable(){
-        sudo ufw enable
-    }
-    disable(){
-        sudo ufw disable
-    }
-    logs(){
-        tail -f /var/log/ufw.log
-    }
-    delete_rules(){
-        status
-        read -p "Enter rule number to DELETE: " ans
-        if [[ $ans == 0 ]] ; then
-            exit
-        fi
-        sudo ufw delete $ans
-        delete_rules
-    }
-   
-    ufw_allow_port(){
-    	read -p "Enter port number to allow: " ans
-    	sudo ufw allow $ans
-    }
-
-    ufw_list=(
-    'main'
-    'status'
-    'enable'
-    'disable'
-    'ufw_allow_port'
-    'ufw_disable_port'
-    'temp_ufw_disable'
-    'delete_rules'
-    'logs'
-    )
+	echo "Ultra Fire Wall"
+	select_port(){
+		read -p "Enter port: " port
+	}
+	temp_ufw_disable(){
+		read -p "How mutch to sleep? " minuts
+		seconds=$(($minuts*60))
+		sudo ufw disable
+		sleep_time(){
+			echo "$seconds left to sleep"
+			sleep 1
+			((seconds=$seconds-1))
+			clear
+			if (( $seconds == 0 ));then
+				sudo ufw enable
+				sudo ufw status
+				exit
+			fi
+			sleep_time
+		}
+		sleep_time
+	}
+	status(){
+		sudo ufw status numbered
+		sleep 5
+	}
+	enable(){
+		sudo ufw enable
+	}
+	disable(){
+		sudo ufw disable
+	}
+	logs(){
+		tail -f /var/log/ufw.log
+	}
+	delete_rules(){
+		status
+		read -p "Enter rule number to DELETE: " ans
+		if [[ $ans == 0 ]] ; then
+			exit
+		fi
+		sudo ufw delete $ans
+		delete_rules
+	}
 	
-    i=0
-    for sele in "${ufw_list[@]}"; do
-        echo "$i. $sele"
-        ((i++))
-    done
-
-    read -p "what to do? " ans
-
-    ${ufw_list["$ans"]}
-    clear
+	ufw_allow_port(){
+		read -p "Enter port number to allow: " ans
+		sudo ufw allow $ans
+	}
+	ufw_list=(
+	'main'
+	'status'
+	'enable'
+	'disable'
+	'ufw_allow_port'
+	'ufw_disable_port'
+	'temp_ufw_disable'
+	'delete_rules'
+	'logs'
+	)
+	
+	i=0
+	for sele in "${ufw_list[@]}"; do
+		echo "$i. $sele"
+		((i++))
+	done
+	read -p "what to do? " ans
+	${ufw_list["$ans"]}
+	clear
 	ufw
 }
 
 scripts(){
-    echo "*****Scripts*********"
-    echo "1. [ec2]  Ssh2ec2 (aws cli tool)"
-    echo "2. [f]    Google> "what is ____ in xxxxx""
-    echo "3. [F8]   Google Translate"
-    echo "4. Auto Disk Mount"
-    echo "5. [ssh2] Ssh"
-    echo "6. [pass] Password Manager"
-    echo "7. ufw Manager"
-    echo "8. check_ip"
-    echo "9. [jelly] jellyfin_controller"
-    echo "10. [64] base64"
-    echo "11. [a_git] auto git (auto pusher/puller) "
-    echo " "
-    echo "0. Back"
-    read -p "Enter your choice (0-to go back): " ans
-    clear
-
+	echo "*****Scripts*********"
+	echo "1. [ec2]  Ssh2ec2 (aws cli tool)"
+	echo "2. [f]    Google> "what is ____ in xxxxx""
+	echo "3. [F8]   Google Translate"
+	echo "4. Auto Disk Mount"
+	echo "5. [ssh2] Ssh"
+	echo "6. [pass] Password Manager"
+	echo "7. ufw Manager"
+	echo "8. check_ip"
+	echo "9. [jelly] jellyfin_controller"
+	echo "10. [64] base64"
+	echo "11. [a_git] auto git (auto pusher/puller) "
+	echo " "
+	echo "0. Back"
+	read -p "Enter your choice (0-to go back): " ans
+	clear
 	if [ $ans == 0 ]; then
 		main 
+	fi 
+	if [ $ans == 1 ]; then
+		if [[ ! -d $ssh2ec2_PATH ]]; then
+			make_ssh2ec2 $ssh2ec2_PATH ssh2ec2.sh
+			printf "alias ec2='bash $ssh2ec2_PATH/ssh2ec2.sh'\n" >> $alias_file
+			scripts
+		fi
 	fi
-	 
-    if [ $ans == 1 ]; then
-        if [[ ! -d $ssh2ec2_PATH ]]; then
-        	make_ssh2ec2 $ssh2ec2_PATH ssh2ec2.sh
-        	printf "alias ec2='bash $ssh2ec2_PATH/ssh2ec2.sh'\n" >> $alias_file
-        	scripts
-        fi
-    fi
-
-  if [ $ans == 2 ]; then
-    if [[ ! -d $google_f_PATH ]]; then
-		make_google_f $google_f_PATH google_f.sh
-    	printf "alias f='bash $google_f_PATH/google_f.sh'\n" >> $alias_file
-    	scripts
-    fi
-  fi
-
-  if [[ $ans == 3 ]]; then
-    if [[ ! -d $google_t_PATH ]]; then
-
-    	make_google_t $google_t_PATH google_t.sh
-    	sed -n 5p $0 >> $alias_file
-    fi
-  fi
-
-  if [[ $ans == 4 ]]; then
-    disk_mount
-
-    scripts
-  fi
+	if [ $ans == 2 ]; then
+		if [[ ! -d $google_f_PATH ]]; then
+			make_google_f $google_f_PATH google_f.sh
+			printf "alias f='bash $google_f_PATH/google_f.sh'\n" >> $alias_file
+			scripts
+		fi
+	fi
+	if [[ $ans == 3 ]]; then
+		if [[ ! -d $google_t_PATH ]]; then
+			make_google_t $google_t_PATH google_t.sh
+			sed -n 5p $0 >> $alias_file
+		fi
+	fi
+	if [[ $ans == 4 ]]; then
+		disk_mount
+		scripts
+	fi
 	if [ $ans == 5 ]; then
-        if [[ ! -d $ssh_PATH ]]; then
-        	make_ssh2 $ssh2_PATH ssh2.sh
-        	printf "alias ssh2='bash $ssh2_PATH/ssh2.sh'\n" >> $alias_file
-        	scripts
-        fi
-    fi
-    if [ $ans == 6 ]; then
+		if [[ ! -d $ssh_PATH ]]; then
+			make_ssh2 $ssh2_PATH ssh2.sh
+			printf "alias ssh2='bash $ssh2_PATH/ssh2.sh'\n" >> $alias_file
+			scripts
+		fi
+	fi
+	if [ $ans == 6 ]; then
        # if [[ ! -f $pass_PATH ]]; then
-        	make_pass $pass_PATH pass.sh
-        	printf "alias pass='bash $pass_PATH/pass.sh'\n" >> $alias_file
-        	scripts
+			make_pass $pass_PATH pass.sh
+			printf "alias pass='bash $pass_PATH/pass.sh'\n" >> $alias_file
+			scripts
       #  fi
-    fi
-    if [ $ans == 7 ]; then
-        ufw
-    fi
-    
+	fi
+	if [ $ans == 7 ]; then
+		ufw
+	fi
     if [ $ans == 8 ]; then
-        if [[ ! -d $check_ip_PATH ]]; then
-        	make_check_ip $check_ip_PATH check_ip.sh
-        	scripts
-        fi
-    fi
-    if [ $ans == 9 ]; then
-    	if [[ ! -d $jelly_PATH ]]; then
-        	make_jelly $jelly_PATH jelly.sh
-        	printf "alias jelly='bash $jelly_PATH/jelly.sh'\n" >> $alias_file
-        	scripts
-        fi
-    fi
-    if [ $ans == 10 ]; then
-        if [[ ! -d $base64_PATH ]]; then
-        	make_base64 $base64_PATH base64.sh
-        	printf "alias 64='bash $base64_PATH/base64.sh'\n" >> $alias_file
-        	scripts
-        fi
-    fi
-    if [ $ans == 11 ]; then
-        if [[ ! -d $auto_git_PATH ]]; then
-        	make_auto_git $auto_git_PATH auto_git.sh
-        	printf "alias a_git='bash $auto_git_PATH'\n" >> $alias_file
-        	scripts
-        fi
-    fi
+		if [[ ! -d $check_ip_PATH ]]; then
+			make_check_ip $check_ip_PATH check_ip.sh
+			scripts
+		fi
+	fi
+	if [ $ans == 9 ]; then
+		if [[ ! -d $jelly_PATH ]]; then
+			make_jelly $jelly_PATH jelly.sh
+			printf "alias jelly='bash $jelly_PATH/jelly.sh'\n" >> $alias_file
+			scripts
+		fi
+	fi
+	if [ $ans == 10 ]; then
+		if [[ ! -d $base64_PATH ]]; then
+			make_base64 $base64_PATH base64.sh
+			printf "alias 64='bash $base64_PATH/base64.sh'\n" >> $alias_file
+			scripts
+		fi
+	fi
+	if [ $ans == 11 ]; then
+		if [[ ! -d $auto_git_PATH ]]; then
+			make_auto_git $auto_git_PATH auto_git.sh
+			printf "alias a_git='bash $auto_git_PATH'\n" >> $alias_file
+			scripts
+		fi
+	fi
 }
 
 System_info(){
-    echo "*****System_info*********"
-    echo "vova_sphere file size: $(stat -c%s $0)kb"
-    printf "CPU Temp:  " &&  echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))c
-    printf "CPU Usage: "
-    top -bn1 | grep "Cpu(s)" | \
-    sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | \
-    awk '{print 100 - $1"%"}'
-    free -m | awk 'NR==2{printf "RAM Usage: %.2f%%\n",$3*100/$2 }'
-    echo " "
-    read -p "Enter any key to refresh (or 0-to go back): " ans
-    clear
-    if [[ $ans == 0 ]]; then
-        main
-    fi
-    System_info
+	echo "*****System_info*********"
+	echo "vova_sphere file size: $(stat -c%s $0)kb"
+	printf "CPU Temp:  " &&  echo $(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))c
+	printf "CPU Usage: "
+	top -bn1 | grep "Cpu(s)" | \
+	sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | \
+	awk '{print 100 - $1"%"}'
+	free -m | awk 'NR==2{printf "RAM Usage: %.2f%%\n",$3*100/$2 }'
+	echo " "
+	read -p "Enter any key to refresh (or 0-to go back): " ans
+	clear
+	if [[ $ans == 0 ]]; then
+		main
+	fi
+	System_info
 }
 
 main(){
-
-    clear
-    echo "***Welcome to vova_sphere***"
-    echo "1- Install packages"
-    echo "2- Add aliases"
-    echo "3- Trixs Shmix & Bug_Fix"
-    echo "4- Scripts"
-    echo "5- System info"
-    echo "6- man (manual)"
-    echo " "
-    read -p "Enter your choice (0-to EXIT): " ans
-    clear
-
+	clear
+	echo "***Welcome to vova_sphere*1**"
+	echo "1- Install packages"
+	echo "2- Add aliases"
+	echo "3- Trixs Shmix & Bug_Fix"
+	echo "4- Scripts"
+	echo "5- System info"
+	echo "6- man (manual)"
+	echo " "
+	read -p "Enter your choice (0-to EXIT): " ans
+	clear
     menu_list=(
-    'exit' 'install_pkg'
-    'Alias' 'bugfix_and_shmix'
-    'scripts' 'System_info'
-    'print_man_txt'
-    )
-    ${menu_list["$ans"]}
-
+	'exit' 'install_pkg'
+	'Alias' 'bugfix_and_shmix'
+	'scripts' 'System_info'
+	'print_man_txt'
+	)
+	${menu_list["$ans"]}
 }
 
 Setup
