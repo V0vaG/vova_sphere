@@ -1,18 +1,18 @@
 #!/bin/bash
 Setup(){
 	echo -en "\007"
-    bashrc_file="~/.bashrc"
-	my_scripts="~/my_scripts"
-	alias_file="$my_scripts/alias.txt"
-	ssh2ec2_PATH="$my_scripts/ssh2ec2"
-	ssh2_PATH="$my_scripts/ssh2"
-	google_f_PATH="$my_scripts/google_f"
-	google_t_PATH="$my_scripts/google_t"
-	pass_PATH="$my_scripts/pass"
-	check_ip_PATH="$my_scripts/check_ip"
-	jelly_PATH="$my_scripts/jelly"
-	base64_PATH="$my_scripts/base64"
-    auto_git_PATH="$my_scripts/auto_git"
+    bashrc_file=~/.bashrc
+	my_scripts=~/my_scripts
+	alias_file=$my_scripts/alias.txt
+	ssh2ec2_PATH=$my_scripts/ssh2ec2
+	ssh2_PATH=$my_scripts/ssh2
+	google_f_PATH=$my_scripts/google_f
+	google_t_PATH=$my_scripts/google_t
+	pass_PATH=$my_scripts/pass
+	check_ip_PATH=$my_scripts/check_ip
+	jelly_PATH=$my_scripts/jelly
+	base64_PATH=$my_scripts/base64
+    auto_git_PATH=$my_scripts/auto_git
 
 
     if [ ! -d $my_scripts ]; then
