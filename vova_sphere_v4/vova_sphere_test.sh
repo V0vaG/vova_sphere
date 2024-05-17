@@ -2608,7 +2608,7 @@ elif [ $1 == "-push" ]; then
 		cd $git_ripo && git add . && git commit -m 'auto_cron_push' && git push
 	done
 elif [ $1 == "-pull" ]; then
-	echo "$dt pulling from ${git_list[@]." >> $logs_file
+	echo "$dt pulling from ${git_list[@]}." >> $logs_file
 	for git_ripo in "${git_list[@]}"; do
 		echo "************************************"
 		echo "pulling from $git_ripo"
