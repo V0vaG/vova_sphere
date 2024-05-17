@@ -77,6 +77,12 @@ print_func
 
 cat $master_file >> $target
 
+chmod +x $target
+
 echo "Finish adding files to $target."
+
 sleep 1
+
+bash $target
+
 

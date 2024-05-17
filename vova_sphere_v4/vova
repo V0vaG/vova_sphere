@@ -13,10 +13,24 @@ Setup(){
 	jelly_PATH=$my_scripts/jelly
 	base64_PATH=$my_scripts/base64
 	auto_git_PATH=$my_scripts/auto_git
+	
+	if [[ ! -x $0 ]]; then
+		echo "File $0 is now executable"
+		chmod +x $0
+		sleep 1
+	fi
 
 	if [ ! -d $my_scripts ]; then
-		mkdir $my_scripts
 		echo "Creating DIR ~/$my_scripts..."
+		mkdir $my_scripts
+		sleep 1
+	fi
+	
+	if [ ! -f $alias_file ]; then
+		echo "Creating alias $alias_file..."
+		echo "Adding alias *vova* of $0 to $alias_file"
+		echo "alias vova='bash $0'" >> $alias_file
+		sleep 1
 	fi
 
 	if [ ! -f $my_scripts/bashrc.copy ]; then
@@ -26,6 +40,7 @@ Setup(){
 		echo "if [ -f $my_scripts/alias.txt ]; then" >> $bashrc_file
 		echo "    . $my_scripts/alias.txt" >> $bashrc_file
 		echo "fi" >> $bashrc_file
+		sleep 1
 	fi
 }
 
@@ -727,7 +742,7 @@ System_info(){
 
 main(){
 	clear
-	echo "***Welcome to vova_sphere*1**"
+	echo "***Welcome to vova_sphere***"
 	echo "1- Install packages"
 	echo "2- Add aliases"
 	echo "3- Trixs Shmix & Bug_Fix"
@@ -748,13 +763,20 @@ main(){
 
 Setup
 
+help(){
+	echo "Welcome to Vova sphere
+	my name is Vladimir Glayzer
+	DevOps develper and this is my 
+	*devops multitool*"
+}
+
 version='4.0.0'
  
 if [ $1 == '-v' ]; then
 	echo $version
 	exit
 elif [ $1 == -h ]; then
-	echo "help"
+	help
 	exit
 fi
 
