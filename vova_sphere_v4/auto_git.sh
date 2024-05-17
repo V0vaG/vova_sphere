@@ -36,7 +36,7 @@ elif [ $1 == "-v" ]; then
 	echo $version
 	exit
 elif [ $1 == "-push" ]; then
-	echo "$dt pushing to ${git_list[@]." >> $logs_file
+	echo "$dt pushing to ${git_list[@]}." >> $logs_file
 	for git_ripo in "${git_list[@]}"; do
 		echo "************************************"
 		echo "pushing to $git_ripo"
