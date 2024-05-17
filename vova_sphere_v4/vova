@@ -716,7 +716,7 @@ scripts(){
 	if [ $ans == 11 ]; then
 		if [[ ! -d $auto_git_PATH ]]; then
 			make_auto_git $auto_git_PATH auto_git.sh
-			printf "alias a_git='bash $auto_git_PATH'\n" >> $alias_file
+			printf "alias a_git='bash $auto_git_PATH/auto_git.sh'\n" >> $alias_file
 			scripts
 		fi
 	fi
