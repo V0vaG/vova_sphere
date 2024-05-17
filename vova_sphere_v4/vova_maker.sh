@@ -81,8 +81,8 @@ chmod +x $target
 
 echo "Finish adding files to $target."
 
-sleep 1
+#sleep 1
 
-bash $target
+#bash $target
 
 

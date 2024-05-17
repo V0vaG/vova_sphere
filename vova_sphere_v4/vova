@@ -44,20 +44,6 @@ Setup(){
 	fi
 }
 
-print_man() {
-	EOF='COMMENT'
-	i=$(($1+2))
-	while :; do
-		line=$(sed -n $i'p' $0)
-		if [[ "$line" == "$EOF" ]]; then
-			break
-		fi
-		echo $line
-		((i++))
-	done
-	read -p "Press Enter key to go back "
-}
-
 install_docker_and_compose(){
 	# Add Docker's official GPG key:
 	sudo apt-get update
@@ -748,7 +734,6 @@ main(){
 	echo "3- Trixs Shmix & Bug_Fix"
 	echo "4- Scripts"
 	echo "5- System info"
-	echo "6- man (manual)"
 	echo " "
 	read -p "Enter your choice (0-to EXIT): " ans
 	clear
@@ -756,21 +741,22 @@ main(){
 	'exit' 'install_pkg'
 	'Alias' 'bugfix_and_shmix'
 	'scripts' 'System_info'
-	'print_man_txt'
 	)
 	${menu_list["$ans"]}
 }
 
 Setup
 
-help(){
-	echo "Welcome to Vova sphere
-	my name is Vladimir Glayzer
-	DevOps develper and this is my 
-	*devops multitool*"
-}
-
 version='4.0.0'
+
+help(){
+	echo "Welcome to Vova sphere v$version
+My name is Vladimir Glayzer
+I am a DevOps develper and this is my
+*DevOps multitool* (Vova sphere) project
+
+My mail is: its_a_vio@hotmail.com"
+}
  
 if [ $1 == '-v' ]; then
 	echo $version
