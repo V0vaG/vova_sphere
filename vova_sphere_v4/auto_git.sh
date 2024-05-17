@@ -1,6 +1,8 @@
 #!/bin/bash
  
 version='1.0.0'
+
+dt=$(date '+%d/%m/%Y %H:%M:%S');
  
 help(){
 echo '> command: a_git
@@ -40,7 +42,7 @@ elif [ $1 == "-push" ]; then
 	for git_ripo in "${git_list[@]}"; do
 		echo "************************************"
 		echo "pushing to $git_ripo"
-		cd $git_ripo && git add . && git commit -m 'auto_push' && git push
+		cd $git_ripo && git add . && git commit -m 'auto_cron_push' && git push
 	done
 elif [ $1 == "-pull" ]; then
 	echo "$dt pulling from ${git_list[@]." >> $logs_file
