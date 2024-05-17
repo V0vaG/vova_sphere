@@ -53,8 +53,15 @@ elif [ $1 == "-pull" ]; then
 	done
 elif [ $1 == "-c" ]; then
 	if [ $2 == "-push" ];then
-		(crontab -l ; echo '10 23 * * * /bin/bash /home/vova/my_scripts/auto_git/auto_git.sh push') | crontab
+		echo "$dt adding crontab push job" >> $logs_file
+		echo "adding crontab push job..."
+		(crontab -l ; echo '14 23 * * * /bin/bash /home/vova/my_scripts/auto_git/auto_git.sh -push') | crontab
+		echo "OK!"
 	elif [ $2 == "-pull" ]; then
-		(crontab -l ; echo '10 23 * * * /bin/bash /home/vova/my_scripts/auto_git/auto_git.sh pull') | crontab
+		echo "$dt adding crontab pull job" >> $logs_file
+		echo "adding crontab push job..."
+		(crontab -l ; echo '14 23 * * * /bin/bash /home/vova/my_scripts/auto_git/auto_git.sh -pull') | crontab
+		echo "OK!"
 	fi
 fi
+
