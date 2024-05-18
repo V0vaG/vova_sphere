@@ -2616,7 +2616,7 @@ fi
 
 source $conf_file
 echo "Import config file... $file_test"
-sleep 1
+sleep 0.1
  
 if [ ! $1 ]; then
 	echo "Enter a flag or 'a_git -h' for help"
