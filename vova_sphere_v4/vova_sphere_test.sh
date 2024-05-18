@@ -227,6 +227,10 @@ install_aws_cli(){
 	unzip awscliv2.zip
 	sudo ./aws/install
 }
+
+edit_conf(){
+	nano $config_file
+}
  
 scp(){
     # declare find_result_list and result_dict ("$i. $
@@ -429,6 +433,7 @@ options(){
     echo "2. Configure aws_cli"
     echo "3. Auto shutdown ec2 (crontab)"
     echo "4. Reset known hosts"
+    echo "5. Edit config file"
     read -p "What to do: " ans
     clear
     option_list=(
@@ -437,6 +442,7 @@ options(){
     'aws configure'
     'crontab'
     'reset_known_hosts'
+    'edit_conf'
     )
     ${option_list["$ans"]}
     main
@@ -2209,6 +2215,10 @@ source $conf_file
 echo "Import config file... $file_test"
 sleep 2
  
+edit_config(){
+	nano $conf_file
+}
+ 
 select_host(){
     clear
     echo "User: $user_name"
@@ -2340,11 +2350,14 @@ options(){
     clear
     echo "***options***"
     echo "1. Change User Name"
+    echo "2. Edit config file"
+    echo "0. Back"
     read -p "What to do: " ans
     clear
     option_list=(
     'main'
     'change_user'
+    'edit_config'
     )
     ${option_list["$ans"]}
     main
@@ -2568,17 +2581,15 @@ version='1.0.0'
 dt=$(date '+%d/%m/%Y %H:%M:%S');
  
 help(){
-echo '> command: a_git
+echo 'command: a_git [flag] [option]
 flags:
-$ a_git [-flag]
 > [-push] git add, commit & push to all repos from "git_list" 
 > [-pull] git fetch & pull from all repos from "git_list" 
-
-$ a_git [-flag] [option]
-> [-c] add cronjob, then enter [option]
+> [-e] edit git rpositoris list
+> [-c] add cronjob, then enter option (a_git [-c] [option])
     options:
-    [-push] add push cronjob
-    [-pull] add pull cronjob'
+    [-c -push] add push cronjob
+    [-c -pull] add pull cronjob'
 }
  
 logs_file="/home/$USER/my_scripts/auto_git/logs"
@@ -2605,15 +2616,18 @@ fi
 
 source $conf_file
 echo "Import config file... $file_test"
-sleep 2
+sleep 1
  
 if [ ! $1 ]; then
-	echo "Enter a flag or -h for help"
+	echo "Enter a flag or 'a_git -h' for help"
 elif [ $1 == "-h" ]; then
 	help
 	exit
 elif [ $1 == "-v" ]; then
 	echo $version
+	exit
+elif [ $1 == "-e" ]; then
+	nano $conf_file
 	exit
 elif [ $1 == "-push" ]; then
 	echo "$dt pushing to ${git_list[@]}." >> $logs_file
@@ -2642,6 +2656,7 @@ elif [ $1 == "-c" ]; then
 		echo "OK!"
 	fi
 fi
+
 
 
 COMMENT
@@ -2914,6 +2929,16 @@ install_pkg(){
 	install_pkg
 }
 
+add_to_alias(){
+	if [[ ! $(cat $alias_file | grep "$1=") ]]; then	
+		printf "alias $1='bash $2'\n" >> $alias_file	
+		echo "adding alias: $1"
+	else
+		echo "alias: $1 allredy exists"
+	fi
+	sleep 1
+	clear
+}
 
 Alias(){
 	echo "******Add Alias********"
@@ -2971,6 +2996,7 @@ Alias(){
 
 	Alias
 }	
+
 
 chat(){
   clear
@@ -3304,16 +3330,16 @@ scripts(){
 		main 
 	fi 
 	if [[ $ans == 1 ]]; then
+	add_to_alias 'ec2' "$sh2ec2_PATH/ssh2ec2.sh"
 		if [[ ! -d $ssh2ec2_PATH ]]; then
 			make_ssh2ec2 $ssh2ec2_PATH ssh2ec2.sh
-			printf "alias ec2='bash $ssh2ec2_PATH/ssh2ec2.sh'\n" >> $alias_file
 			scripts
 		fi
 	fi
 	if [[ $ans == 2 ]]; then
+	add_to_alias 'f' "$google_f_PATH/google_f.sh"
 		if [[ ! -d $google_f_PATH ]]; then
 			make_google_f $google_f_PATH google_f.sh
-			printf "alias f='bash $google_f_PATH/google_f.sh'\n" >> $alias_file
 			scripts
 		fi
 	fi
@@ -3328,18 +3354,18 @@ scripts(){
 		scripts
 	fi
 	if [[ $ans == 5 ]]; then
-		if [[ ! -d $ssh_PATH ]]; then
+	add_to_alias "ssh2" "$ssh2_PATH/ssh2.sh"
+		if [[ ! -d $ssh2_PATH ]]; then
 			make_ssh2 $ssh2_PATH ssh2.sh
-			printf "alias ssh2='bash $ssh2_PATH/ssh2.sh'\n" >> $alias_file
 			scripts
 		fi
 	fi
 	if [[ $ans == 6 ]]; then
-       # if [[ ! -f $pass_PATH ]]; then
+	add_to_alias "pass" "$pass_PATH/pass.sh"
+        if [[ ! -f $pass_PATH ]]; then
 			make_pass $pass_PATH pass.sh
-			printf "alias pass='bash $pass_PATH/pass.sh'\n" >> $alias_file
 			scripts
-      #  fi
+        fi
 	fi
 	if [[ $ans == 7 ]]; then
 		ufw
@@ -3351,23 +3377,23 @@ scripts(){
 		fi
 	fi
 	if [[ $ans == 9 ]]; then
+	add_to_alias "jelly" "$jelly_PATH/jelly.sh"
 		if [[ ! -d $jelly_PATH ]]; then
 			make_jelly $jelly_PATH jelly.sh
-			printf "alias jelly='bash $jelly_PATH/jelly.sh'\n" >> $alias_file
 			scripts
 		fi
 	fi
 	if [[ $ans == 10 ]]; then
+	add_to_alias "64" "$base64_PATH/base64.sh" 
 		if [[ ! -d $base64_PATH ]]; then
 			make_base64 $base64_PATH base64.sh
-			printf "alias 64='bash $base64_PATH/base64.sh'\n" >> $alias_file
 			scripts
 		fi
 	fi
 	if [[ $ans == 11 ]]; then
+	add_to_alias "a_git" "$auto_git__PATH/auto_git_.sh" 
 		if [[ ! -d $auto_git_PATH ]]; then
 			make_auto_git $auto_git_PATH auto_git.sh
-			printf "alias a_git='bash $auto_git_PATH/auto_git.sh'\n" >> $alias_file
 			scripts
 		fi
 	fi

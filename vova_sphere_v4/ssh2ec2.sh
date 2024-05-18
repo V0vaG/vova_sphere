@@ -98,6 +98,10 @@ install_aws_cli(){
 	unzip awscliv2.zip
 	sudo ./aws/install
 }
+
+edit_conf(){
+	nano $config_file
+}
  
 scp(){
     # declare find_result_list and result_dict ("$i. $
@@ -300,6 +304,7 @@ options(){
     echo "2. Configure aws_cli"
     echo "3. Auto shutdown ec2 (crontab)"
     echo "4. Reset known hosts"
+    echo "5. Edit config file"
     read -p "What to do: " ans
     clear
     option_list=(
@@ -308,6 +313,7 @@ options(){
     'aws configure'
     'crontab'
     'reset_known_hosts'
+    'edit_conf'
     )
     ${option_list["$ans"]}
     main

@@ -40,6 +40,10 @@ source $conf_file
 echo "Import config file... $file_test"
 sleep 2
  
+edit_config(){
+	nano $conf_file
+}
+ 
 select_host(){
     clear
     echo "User: $user_name"
@@ -171,11 +175,14 @@ options(){
     clear
     echo "***options***"
     echo "1. Change User Name"
+    echo "2. Edit config file"
+    echo "0. Back"
     read -p "What to do: " ans
     clear
     option_list=(
     'main'
     'change_user'
+    'edit_config'
     )
     ${option_list["$ans"]}
     main

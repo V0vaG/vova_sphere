@@ -5,17 +5,15 @@ version='1.0.0'
 dt=$(date '+%d/%m/%Y %H:%M:%S');
  
 help(){
-echo '> command: a_git
+echo 'command: a_git [flag] [option]
 flags:
-$ a_git [-flag]
 > [-push] git add, commit & push to all repos from "git_list" 
 > [-pull] git fetch & pull from all repos from "git_list" 
-
-$ a_git [-flag] [option]
-> [-c] add cronjob, then enter [option]
+> [-e] edit git rpositoris list
+> [-c] add cronjob, then enter option (a_git [-c] [option])
     options:
-    [-push] add push cronjob
-    [-pull] add pull cronjob'
+    [-c -push] add push cronjob
+    [-c -pull] add pull cronjob'
 }
  
 logs_file="/home/$USER/my_scripts/auto_git/logs"
@@ -42,15 +40,18 @@ fi
 
 source $conf_file
 echo "Import config file... $file_test"
-sleep 2
+sleep 1
  
 if [ ! $1 ]; then
-	echo "Enter a flag or -h for help"
+	echo "Enter a flag or 'a_git -h' for help"
 elif [ $1 == "-h" ]; then
 	help
 	exit
 elif [ $1 == "-v" ]; then
 	echo $version
+	exit
+elif [ $1 == "-e" ]; then
+	nano $conf_file
 	exit
 elif [ $1 == "-push" ]; then
 	echo "$dt pushing to ${git_list[@]}." >> $logs_file
@@ -79,4 +80,5 @@ elif [ $1 == "-c" ]; then
 		echo "OK!"
 	fi
 fi
+
 
