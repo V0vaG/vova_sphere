@@ -2,21 +2,29 @@
 
 target='vova_sphere_test.sh'
 
-master_file='vova'
+master_file='vova.sh'
 
-file_list=(
-'check_ip.sh'
-'ssh2ec2.sh'
-'pass.sh'
-'ssh2.sh'
-'base64.sh'
-'google_f.sh'
-'jelly.sh'
-'auto_git.sh'
-)
+file_list=($(ls -I vova_maker.sh -I $target -I $master_file))
 
-echo "Deleting old $target"
+
+#file_list=(
+#'check_ip.sh'
+#'ssh2ec2.sh'
+#'pass.sh'
+#'ssh2.sh'
+#'base64.sh'
+#'google_f.sh'
+#'jelly.sh'
+#'auto_git.sh'
+#)
+
+
+echo "Deleting old file $target"
 rm $target
+sleep 0.2
+
+echo "Linking 1 master + ${#file_list[@]} script files..."
+sleep 0.5
 
 first_fix(){
 echo '#!/bin/bash
@@ -67,10 +75,11 @@ print_to_file() {
 first_fix
 
 for file in "${file_list[@]}"; do
-	echo "Adding $file."
+	echo "Adding $file"
 	pre_fix $file
 	fix $file
 	post_fix
+	sleep 0.1
 done
 
 print_func
@@ -81,7 +90,7 @@ chmod +x $target
 
 echo "Finish adding files to $target."
 
-#sleep 1
+sleep 2
 
 #bash $target
 
