@@ -2977,15 +2977,17 @@ Alias(){
 	echo " "
 	read -p "Enter your choice (0-to go back): " ans
 	clear	
-	if [[ $ans == 0 ]]; then
+	if [[ $ans == "" ]]; then
 		main
-	fi
-	if [[ $ans == -1 ]]; then   
+	elif [[ $ans == 0 ]]; then
+		main
+	elif [[ $ans == -1 ]]; then   
 		rm ~/.bashrc
 		cp $my_scripts/bashrc.copy ~/.bashrc
 		rm -rf $my_scripts
+	else
+		printf "${alias_list["(($ans-1))"]}\n" >> $alias_file
 	fi
-	printf "${alias_list["(($ans-1))"]}\n" >> $alias_file
 #	if [[ $ans == 20 ]]; then
 #        sed -n 6p $0 >> $alias_file
 #	fi
@@ -3120,9 +3122,7 @@ bugfix_and_shmix(){
 	echo "  "
 	read -p "Enter your choice (0-to go back): " ans
 	clear	
-	if [[ $ans == 0 ]]; then    
-    	main
-	fi
+	
 	if [[ $ans == 1 ]]; then
 	    echo "Editing: /etc/gdm3/custom.conf"
         sudo sed -i 's/#WaylandEnable=false/WaylandEnable=false/g' /etc/gdm3/custom.conf
@@ -3132,8 +3132,8 @@ bugfix_and_shmix(){
 		if [[ $ans == 'y' ]]; then
 		    reboot
 		fi
-    fi
-	if [[ $ans == 2 ]]; then
+    
+	elif [[ $ans == 2 ]]; then
 		read -p "Enter your email: " ans  
 		ssh-keygen -t ed25519 -C $ans
 		eval "$(ssh-agent -s)"
@@ -3145,40 +3145,31 @@ bugfix_and_shmix(){
 		echo"-----------new-SSH-Key:--------------------\n"
 		cat ~/.ssh/id_ed25519.pub
 		read -p "press any key to exit" xxx
-	fi
-	if [ $ans == 3 ]; then    	
+	
+	elif [[ $ans == 3 ]]; then    	
 		chat
-	fi
-	if [[ $ans == 4 ]]; then    		
+	elif [[ $ans == 4 ]]; then    		
 		gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward"['<Alt>Shift_R']" && gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Alt>Shift_L']" 
-	fi
-	if [[ $ans == 5 ]]; then    		
+	elif [[ $ans == 5 ]]; then    		
 		gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Shift>Alt_L']" && gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "['<Alt>ShiftL']"
-	fi
-	if [[ $ans == 6 ]]; then
+	elif [[ $ans == 6 ]]; then
     	sudo nano /etc/default/grub      #Edit Grub file
 		sudo update-grub                   #Update Grub file
 		bugfix_and_shmix
-	fi
-	
-	if [[ $ans == 7 ]]; then    	
+	elif [[ $ans == 7 ]]; then    	
     	dd if=/dev/zero of=/tmp/test1.img bs=1G count=1 oflag=dsync    #test disk speed by coping a file to tmp
 		rm -v /tmp/test1.img 						   #delete the tmp file
 		bugfix_and_shmix
-	fi
-	if [[ $ans == 8 ]]; then
+	elif [[ $ans == 8 ]]; then
     	sudo nano /etc/motd              #Edit motd
     	bugfix_and_shmix
-	fi
-	if [[ $ans == 9 ]]; then  
+	elif [[ $ans == 9 ]]; then  
     	sudo nano /etc/profile.d/motd.sh #Add script to MOTD
     	bugfix_and_shmix
-	fi
-	if [[ $ans == 10 ]]; then    
+	elif [[ $ans == 10 ]]; then    
     	clear
     	upower -i /org/freedesktop/UPower/devices/battery_BAT0                         
-	fi
-	if [[ $ans == 11 ]]; then   
+	elif [[ $ans == 11 ]]; then   
 		read -p "Enter max charge value: " max
 		if echo $max | grep -E -q '^[0-9]+$'; then 
 			if [ "$max" -gt 100 ] || [ "$max" -le 0 ]; then
@@ -3206,8 +3197,7 @@ WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target s
 	else
 			echo "Please enter a numeric max value"
 		fi
-	fi
-	if [ $ans == 12 ]; then    
+	elif [[ $ans == 12 ]]; then    
 		clear
 		echo "Curent max charge value: $(cat /sys/class/power_supply/BAT0/charge_stop_threshold)"
 		read -p "Enter max charge value: " max
@@ -3227,13 +3217,14 @@ WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target s
 			sleep 3
 			bugfix_and_shmix
 		fi
-	fi
-	if [ $ans == 13 ]; then    
+	elif [[ $ans == 13 ]]; then    
 		clear
 		cd /home/$USER/Templates && touch new_file
+	else
+		main
 	fi
-	sleep 3
 	bugfix_and_shmix
+	
 }
 
 ufw(){
@@ -3310,92 +3301,84 @@ ufw(){
 }
 
 scripts(){
-	echo "*****Scripts*********"
-	echo "1. [ec2]  Ssh2ec2 (aws cli tool)"
-	echo "2. [f]    Google> "what is ____ in xxxxx""
-	echo "3. [F8]   Google Translate"
-	echo "4. Auto Disk Mount"
-	echo "5. [ssh2] Ssh"
-	echo "6. [pass] Password Manager"
-	echo "7. ufw Manager"
-	echo "8. check_ip"
-	echo "9. [jelly] jellyfin_controller"
-	echo "10. [64] base64"
-	echo "11. [a_git] auto git (auto pusher/puller) "
-	echo " "
-	echo "0. Back"
+	echo "*****Scripts*********
+1. [ec2]  Ssh2ec2 (aws cli tool)
+2. [f]    Google> "what is ____ in xxxxx"
+3. [F8]   Google Translate
+4. Auto Disk Mount
+5. [ssh2] Ssh
+6. [pass] Password Manager
+7. ufw Manager
+8. check_ip
+9. [jelly] jellyfin_controller
+10. [64] base64
+11. [a_git] auto git (auto pusher/puller) 
+
+0. Back"
 	read -p "Enter your choice (0-to go back): " ans
 	clear
+	
 	if [[ $ans == 0 ]]; then
 		main 
-	fi 
-	if [[ $ans == 1 ]]; then
-	add_to_alias 'ec2' "$sh2ec2_PATH/ssh2ec2.sh"
+	elif [[ $ans == 1 ]]; then
+		add_to_alias 'ec2' "$sh2ec2_PATH/ssh2ec2.sh"
 		if [[ ! -d $ssh2ec2_PATH ]]; then
 			make_ssh2ec2 $ssh2ec2_PATH ssh2ec2.sh
 			scripts
 		fi
-	fi
-	if [[ $ans == 2 ]]; then
-	add_to_alias 'f' "$google_f_PATH/google_f.sh"
+	elif [[ $ans == 2 ]]; then
+		add_to_alias 'f' "$google_f_PATH/google_f.sh"
 		if [[ ! -d $google_f_PATH ]]; then
 			make_google_f $google_f_PATH google_f.sh
 			scripts
 		fi
-	fi
-	if [[ $ans == 3 ]]; then
+	elif [[ $ans == 3 ]]; then
 		if [[ ! -d $google_t_PATH ]]; then
 			make_google_t $google_t_PATH google_t.sh
 			sed -n 5p $0 >> $alias_file
 		fi
-	fi
-	if [[ $ans == 4 ]]; then
+	elif [[ $ans == 4 ]]; then
 		disk_mount
 		scripts
-	fi
-	if [[ $ans == 5 ]]; then
-	add_to_alias "ssh2" "$ssh2_PATH/ssh2.sh"
+	elif [[ $ans == 5 ]]; then
+		add_to_alias "ssh2" "$ssh2_PATH/ssh2.sh"
 		if [[ ! -d $ssh2_PATH ]]; then
 			make_ssh2 $ssh2_PATH ssh2.sh
 			scripts
 		fi
-	fi
-	if [[ $ans == 6 ]]; then
-	add_to_alias "pass" "$pass_PATH/pass.sh"
+	elif [[ $ans == 6 ]]; then
+		add_to_alias "pass" "$pass_PATH/pass.sh"
         if [[ ! -f $pass_PATH ]]; then
 			make_pass $pass_PATH pass.sh
 			scripts
         fi
-	fi
-	if [[ $ans == 7 ]]; then
+	elif [[ $ans == 7 ]]; then
 		ufw
-	fi
-    if [[ $ans == 8 ]]; then
+    elif [[ $ans == 8 ]]; then
 		if [[ ! -d $check_ip_PATH ]]; then
 			make_check_ip $check_ip_PATH check_ip.sh
 			scripts
 		fi
-	fi
-	if [[ $ans == 9 ]]; then
-	add_to_alias "jelly" "$jelly_PATH/jelly.sh"
+	elif [[ $ans == 9 ]]; then
+		add_to_alias "jelly" "$jelly_PATH/jelly.sh"
 		if [[ ! -d $jelly_PATH ]]; then
 			make_jelly $jelly_PATH jelly.sh
 			scripts
 		fi
-	fi
-	if [[ $ans == 10 ]]; then
-	add_to_alias "64" "$base64_PATH/base64.sh" 
+	elif [[ $ans == 10 ]]; then
+		add_to_alias "64" "$base64_PATH/base64.sh" 
 		if [[ ! -d $base64_PATH ]]; then
 			make_base64 $base64_PATH base64.sh
 			scripts
 		fi
-	fi
-	if [[ $ans == 11 ]]; then
-	add_to_alias "a_git" "$auto_git__PATH/auto_git_.sh" 
+	elif [[ $ans == 11 ]]; then
+		add_to_alias "a_git" "$auto_git__PATH/auto_git_.sh" 
 		if [[ ! -d $auto_git_PATH ]]; then
 			make_auto_git $auto_git_PATH auto_git.sh
 			scripts
 		fi
+	else
+		main
 	fi
 }
 
@@ -3419,13 +3402,13 @@ System_info(){
 
 main(){
 	clear
-	echo "***Welcome to vova_sphere***"
-	echo "1- Install packages"
-	echo "2- Add aliases"
-	echo "3- Trixs Shmix & Bug_Fix"
-	echo "4- Scripts"
-	echo "5- System info"
-	echo " "
+	echo "***Welcome to vova_sphere***
+1- Install packages
+2- Add aliases
+3- Trixs Shmix & Bug_Fix
+4- Scripts
+5- System info
+"
 	read -p "Enter your choice (0-to EXIT): " ans
 	clear
     menu_list=(

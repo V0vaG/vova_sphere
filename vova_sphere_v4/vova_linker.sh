@@ -4,10 +4,11 @@ target='vova_sphere_test.sh'
 
 master_file='vova.sh'
 
-file_list=($(ls -I vova_maker.sh -I $target -I $master_file))
+echo "Welcome to vova linker"
 
-echo $target
 
+
+file_list=($(ls -I vova_linker.sh -I $target -I $master_file))
 
 if [ -f $target ]; then
 	echo "Deleting old file $target"
@@ -31,17 +32,16 @@ pre_fix(){
 : << "COMMENT"' >> $target
 }
 
+fix(){
+	cat $1 >> $target
+}
+
 post_fix(){
 echo '
 COMMENT
 }
 ##########################################################################' >> $target
 }
-
-fix(){
-	cat $1 >> $target
-}
-
 
 print_func(){
 echo '
@@ -81,7 +81,7 @@ chmod +x $target
 
 echo "Linking complete!"
 echo "Creating $target."
-sleep 2
+sleep 1
 
 #bash $target
 
