@@ -2603,7 +2603,7 @@ fi
 if [[ ! -f $conf_file ]]; then
 	echo "Creating conf file..."
 	sleep 2
-sudo cat << EOF1 > $conf_file
+cat << EOF1 > $conf_file
 file_test='OK'                
  
 git_list=(
