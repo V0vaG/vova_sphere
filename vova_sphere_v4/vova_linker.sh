@@ -14,8 +14,9 @@ printf "Master file: $master_file\n" >> $log_file
 echo "Welcome to vova linker"
 
 file_list=($(ls -I vova_linker.sh -I $target -I $master_file -I $log_file))
+file_check_list=($(ls -I $target -I $log_file))
 
-for file in "${file_list[@]}"; do
+for file in "${file_check_list[@]}"; do
 	if ! bash -n $file <"$0"; then
 		echo "$file syntax check-ERROR"
 		printf "$file syntax check-ERROR\n" >> $log_file
