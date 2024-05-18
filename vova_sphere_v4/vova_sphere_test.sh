@@ -2581,17 +2581,32 @@ $ a_git [-flag] [option]
     [-pull] add pull cronjob'
 }
  
-logs_file="/home/vova/my_scripts/auto_git/logs"
+logs_file="/home/$USER/my_scripts/auto_git/logs"
+conf_file="/home/$USER/my_scripts/auto_git/conf"
  
-git_list=(
-	'/home/vova/GIT/vova_sphere'
-)
-
 if [[ ! -f $logs_file ]]; then
 	echo "Creating $logs_file"
 	echo "$dt $logs_file file created." >> $logs_file
 fi
+ 
+if [[ ! -f $conf_file ]]; then
+	echo "Creating conf file..."
+	sleep 2
+sudo cat << EOF1 > $conf_file
+file_test='OK'                
+ 
+git_list=(
+	'/home/vova/GIT/vova_sphere'
+)
+ 
+EOF1
+  
+fi
 
+source $conf_file
+echo "Import config file... $file_test"
+sleep 2
+ 
 if [ ! $1 ]; then
 	echo "Enter a flag or -h for help"
 elif [ $1 == "-h" ]; then
