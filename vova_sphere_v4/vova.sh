@@ -1,6 +1,6 @@
 #!/bin/bash
 Setup(){
-	echo -en "\007"
+	#echo -en "\007"
 	bashrc_file=~/.bashrc
 	my_scripts=~/my_scripts
 	alias_file=$my_scripts/alias.txt

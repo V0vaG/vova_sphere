@@ -6,22 +6,14 @@ master_file='vova.sh'
 
 file_list=($(ls -I vova_maker.sh -I $target -I $master_file))
 
-
-#file_list=(
-#'check_ip.sh'
-#'ssh2ec2.sh'
-#'pass.sh'
-#'ssh2.sh'
-#'base64.sh'
-#'google_f.sh'
-#'jelly.sh'
-#'auto_git.sh'
-#)
+echo $target
 
 
-echo "Deleting old file $target"
-rm $target
-sleep 0.2
+if [ -f $target ]; then
+	echo "Deleting old file $target"
+	rm $target
+	sleep 0.2
+fi
 
 echo "Linking 1 master + ${#file_list[@]} script files..."
 sleep 0.5
@@ -32,10 +24,10 @@ echo '#!/bin/bash
 }
 
 pre_fix(){
-file_name=$1
-func_name="${file_name%.*}"
-echo "make_$func_name(){" >> $target
-echo 'print_to_file $LINENO $1 $2
+	file_name=$1
+	func_name="${file_name%.*}"
+	echo "make_$func_name(){" >> $target
+	echo 'print_to_file $LINENO $1 $2
 : << "COMMENT"' >> $target
 }
 
@@ -70,8 +62,6 @@ print_to_file() {
 ' >> $target
 }
 
-
-
 first_fix
 
 for file in "${file_list[@]}"; do
@@ -88,8 +78,9 @@ cat $master_file >> $target
 
 chmod +x $target
 
-echo "Finish adding files to $target."
 
+echo "Linking complete!"
+echo "Creating $target."
 sleep 2
 
 #bash $target
