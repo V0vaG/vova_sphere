@@ -2,9 +2,6 @@
 
 target='vova_sphere_test.sh'
 
-echo "Deleting old $target"
-rm $target
-
 master_file='vova'
 
 file_list=(
@@ -17,6 +14,9 @@ file_list=(
 'jelly.sh'
 'auto_git.sh'
 )
+
+echo "Deleting old $target"
+rm $target
 
 first_fix(){
 echo '#!/bin/bash
