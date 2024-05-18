@@ -1,7 +1,7 @@
 #!/bin/bash
  
 version='1.0.0'
- 
+
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit

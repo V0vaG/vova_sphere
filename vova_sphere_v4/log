@@ -1,0 +1,17 @@
+Job time: 19/05/2024 00:31:36
+Target fie: vova_sphere_test.sh
+old target time stemp: 
+Master file: vova.sh
+Syntax check-OK
+Linking 1 master + 8 script files...
+Adding file auto_git.sh
+Adding file base64.sh
+Adding file check_ip.sh
+Adding file google_f.sh
+Adding file jelly.sh
+Adding file pass.sh
+Adding file ssh2ec2.sh
+Adding file ssh2.sh
+Linking complete!
+Creating new file: vova_sphere_test.sh
+vova_sphere_test.sh Syntax check-OK

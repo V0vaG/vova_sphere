@@ -331,7 +331,7 @@ print_to_file $LINENO $1 $2
 #!/bin/bash
  
 version='1.0.0'
- 
+
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
@@ -2705,7 +2705,7 @@ Setup(){
 		mkdir $my_scripts
 		sleep 1
 	fi
-	
+
 	if [ ! -f $alias_file ]; then
 		echo "Creating alias $alias_file..."
 		echo "Adding alias *vova* of $0 to $alias_file"
@@ -3105,21 +3105,21 @@ disk_mount(){
 
 bugfix_and_shmix(){
 	clear
-	echo "*****Trixs Shmix & Bug_Fix*********"
-	echo "1.FIX Discord screen bug"
-	echo "2.Generate SSH-Key"
-	echo "3.Chat ^-^"
-	echo "4.[Alt+Shift] Lang swap (for ubuntu 22)" 
-	echo "5.[Alt+Shift] Lang swap (for ubuntu 23)" 
-	echo "6.Edit Grub"
-	echo "7.Disk speed test" 
-	echo "8.MOTD (Massage of the day)"
-	echo "9.MOTD (Massage of the day + script)"
-	echo "10.Battery info" 
-	echo "11.Battery charge limit (for Asus laptop, run file as root)"
-	echo "12.Battery charge limit (for Lenovo ThinkPad laptop)"
-	echo "13.Right-Click new_fie"
-	echo "  "
+	echo "*****Trixs Shmix & Bug_Fix*********
+1.FIX Discord screen bug
+2.Generate SSH-Key
+3.Chat ^-^
+4.[Alt+Shift] Lang swap (for ubuntu 22)
+5.[Alt+Shift] Lang swap (for ubuntu 23)
+6.Edit Grub
+7.Disk speed test
+8.MOTD (Massage of the day)
+9.MOTD (Massage of the day + script)
+10.Battery info
+11.Battery charge limit (for Asus laptop, run file as root)
+12.Battery charge limit (for Lenovo ThinkPad laptop)
+13.Right-Click new_fie
+"
 	read -p "Enter your choice (0-to go back): " ans
 	clear	
 	
@@ -3219,12 +3219,13 @@ WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target s
 		fi
 	elif [[ $ans == 13 ]]; then    
 		clear
-		cd /home/$USER/Templates && touch new_file
+		cd /home/$USER/Templates && echo "#!/bin/bash" > new_bash_file.sh
+		cd /home/$USER/Templates && touch new_txt_file.txt
+		cd /home/$USER/Templates && touch new_md_file.md
 	else
 		main
 	fi
 	bugfix_and_shmix
-	
 }
 
 ufw(){

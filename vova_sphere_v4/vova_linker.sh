@@ -1,23 +1,42 @@
 #!/bin/bash
 
 target='vova_sphere_test.sh'
-
+target_time_stemp=$(date -r $target "+%m-%d-%Y %H:%M:%S") 
 master_file='vova.sh'
+log_file=log
+dt=$(date '+%d/%m/%Y %H:%M:%S');
+
+printf "Job time: $dt\n" > $log_file
+printf "Target fie: $target\n" >> $log_file
+printf "old target time stemp: $target_time_stemp\n" >> $log_file
+printf "Master file: $master_file\n" >> $log_file
 
 echo "Welcome to vova linker"
 
+file_list=($(ls -I vova_linker.sh -I $target -I $master_file -I $log_file))
 
+for file in "${file_list[@]}"; do
+	if ! bash -n $file <"$0"; then
+		echo "$file syntax check-ERROR"
+		printf "$file syntax check-ERROR\n" >> $log_file
+		sleep 5
+		exit
+	fi
+done
 
-file_list=($(ls -I vova_linker.sh -I $target -I $master_file))
+echo "Syntax check-OK"
+printf "Syntax check-OK\n" >> $log_file
 
 if [ -f $target ]; then
-	echo "Deleting old file $target"
+	echo "Deleting old target file: $target"
+	printf "Deleting old target file: $target\n" >> $log_file
 	rm $target
-	sleep 0.2
+	sleep 0.1
 fi
 
 echo "Linking 1 master + ${#file_list[@]} script files..."
-sleep 0.5
+printf "Linking 1 master + ${#file_list[@]} script files...\n" >> $log_file
+sleep 0.1
 
 first_fix(){
 echo '#!/bin/bash
@@ -65,6 +84,7 @@ print_to_file() {
 first_fix
 
 for file in "${file_list[@]}"; do
+	printf "Adding file $file\n" >> $log_file
 	echo "Adding $file"
 	pre_fix $file
 	fix $file
@@ -78,9 +98,24 @@ cat $master_file >> $target
 
 chmod +x $target
 
-
+echo "********************************"
 echo "Linking complete!"
-echo "Creating $target."
+printf "Linking complete!\n" >> $log_file
+echo "Creating new file: $target."
+printf "Creating new file: $target\n" >> $log_file
+
+
+if ! bash -n $target <"$0"; then
+	echo "$target syntax check-ERROR"
+	printf "$target syntax check-ERROR\n" >> $log_file
+	sleep 5
+	exit
+else
+	echo "$target syntax check-OK"
+	printf "$target Syntax check-OK\n" >> $log_file
+fi
+
+
 sleep 1
 
 #bash $target
