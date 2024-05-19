@@ -693,7 +693,7 @@ scripts(){
 			scripts
 		fi
 	elif [[ $ans == 11 ]]; then
-		add_to_alias "a_git" "$auto_git_PATH/auto_git_.sh" 
+		add_to_alias "a_git" "$auto_git_PATH/auto_git.sh" 
 		if [[ ! -d $auto_git_PATH ]]; then
 			make_auto_git $auto_git_PATH auto_git.sh
 			scripts
