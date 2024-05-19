@@ -146,6 +146,12 @@ print_to_file $LINENO $1 $2
  
 version='1.0.0'
  
+help(){
+	echo "Welcome to check ip
+	run the file with the flag [-t]
+	to check the sending prosses"
+}
+
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
@@ -153,12 +159,6 @@ elif [[ $1 == '-h' ]]; then
 	help
 	exit
 fi
-
-help(){
-	echo "Welcome to check ip
-	run the file with the flag [-t]
-	to check the sending prosses"
-}
  
 old_ip_file="/home/vova/my_scripts/check_ip/old_ip"
 logs_file="/home/vova/my_scripts/check_ip/logs_ip"
