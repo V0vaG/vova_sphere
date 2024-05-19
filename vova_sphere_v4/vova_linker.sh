@@ -90,7 +90,6 @@ for file in "${file_list[@]}"; do
 	pre_fix $file
 	fix $file
 	post_fix
-	sleep 0.1
 done
 
 print_func

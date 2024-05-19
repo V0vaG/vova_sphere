@@ -1,6 +1,6 @@
 #!/bin/bash
  
-version="1.0.0"
+version="1.0.1"
  
 if [[ $1 == "-v" ]]; then
 	echo $version
