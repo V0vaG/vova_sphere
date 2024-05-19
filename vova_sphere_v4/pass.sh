@@ -13,7 +13,7 @@ if [[ -f $txt_file ]]; then
     fi
     exit
 fi
- 
+
 file_list=(
 "/home/$USER/my_scripts/pass/.s_txt1" # $pass 1...
 "/home/$USER/my_scripts/pass/.s_txt2" # $pass 2...

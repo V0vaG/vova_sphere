@@ -325,6 +325,16 @@ search
 COMMENT
 }
 ##########################################################################
+make_hello_2(){
+print_to_file $LINENO $1 $2
+: << "COMMENT"
+#!/bin/bash
+echo "hello world 2"
+
+
+COMMENT
+}
+##########################################################################
 make_jelly(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -403,7 +413,7 @@ if [[ -f $txt_file ]]; then
     fi
     exit
 fi
- 
+
 file_list=(
 "/home/$USER/my_scripts/pass/.s_txt1" # $pass 1...
 "/home/$USER/my_scripts/pass/.s_txt2" # $pass 2...
@@ -2682,7 +2692,7 @@ print_to_file() {
 Setup(){
 	#echo -en "\007"
 	bashrc_file=~/.bashrc
-	my_scripts=~/my_scripts
+	my_scripts=/home/$USER/my_scripts
 	alias_file=$my_scripts/alias.txt
 	ssh2ec2_PATH=$my_scripts/ssh2ec2
 	ssh2_PATH=$my_scripts/ssh2
@@ -3373,7 +3383,7 @@ scripts(){
 			scripts
 		fi
 	elif [[ $ans == 11 ]]; then
-		add_to_alias "a_git" "$auto_git__PATH/auto_git_.sh" 
+		add_to_alias "a_git" "$auto_git_PATH/auto_git_.sh" 
 		if [[ ! -d $auto_git_PATH ]]; then
 			make_auto_git $auto_git_PATH auto_git.sh
 			scripts

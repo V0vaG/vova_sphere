@@ -1,8 +1,8 @@
 #!/bin/bash
 
-target='vova_sphere_test.sh'
+target='test_linker.sh'
 target_time_stemp=$(date -r $target "+%m-%d-%Y %H:%M:%S") 
-master_file='vova.sh'
+master_file='master.sh'
 log_file=log
 dt=$(date '+%d/%m/%Y %H:%M:%S');
 
