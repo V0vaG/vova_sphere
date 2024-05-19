@@ -66,7 +66,9 @@ COMMENT
 print_func(){
 echo '
 print_to_file() {
-	mkdir $2
+	if [[ ! -d $2 ]]; then
+		mkdir $2
+	fi
 	EOF="COMMENT"
 	i=$(($1+2))
 	while :; do
