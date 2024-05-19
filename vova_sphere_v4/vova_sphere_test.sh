@@ -90,7 +90,7 @@ fi
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 make_base64(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -138,7 +138,7 @@ main
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 make_check_ip(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -272,7 +272,7 @@ main
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 make_google_f(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -334,7 +334,7 @@ search
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 make_hello_2(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -344,7 +344,7 @@ echo "hello world 2"
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 make_jelly(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -404,7 +404,7 @@ main
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 make_pass(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -2066,7 +2066,7 @@ main
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 make_ssh2ec2(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -2450,7 +2450,7 @@ main
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 make_ssh2(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
@@ -2681,7 +2681,7 @@ main
 
 COMMENT
 }
-##########################################################################
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 
 print_to_file() {
 	mkdir $2

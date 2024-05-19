@@ -32,7 +32,6 @@ if [ -f $target ]; then
 	echo "Deleting old target file: $target"
 	printf "Deleting old target file: $target\n" >> $log_file
 	rm $target
-	sleep 0.1
 fi
 
 echo "Linking 1 master file + ${#file_list[@]} script files..."
@@ -60,7 +59,7 @@ post_fix(){
 echo '
 COMMENT
 }
-##########################################################################' >> $target
+##<make_func_name>_<path_to_dir>_<file_name>.sh################################' >> $target
 }
 
 print_func(){
