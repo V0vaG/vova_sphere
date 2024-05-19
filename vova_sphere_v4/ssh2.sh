@@ -17,7 +17,7 @@ conf_file="/home/$USER/my_scripts/ssh2/conf"
 if [[ ! -f $conf_file ]]; then
 	echo "Creating conf file..."
 	sleep 2
-sudo cat << EOF1 > $conf_file
+cat << EOF1 > $conf_file
 file_test='OK'                
  
 user_list=(

@@ -6,9 +6,15 @@ if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
+
+help(){
+	echo "Welcome to check ip
+	run the file with the flag [-t]
+	to check the sending prosses"
+}
  
 old_ip_file="/home/vova/my_scripts/check_ip/old_ip"
 logs_file="/home/vova/my_scripts/check_ip/logs_ip"
@@ -65,6 +71,10 @@ send_to_users(){
 	  slack 'ERROR' "IP Changed!!!" "The new IP is: $ip"
 	done
 }
+
+if [[ $1 == "-t" ]]; then
+	old_ip='1.1.1.1'
+fi
  
 update_ip(){
 	echo $ip > $old_ip_file
