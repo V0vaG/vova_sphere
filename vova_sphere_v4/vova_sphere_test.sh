@@ -3342,13 +3342,13 @@ scripts(){
 	if [[ $ans == 0 ]]; then
 		main 
 	elif [[ $ans == 1 ]]; then
-		add_to_alias 'ec2' "$sh2ec2_PATH/ssh2ec2.sh"
-		rm "$sh2ec2_PATH/ssh2ec2.sh"
+		add_to_alias 'ec2' "$ssh2ec2_PATH/ssh2ec2.sh"
+		rm -f "$sh2ec2_PATH/ssh2ec2.sh"
 		make_ssh2ec2 $ssh2ec2_PATH ssh2ec2.sh
 		scripts
 	elif [[ $ans == 2 ]]; then
 		add_to_alias 'f' "$google_f_PATH/google_f.sh"
-		rm "$google_f_PATH/google_f.sh"
+		rm -f "$google_f_PATH/google_f.sh"
 		make_google_f $google_f_PATH google_f.sh
 		scripts
 	elif [[ $ans == 3 ]]; then
@@ -3361,33 +3361,33 @@ scripts(){
 		scripts
 	elif [[ $ans == 5 ]]; then
 		add_to_alias "ssh2" "$ssh2_PATH/ssh2.sh"
-		rm "$ssh2_PATH/ssh2.sh"
+		rm -f "$ssh2_PATH/ssh2.sh"
 		make_ssh2 $ssh2_PATH ssh2.sh
 		scripts
 	elif [[ $ans == 6 ]]; then
 		add_to_alias "pass" "$pass_PATH/pass.sh"
-		rm "$pass_PATH/pass.sh"
+		rm -f "$pass_PATH/pass.sh"
 		make_pass $pass_PATH pass.sh
 		scripts
 	elif [[ $ans == 7 ]]; then
 		ufw
     elif [[ $ans == 8 ]]; then
-		rm "$check_ip_PATH/check_ip.sh"
+		rm -f "$check_ip_PATH/check_ip.sh"
 		make_check_ip $check_ip_PATH check_ip.sh
 		scripts
 	elif [[ $ans == 9 ]]; then
 		add_to_alias "jelly" "$jelly_PATH/jelly.sh"
-		rm "$jelly_PATH/jelly.sh"
+		rm -f "$jelly_PATH/jelly.sh"
 		make_jelly $jelly_PATH jelly.sh
 		scripts
 	elif [[ $ans == 10 ]]; then
 		add_to_alias "64" "$base64_PATH/base64.sh" 
-		rm "$base64_PATH/base64.sh" 
+		rm -f "$base64_PATH/base64.sh" 
 		make_base64 $base64_PATH base64.sh
 		scripts
 	elif [[ $ans == 11 ]]; then
 		add_to_alias "a_git" "$auto_git_PATH/auto_git.sh" 
-		rm "$auto_git_PATH/auto_git.sh"
+		rm -f "$auto_git_PATH/auto_git.sh"
 		make_auto_git $auto_git_PATH auto_git.sh
 		scripts
 	else
