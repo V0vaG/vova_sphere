@@ -273,7 +273,7 @@ elif [[ $1 == '-h' ]]; then
 	exit
 elif [[ $1 == "-t" ]]; then
 	old_ip='<test>'
-	
+	main
 elif [[ $1 == "-e" ]]; then
 	nano $slack_users_file
 	exit
