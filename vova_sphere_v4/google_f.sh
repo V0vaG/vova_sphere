@@ -1,6 +1,6 @@
 #!/bin/bash
  
-version='1.0.0'
+version='1.0.1'
  
 if [[ $1 == '-v' ]]; then
 	echo $version
@@ -27,7 +27,7 @@ search(){
 	fi
  
 	echo "Searching: what is ______ in $search"
-	echo "1- Change ""post-search"" keyword"
+	echo "f- Change ""post-search"" keyword"
 	echo "0- Exit"
 	read -p "Enter your choice or type your search: " ans
  
@@ -42,7 +42,7 @@ search(){
 		exit
 	fi
  
-	if [ $ans == 1 ]; then
+	if [[ $ans == "f" ]]; then
 		read -p "Enter post-search keyword: " ans_f
 		echo "$ans_f" > $search_file
 		search

@@ -201,6 +201,13 @@ sudo add-apt-repository universe
 sudo apt install libfuse2
 }
 
+install_aws_cli(){
+	sudo apt install curl
+	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+	unzip awscliv2.zip
+	sudo ./aws/install
+}
+
 install_pkg(){
 	pkg_list=(
 	'main'
@@ -235,6 +242,7 @@ install_pkg(){
 	'install_mongo_db' 'install_rtl_sdr'
 	'install_eksctl' 'install_dotnet_sdk'
 	'install_appimagelauncher' 'install_fuse'
+	'install_aws_cli'
 	)
 
 	i=0
@@ -672,6 +680,7 @@ scripts(){
 	elif [[ $ans == 7 ]]; then
 		ufw
     elif [[ $ans == 8 ]]; then
+    	add_to_alias "check_ip" "$check_ip_PATH/check_ip.sh"
 		rm -f "$check_ip_PATH/check_ip.sh"
 		make_check_ip $check_ip_PATH check_ip.sh
 		scripts

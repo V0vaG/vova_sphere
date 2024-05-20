@@ -144,28 +144,18 @@ print_to_file $LINENO $1 $2
 : << "COMMENT"
 #!/bin/bash
  
-version='1.0.0'
- 
-help(){
-	echo "Welcome to check ip
-	run the file with the flag [-t]
-	to check the sending prosses"
-}
-
-if [[ $1 == '-v' ]]; then
-	echo $version
-	exit
-elif [[ $1 == '-h' ]]; then
-	help
-	exit
-fi
- 
+version='1.0.1'
+  
 old_ip_file="/home/vova/my_scripts/check_ip/old_ip"
 logs_file="/home/vova/my_scripts/check_ip/logs_ip"
-slack_users_file="/home/vova/my_scripts/check_ip/slack"
-local_ip="10.100.102.178"
+slack_users_file="/home/vova/my_scripts/check_ip/conf"
 source "$slack_users_file"
+old_ip=$(cat $old_ip_file)
+clear
+
 tLen=${#user_list[@]}
+
+
 dt=$(date '+%d/%m/%Y %H:%M:%S');
  
 if [[ ! -f $logs_file ]]; then
@@ -176,22 +166,18 @@ fi
 if [[ ! -f $slack_users_file ]]; then
 	echo "Creating $slack_users_file"
 	echo "$dt $slack_users_file file created." >> $logs_file
+	echo "local_ip='10.100.102.178'" >> $slack_users_file
 	echo "user_list=(    #user_names     )" >> $slack_users_file
 	echo "user_channel=( #slack_channels )" >> $slack_users_file
 	echo "user_hoock=(   #slack_hoocks   )" >> $slack_users_file
+	
 fi
  
 if [[ ! -f $old_ip_file ]]; then
 	echo $ip > $old_ip_file
 	echo "Creating $old_ip_file"
 	echo "$dt $old_ip_file file created." >> $logs_file
-	echo "Creating crontab job"
-	#(crontab -l ; echo "10 * * * * /bin/bash /home/$USER/my_scripts/check_ip/check_ip.sh") | crontab
-	(crontab -l ; echo "10 * * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh") | crontab
 fi
- 
-ip=$(curl ipinfo.io/ip)
-old_ip=$(cat $old_ip_file)
  
 slack() {
   echo "slack sending... "
@@ -206,6 +192,19 @@ slack() {
   echo ""
 }
  
+help(){
+	echo "Welcome to check ip
+	flags:
+	[-v]- Print version
+	[-t]- Test with fake ip
+	[-e]- Edit conf file
+	[-p]- Ping check
+		The script makes reachability test (install on enother pc)
+	[-i]- IP check
+		The script compere the curent IP with last time check IP
+		if it's diffrent, it will alert"
+}
+ 
 send_to_users(){
 	for (( i=0; i<${tLen}; i++ ));
 	do
@@ -215,16 +214,13 @@ send_to_users(){
 	  slack 'ERROR' "IP Changed!!!" "The new IP is: $ip"
 	done
 }
-
-if [[ $1 == "-t" ]]; then
-	old_ip='1.1.1.1'
-fi
  
 update_ip(){
 	echo $ip > $old_ip_file
 }
  
 main(){
+	ip=$(curl ipinfo.io/ip)
 	#echo "Old IP: $old_ip"
 	#echo "New IP: $ip"
 	if [[ $old_ip == $ip ]]; then
@@ -266,9 +262,38 @@ ping_test(){
 	  fi
 	fi
 }
-main
-#ping_test
 
+ip=$(curl ipinfo.io/ip)
+
+if [[ $1 == '-v' ]]; then
+	echo $version
+	exit
+elif [[ $1 == '-h' ]]; then
+	help
+	exit
+elif [[ $1 == "-t" ]]; then
+	old_ip='<test>'
+	
+elif [[ $1 == "-e" ]]; then
+	nano $slack_users_file
+	exit
+elif [[ $1 == "-p" ]]; then
+	ping_test
+	exit
+elif [[ $1 == "-i" ]]; then
+	main
+	exit
+elif [[ $1 == "-c" ]]; then
+	if [[ $2 == "-i" ]]; then
+		(crontab -l ; echo "03 23 * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh -i") | crontab
+		echo "$dt $old_ip_file IP cronjob created." >> $logs_file
+		exit
+	elif [[ $2 == "-p" ]]; then
+		(crontab -l ; echo "10 23 * * * /bin/bash /home/vova/my_scripts/check_ip/check_ip.sh -p") | crontab
+		echo "$dt $old_ip_file Ping conjob created." >> $logs_file
+		exit
+	fi
+fi
 
 COMMENT
 }
@@ -278,7 +303,7 @@ print_to_file $LINENO $1 $2
 : << "COMMENT"
 #!/bin/bash
  
-version='1.0.0'
+version='1.0.1'
  
 if [[ $1 == '-v' ]]; then
 	echo $version
@@ -305,7 +330,7 @@ search(){
 	fi
  
 	echo "Searching: what is ______ in $search"
-	echo "1- Change ""post-search"" keyword"
+	echo "f- Change ""post-search"" keyword"
 	echo "0- Exit"
 	read -p "Enter your choice or type your search: " ans
  
@@ -320,7 +345,7 @@ search(){
 		exit
 	fi
  
-	if [ $ans == 1 ]; then
+	if [[ $ans == "f" ]]; then
 		read -p "Enter post-search keyword: " ans_f
 		echo "$ans_f" > $search_file
 		search
@@ -2684,7 +2709,7 @@ COMMENT
 ##<make_func_name>_<path_to_dir>_<file_name>.sh################################
 
 print_to_file() {
-	mkdir $2
+	mkdir -p $2
 	EOF="COMMENT"
 	i=$(($1+2))
 	while :; do
@@ -2901,6 +2926,13 @@ sudo add-apt-repository universe
 sudo apt install libfuse2
 }
 
+install_aws_cli(){
+	sudo apt install curl
+	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+	unzip awscliv2.zip
+	sudo ./aws/install
+}
+
 install_pkg(){
 	pkg_list=(
 	'main'
@@ -2935,6 +2967,7 @@ install_pkg(){
 	'install_mongo_db' 'install_rtl_sdr'
 	'install_eksctl' 'install_dotnet_sdk'
 	'install_appimagelauncher' 'install_fuse'
+	'install_aws_cli'
 	)
 
 	i=0
@@ -3372,6 +3405,7 @@ scripts(){
 	elif [[ $ans == 7 ]]; then
 		ufw
     elif [[ $ans == 8 ]]; then
+    	add_to_alias "check_ip" "$check_ip_PATH/check_ip.sh"
 		rm -f "$check_ip_PATH/check_ip.sh"
 		make_check_ip $check_ip_PATH check_ip.sh
 		scripts
