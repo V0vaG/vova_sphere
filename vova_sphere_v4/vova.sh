@@ -723,6 +723,7 @@ System_info(){
 }
 
 main(){
+	sudo
 	clear
 	echo "***Welcome to vova_sphere***
 1- Install packages

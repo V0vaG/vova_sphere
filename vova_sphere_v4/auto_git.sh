@@ -67,7 +67,7 @@ elif [ $1 == "-pull" ]; then
 		echo "pulling from $git_ripo"
 		cd $git_ripo && git fetch && git pull
 	done
-elif [ $1 == "-c" ]; then
+elif [ $1 == "-c" -a $2 ]; then
 	if [ $2 == "-push" ];then
 		echo "$dt adding crontab push job" >> $logs_file
 		echo "adding crontab push job..."
