@@ -429,6 +429,7 @@ version='1.2.1'
 file_test='FAIL'
 
 conf_file="/home/$USER/my_scripts/pass/conf"
+remote="no"
 
 if [[ ! -f $conf_file ]]; then
 	echo "Creating conf file..."
@@ -439,6 +440,7 @@ file_test='OK'
 remote_host='user@ip'
 
 tmp_file="/tmp/..."
+tmp_file1="/tmp/..."
 
 r_file_list=(
 "/home/$USER/..." # remote file 1
@@ -456,6 +458,22 @@ fi
 source "$conf_file"
 echo "Import config file... $file_test"
 sleep 1
+
+
+
+
+security_check(){
+  if [[ -f "$1" ]]; then
+	echo "$1 was not deleted!!!!!!!!!!"
+	read -p "To delete the file (y/n)? " ans
+	if [[ $ans == 'y' ]]; then
+    	rm "$1"
+    fi
+  fi
+}
+
+security_check $tmp_file
+security_check $tmp_file1
 
 if [[ -f "$tmp_file" ]]; then
 	echo "$tmp_file was not deleted!!!!!!!!!!"
@@ -512,11 +530,14 @@ elif [[ "$1" == "-e" ]]; then
 	nano "$conf_file"
 	exit
 elif [[ "$1" == "-r" ]]; then
+  remote="yes"
+
   if [[ ! $2 ]]; then
     source_file_path=${r_file_list[0]}
   else
 	  source_file_path=${r_file_list["(($2-1))"]}
 	fi
+
   scp "$remote_host":"$source_file_path"  "$tmp_file" > /dev/null 2>&1
   s_txt_file=$tmp_file
   echo "Done"
@@ -546,9 +567,9 @@ read_file(){
 }
  
 open_file(){
-	openssl enc -d -aes-256-cbc -pbkdf2 -a -in "$s_txt_file" -k "$pass" > "$tmp_file"
-	nano "$tmp_file"
-	if [[ ! -s "$tmp_file" ]]; then
+	openssl enc -d -aes-256-cbc -pbkdf2 -a -in "$s_txt_file" -k "$pass" > "$tmp_file1"
+	nano "$tmp_file1"
+	if [[ ! -s "$tmp_file1" ]]; then
 		clear
 		open_file
 	fi
@@ -556,7 +577,7 @@ open_file(){
   
 save_file(){
     clear
-    openssl enc -e -aes-256-cbc -pbkdf2 -a -in "$tmp_file" -k "$pass" > "$s_txt_file"
+    openssl enc -e -aes-256-cbc -pbkdf2 -a -in "$tmp_file1" -k "$pass" > "$s_txt_file"
     if [[ ! -s $s_txt_file ]]; then
         clear
         echo "Password dont match, try again..."
@@ -564,15 +585,18 @@ save_file(){
         save_file
     fi
 }
- 
+
 edit_file(){
     open_file
     save_file
-    rm "$tmp_file"
+    if [[ remote -eq "yes" ]]; then
+      scp "$s_txt_file" "$remote_host":"$source_file_path"
+    fi
+    rm "$tmp_file1"
     clear
     main
 }
- 
+
 delete_file(){
     rm "$s_txt_file"
 }
@@ -606,6 +630,7 @@ main(){
 }
 
 main
+
 
 
 
