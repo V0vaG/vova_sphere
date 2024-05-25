@@ -1,8 +1,9 @@
-Job time: 23/05/2024 17:56:43
+Job time: 25/05/2024 05:39:35
 Target fie: vova_sphere_test.sh
-old target time stemp: 
+old target time stemp: 05-25-2024 05:33:16
 Master file: vova.sh
 Syntax check-OK
+Deleting old target file: vova_sphere_test.sh
 Linking 1 master file + 8 script files...
 Adding file auto_git.sh
 Adding file base64.sh

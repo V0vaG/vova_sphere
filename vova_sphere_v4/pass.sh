@@ -1,26 +1,50 @@
 #!/bin/bash
   
-version='1.0.0'
-txt_file="/tmp/tmp_file"
- 
-if [[ -f $txt_file ]]; then
-	echo "$txt_file was not deleted!!!!!!!!!!"
+version='1.2.1'
+file_test='FAIL'
+
+conf_file="/home/$USER/my_scripts/pass/conf"
+
+if [[ ! -f $conf_file ]]; then
+	echo "Creating conf file..."
+	sleep 2
+cat << EOF1 > "$conf_file"
+file_test='OK' 
+
+remote_host='user@ip'
+
+tmp_file="/tmp/..."
+
+r_file_list=(
+"/home/$USER/..." # remote file 1
+"/home/$USER/..." # remote file 2
+)
+
+file_list=(
+"/home/$USER/..." # local file 1
+"/home/$USER/..." # local file 2
+)
+
+EOF1
+fi
+
+source "$conf_file"
+echo "Import config file... $file_test"
+sleep 1
+
+if [[ -f "$tmp_file" ]]; then
+	echo "$tmp_file was not deleted!!!!!!!!!!"
 	read -p "To delete the file (y/n)? " ans
 	if [[ $ans == 'y' ]]; then
-    	rm $txt_file
+    	rm "$tmp_file"
     	exit
     fi
     exit
 fi
-
-file_list=(
-"/home/$USER/my_scripts/pass/.s_txt1" # $pass 1...
-"/home/$USER/my_scripts/pass/.s_txt2" # $pass 2...
-)
  
 help(){
-echo "*** pass (Password maneger)***
-> comand: pass
+echo "*** pass (Password manager)***
+> command: pass
 
 Option 1#- 1 element in *file_list*
 $ pass 
@@ -32,9 +56,16 @@ $ pass [arg]
 > Then enter secret code
 
 Option 3#- flags:
-> [-f] workin with file outside *file_list*
+> [-e] Edit conf file
+
+> [-f] working with file outside *file_list*
 $ pass -f <secret_file_path>
 > Then enter secret code
+
+> [-r] Remote accesses to files over SSH
+[arg] file num from the lisr
+$ pass -r [arg]
+
     
 > [-d!] delete *file_list* & the program it self
 $ pass -d!"
@@ -42,16 +73,28 @@ $ pass -d!"
  
 delete(){
 	for file in "${file_list[@]}"; do
-		rm -rf $file
+		rm -rf "$file"
 	done
-		rm -rf $0
+		rm -rf "$0"
 }
- 
-if [[ "$1" == "-f" ]]; then
+
+if   [[ "$1" == "-f" ]]; then
 	s_txt_file=$2
 elif [[ "$1" == "-v" ]]; then
 	echo $version
 	exit
+elif [[ "$1" == "-e" ]]; then
+	nano "$conf_file"
+	exit
+elif [[ "$1" == "-r" ]]; then
+  if [[ ! $2 ]]; then
+    source_file_path=${r_file_list[0]}
+  else
+	  source_file_path=${r_file_list["(($2-1))"]}
+	fi
+  scp "$remote_host":"$source_file_path"  "$tmp_file" > /dev/null 2>&1
+  s_txt_file=$tmp_file
+  echo "Done"
 elif [[ "$1" == "-h" ]]; then
 	help
 	exit
@@ -73,14 +116,14 @@ read_file(){
         sleep 1
         edit_file
     fi
-    openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file -k $pass | cat -
+    openssl enc -d -aes-256-cbc -pbkdf2 -a -in "$s_txt_file" -k "$pass" | cat -
     read -p "Press ENTER key to EXIT"
 }
  
 open_file(){
-	openssl enc -d -aes-256-cbc -pbkdf2 -a -in $s_txt_file -k $pass > $txt_file
-	nano $txt_file
-	if [[ ! -s $txt_file ]]; then
+	openssl enc -d -aes-256-cbc -pbkdf2 -a -in "$s_txt_file" -k "$pass" > "$tmp_file"
+	nano "$tmp_file"
+	if [[ ! -s "$tmp_file" ]]; then
 		clear
 		open_file
 	fi
@@ -88,10 +131,10 @@ open_file(){
   
 save_file(){
     clear
-    openssl enc -e -aes-256-cbc -pbkdf2 -a -in $txt_file -k $pass > $s_txt_file
+    openssl enc -e -aes-256-cbc -pbkdf2 -a -in "$tmp_file" -k "$pass" > "$s_txt_file"
     if [[ ! -s $s_txt_file ]]; then
         clear
-        echo "Password dont match, try agein..."
+        echo "Password dont match, try again..."
         sleep 1
         save_file
     fi
@@ -100,13 +143,18 @@ save_file(){
 edit_file(){
     open_file
     save_file
-    rm $txt_file
+    rm "$tmp_file"
     clear
     main
 }
  
 delete_file(){
-    rm $s_txt_file
+    rm "$s_txt_file"
+}
+
+exit1(){
+  rm "$tmp_file"
+  exit
 }
  
 main(){
@@ -114,7 +162,7 @@ main(){
     echo "Welcome to Vova's pass"
     
 	func_list=(
-	'exit'
+	'exit1'
 	'read_file'
 	'edit_file'
 	'delete_file'
@@ -133,4 +181,8 @@ main(){
 }
 
 main
+
+
+
+
 
