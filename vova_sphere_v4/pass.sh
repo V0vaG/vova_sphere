@@ -1,6 +1,12 @@
 #!/bin/bash
   
-version='1.2.4'
+version='1.3.6'
+
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
 file_test='FAIL'
 
 conf_file="/home/$USER/my_scripts/pass/conf"
@@ -12,17 +18,18 @@ if [[ ! -f $conf_file ]]; then
 cat << EOF1 > "$conf_file"
 file_test='OK' 
 
-remote_host='user@ip'
+user='usr'
+host_ip='1.2.3.4a'
 
-tmp_file="/tmp/temp.tmp"
-tmp_file1="/tmp/temp2.tmp"
+local_temp_file="/tmp/temp.tmp"
+remote_temp_file="/tmp/temp2.tmp"
 
-r_file_list=(
+remote_file_list=(
 "/home/$USER/..." # remote file 1
 "/home/$USER/..." # remote file 2
 )
 
-file_list=(
+local_file_list=(
 "/home/$USER/..." # local file 1
 "/home/$USER/..." # local file 2
 )
@@ -32,7 +39,9 @@ fi
 
 source "$conf_file"
 echo "Import config file... $file_test"
-sleep 1
+sleep 0.5
+
+remote_host="$user@$host_ip"
 
 security_check(){
     if [[ -f "$1" ]]; then
@@ -44,50 +53,77 @@ security_check(){
     fi
 }
 
-security_check "$tmp_file"
-security_check "$tmp_file1"
+security_check "$local_temp_file"
+security_check "$remote_temp_file"
 
-if [[ -f "$tmp_file" ]]; then
-	echo "$tmp_file was not deleted!!!!!!!!!!"
+ip_check(){
+    if [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "IP OK"
+    else
+      echo "ERROR IP fail"
+      sleep 1
+      exit
+    fi
+}
+
+if [[ -f "$local_temp_file" ]]; then
+	echo "$local_temp_file was not deleted!!!!!!!!!!"
 	read -p "To delete the file (y/n)? " ans
 	if [[ $ans == 'y' ]]; then
-    	rm "$tmp_file"
+    	rm "$local_temp_file"
     	exit
     fi
     exit
 fi
  
 help(){
-echo "*** pass (Password manager)***
-> command: pass
+echo "pass (Password manager)
+############################
+# Author: Vladimir Glayzer #
+############################
+This Script manages secrets locally & remotely.
+> command alias: pass
+1. [-e] Edit conf file
+    $ pass -e
+    > Tge conf file will be created at first start of the script
+    > Edit the conf file before the first use to add local_file_list,
+    remote_file_list, username, host ip $ paths of the temp files.
 
-Option 1#- 1 element in *file_list*
-$ pass 
-> Then enter secret code
+2. Local files:
+    2.1- 1 element in *local_file_list*
+        $ pass
+        > Then enter secret code
 
-Option 2#- more then 1 element in *file_list*
-> [arg] the number of the element in *file_list* starting from 1
-$ pass [arg]
-> Then enter secret code
+    2.2- more then 1 element in *local_file_list*
+        $ pass [arg]
+        > [arg] the number of the element in *local_file_list* starting from 1
+        > Then enter secret code
 
-Option 3#- flags:
-> [-e] Edit conf file
+    2.3- [-f] costume path file that isn't in the *local_file_list*
+        $ pass -f [arg]
+        $ [arg] secret_file_path
+        > Then enter secret code
 
-> [-f] working with file outside *file_list*
-$ pass -f <secret_file_path>
-> Then enter secret code
+3. [-r] Remote files:
+    3.1- 1 element in *remote_file_list*
+        $ pass -r
 
-> [-r] Remote accesses to files over SSH
-[arg] file num from the lisr
-$ pass -r [arg]
+    3.2 - more then 1 element in *remote_file_list*
+        $ pass -r [arg]
+        > [arg] the number of the element in *remote_file_list* starting from 1
 
-    
-> [-d!] delete *file_list* & the program it self
-$ pass -d!"
+    3.3- [-r] [-f] Remote costume path file that isn't in the *remote_file_list*
+        $ pass -r -f [arg]
+        $ [arg] secret_file_path
+        > Then enter secret code
+
+4. [-d!] self delete
+    4.1- the script will delete *local_file_list* files &  it self
+        $ pass -d!"
 }
  
 delete(){
-    for file in "${file_list[@]}"; do
+    for file in "${local_file_list[@]}"; do
         rm -rf "$file"
     done
 	rm -rf "$0"
@@ -102,15 +138,20 @@ elif [[ "$1" == "-e" ]]; then
 	nano "$conf_file"
 	exit
 elif [[ "$1" == "-r" ]]; then
+    ip_check "$host_ip"
     remote="yes"
     if [[ ! $2 ]]; then
-        source_file_path=${r_file_list[0]}
+        source_file_path=${remote_file_list[0]}
     else
-        source_file_path=${r_file_list["(($2-1))"]}
+        if [[ "$2" == "-f" ]]; then
+            source_file_path="$3"
+        else
+            source_file_path=${remote_file_list["(($2-1))"]}
+        fi
     fi
-
-    scp "$remote_host":"$source_file_path"  "$tmp_file" > /dev/null 2>&1
-    s_txt_file=$tmp_file
+    
+    scp "$remote_host":"$source_file_path"  "$local_temp_file" > /dev/null 2>&1
+    s_txt_file=$local_temp_file
     echo "Done"
 elif [[ "$1" == "-h" ]]; then
     help
@@ -119,10 +160,10 @@ elif [[ "$1" == "-d!" ]]; then
 	delete
 	exit
 else
-	if [ ${#file_list[@]} -gt "1" -a -z "$1" ]; then
+	if [ ${#local_file_list[@]} -gt "1" ] && [ -z "$1" ]; then
 		exit
 	fi
-	s_txt_file=${file_list["(($1-1))"]}
+	s_txt_file=${local_file_list["(($1-1))"]}
 fi
  
 read -s pass
@@ -138,9 +179,9 @@ read_file(){
 }
  
 open_file(){
-	openssl enc -d -aes-256-cbc -pbkdf2 -a -in "$s_txt_file" -k "$pass" > "$tmp_file1"
-	nano "$tmp_file1"
-	if [[ ! -s "$tmp_file1" ]]; then
+	openssl enc -d -aes-256-cbc -pbkdf2 -a -in "$s_txt_file" -k "$pass" > "$remote_temp_file"
+	nano "$remote_temp_file"
+	if [[ ! -s "$remote_temp_file" ]]; then
 		clear
 		open_file
 	fi
@@ -148,7 +189,7 @@ open_file(){
   
 save_file(){
     clear
-    openssl enc -e -aes-256-cbc -pbkdf2 -a -in "$tmp_file1" -k "$pass" > "$s_txt_file"
+    openssl enc -e -aes-256-cbc -pbkdf2 -a -in "$remote_temp_file" -k "$pass" > "$s_txt_file"
     if [[ ! -s $s_txt_file ]]; then
         clear
         echo "Password dont match, try again..."
@@ -163,7 +204,7 @@ edit_file(){
     if [[ remote -eq "yes" ]]; then
         scp "$s_txt_file" "$remote_host":"$source_file_path"
     fi
-    rm "$tmp_file1"
+    rm "$remote_temp_file"
     clear
     main
 }
@@ -173,7 +214,7 @@ delete_file(){
 }
 
 exit1(){
-    rm "$tmp_file"
+    rm "$local_temp_file"
     exit
 }
  
