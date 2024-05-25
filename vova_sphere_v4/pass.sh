@@ -214,7 +214,7 @@ delete_file(){
 }
 
 exit1(){
-    rm "$local_temp_file"
+    rm -f "$local_temp_file"
     exit
 }
  
