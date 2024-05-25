@@ -1,6 +1,6 @@
 #!/bin/bash
   
-version='1.2.3'
+version='1.2.4'
 file_test='FAIL'
 
 conf_file="/home/$USER/my_scripts/pass/conf"
