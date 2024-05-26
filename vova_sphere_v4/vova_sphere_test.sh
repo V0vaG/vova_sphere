@@ -482,9 +482,7 @@ security_check "$local_temp_file"
 security_check "$remote_temp_file"
 
 ip_check(){
-    if [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-      echo "IP OK"
-    else
+    if ! [[ $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
       echo "ERROR IP fail"
       sleep 1
       exit
@@ -517,7 +515,7 @@ This Script manages secrets locally & remotely via SSH.
 
 1. [-e] Edit conf file
 	$ pass -e
-	> Tge conf file will be created at first start of the script
+	> The conf file will be created at first start of the script
 	> Edit the conf file before the first use to add local_file_list,
 	remote_file_list, username, host ip $ paths of the temp files.
 
@@ -587,7 +585,9 @@ elif [[ "$1" == "-r" ]]; then
     
     scp "$remote_host":"$source_file_path"  "$local_temp_file" > /dev/null 2>&1
     s_txt_file=$local_temp_file
-    echo "Done"
+    echo "OK"
+    sleep 0.5
+    clear
 elif [[ "$1" == "-h" ]]; then
     help
     exit
@@ -648,7 +648,7 @@ delete_file(){
     rm "$s_txt_file"
 }
 
-exit1(){
+exit_pass(){
     rm -f "$local_temp_file"
     exit
 }
@@ -658,7 +658,7 @@ main(){
     echo "Welcome to Vova's pass"
     
     func_list=(
-    'exit1'
+    'exit_pass'
     'read_file'
     'edit_file'
     'delete_file'
@@ -677,6 +677,7 @@ main(){
 }
 
 main
+
 
 COMMENT
 }
