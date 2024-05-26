@@ -506,25 +506,32 @@ echo "pass (Password manager)
 ############################
 # Author: Vladimir Glayzer #
 ############################
-This Script manages secrets locally & remotely.
-> command alias: pass
+
+Version: $version        
+
+This Script manages secrets locally & remotely via SSH.
+
+0. Alias
+	$ pass
+	> The script create an alias: *pass*
+
 1. [-e] Edit conf file
-    $ pass -e
-    > Tge conf file will be created at first start of the script
-    > Edit the conf file before the first use to add local_file_list,
-    remote_file_list, username, host ip $ paths of the temp files.
+	$ pass -e
+	> Tge conf file will be created at first start of the script
+	> Edit the conf file before the first use to add local_file_list,
+	remote_file_list, username, host ip $ paths of the temp files.
 
 2. Local files:
-    2.1- 1 element in *local_file_list*
+    2.1- 1 Element in *local_file_list*
         $ pass
-        > Then enter secret code
+		> Then enter secret code
 
-    2.2- more then 1 element in *local_file_list*
+    2.2- More then 1 element in *local_file_list*
         $ pass [arg]
         > [arg] the number of the element in *local_file_list* starting from 1
         > Then enter secret code
 
-    2.3- [-f] costume path file that isn't in the *local_file_list*
+    2.3- [-f] Costume path file that isn't in the *local_file_list*
         $ pass -f [arg]
         $ [arg] secret_file_path
         > Then enter secret code
@@ -533,7 +540,7 @@ This Script manages secrets locally & remotely.
     3.1- 1 element in *remote_file_list*
         $ pass -r
 
-    3.2 - more then 1 element in *remote_file_list*
+    3.2 - More then 1 element in *remote_file_list*
         $ pass -r [arg]
         > [arg] the number of the element in *remote_file_list* starting from 1
 
@@ -542,9 +549,12 @@ This Script manages secrets locally & remotely.
         $ [arg] secret_file_path
         > Then enter secret code
 
-4. [-d!] self delete
-    4.1- the script will delete *local_file_list* files &  it self
-        $ pass -d!"
+4. [-d!] The script will delete *local_file_list* files &  it self
+	$ pass -d!
+    
+5. [-v] Display version
+	$ pass -v
+"
 }
  
 delete(){
