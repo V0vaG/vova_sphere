@@ -637,7 +637,7 @@ edit_file(){
     open_file
     save_file
     if [[ remote -eq "yes" ]]; then
-        scp "$s_txt_file" "$remote_host":"$source_file_path"
+        scp "$s_txt_file" "$remote_host":"$source_file_path" > /dev/null 2>&1
     fi
     rm "$remote_temp_file"
     clear
