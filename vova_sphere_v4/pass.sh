@@ -20,6 +20,7 @@ file_test='OK'
 
 user='usr'
 host_ip='1.2.3.4a'
+port='22'
 
 local_temp_file="/tmp/temp.tmp"
 remote_temp_file="/tmp/temp2.tmp"
@@ -40,6 +41,7 @@ fi
 source "$conf_file"
 echo "Import config file... $file_test"
 sleep 0.5
+clear
 
 remote_host="$user@$host_ip"
 
@@ -159,7 +161,7 @@ elif [[ "$1" == "-r" ]]; then
         fi
     fi
     
-    scp "$remote_host":"$source_file_path"  "$local_temp_file" > /dev/null 2>&1
+    scp -P $port "$remote_host":"$source_file_path"  "$local_temp_file" > /dev/null 2>&1
     s_txt_file=$local_temp_file
     echo "OK"
     sleep 0.5
@@ -213,7 +215,7 @@ edit_file(){
     open_file
     save_file
     if [[ remote -eq "yes" ]]; then
-        scp "$s_txt_file" "$remote_host":"$source_file_path" > /dev/null 2>&1
+        scp -P $port "$s_txt_file" "$remote_host":"$source_file_path" > /dev/null 2>&1
     fi
     rm "$remote_temp_file"
     clear

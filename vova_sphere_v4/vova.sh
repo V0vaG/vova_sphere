@@ -13,7 +13,6 @@ Setup(){
 	ssh2ec2_PATH=$my_scripts/ssh2ec2
 	ssh2_PATH=$my_scripts/ssh2
 	google_f_PATH=$my_scripts/google_f
-	google_t_PATH=$my_scripts/google_t
 	pass_PATH=$my_scripts/pass
 	check_ip_PATH=$my_scripts/check_ip
 	jelly_PATH=$my_scripts/jelly
@@ -440,19 +439,21 @@ disk_mount(){
 bugfix_and_shmix(){
 	clear
 	echo "*****Trixs Shmix & Bug_Fix*********
-1.FIX Discord screen bug
-2.Generate SSH-Key
-3.Chat ^-^
-4.[Alt+Shift] Lang swap (for ubuntu 22)
-5.[Alt+Shift] Lang swap (for ubuntu 23)
-6.Edit Grub
-7.Disk speed test
-8.MOTD (Massage of the day)
-9.MOTD (Massage of the day + script)
-10.Battery info
-11.Battery charge limit (for Asus laptop, run file as root)
-12.Battery charge limit (for Lenovo ThinkPad laptop)
-13.Right-Click new_fie
+1. FIX Discord screen bug
+2. Generate SSH-Key
+3. Chat ^-^
+4. [Alt+Shift] Lang swap (for ubuntu 22)
+5. [Alt+Shift] Lang swap (for ubuntu 23)
+6. Edit Grub
+7. Disk speed test
+8. MOTD (Massage of the day)
+9. MOTD (Massage of the day + script)
+10. Battery info
+11. Battery charge limit (for Asus laptop, run file as root)
+12. Battery charge limit (for Lenovo ThinkPad laptop)
+13. Right-Click new_fie
+14. ufw
+15. Auto Disk Mount
 "
 	read -p "Enter your choice (0-to go back): " ans
 	clear	
@@ -556,7 +557,13 @@ WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target s
 		cd /home/$USER/Templates && echo "#!/bin/bash" > new_bash_file.sh
 		cd /home/$USER/Templates && touch new_txt_file.txt
 		cd /home/$USER/Templates && touch new_md_file.md
-	else
+	elif [[ $ans == 14 ]]; then    
+		clear
+		ufw
+	elif [[ $ans == 15 ]]; then    
+		clear
+		disk_mount
+	else  
 		main
 	fi
 	bugfix_and_shmix
@@ -639,15 +646,12 @@ scripts(){
 	echo "*****Scripts*********
 1. [ec2]  Ssh2ec2 (aws cli tool)
 2. [f]    Google> "what is ____ in xxxxx"
-3. [F8]   Google Translate
-4. Auto Disk Mount
-5. [ssh2] Ssh
-6. [pass] Password Manager
-7. ufw Manager
-8. check_ip
-9. [jelly] jellyfin_controller
-10. [64] base64
-11. [a_git] auto git (auto pusher/puller) 
+3. [ssh2] Ssh
+4. [pass] Password Manager
+5. check_ip
+6. [jelly] jellyfin_controller
+7. [64] base64
+8. [a_git] auto git (auto pusher/puller) 
 
 0. Back"
 	read -p "Enter your choice (0-to go back): " ans
@@ -666,41 +670,31 @@ scripts(){
 		make_google_f $google_f_PATH google_f.sh
 		scripts
 	elif [[ $ans == 3 ]]; then
-		if [[ ! -d $google_t_PATH ]]; then
-			make_google_t $google_t_PATH google_t.sh
-			sed -n 5p $0 >> $alias_file
-		fi
-	elif [[ $ans == 4 ]]; then
-		disk_mount
-		scripts
-	elif [[ $ans == 5 ]]; then
 		add_to_alias "ssh2" "$ssh2_PATH/ssh2.sh"
 		rm -f "$ssh2_PATH/ssh2.sh"
 		make_ssh2 $ssh2_PATH ssh2.sh
 		scripts
-	elif [[ $ans == 6 ]]; then
+	elif [[ $ans == 4 ]]; then
 		add_to_alias "pass" "$pass_PATH/pass.sh"
 		rm -f "$pass_PATH/pass.sh"
 		make_pass $pass_PATH pass.sh
 		scripts
-	elif [[ $ans == 7 ]]; then
-		ufw
-    elif [[ $ans == 8 ]]; then
+    elif [[ $ans == 5 ]]; then
     	add_to_alias "check_ip" "$check_ip_PATH/check_ip.sh"
 		rm -f "$check_ip_PATH/check_ip.sh"
 		make_check_ip $check_ip_PATH check_ip.sh
 		scripts
-	elif [[ $ans == 9 ]]; then
+	elif [[ $ans == 6 ]]; then
 		add_to_alias "jelly" "$jelly_PATH/jelly.sh"
 		rm -f "$jelly_PATH/jelly.sh"
 		make_jelly $jelly_PATH jelly.sh
 		scripts
-	elif [[ $ans == 10 ]]; then
+	elif [[ $ans == 7 ]]; then
 		add_to_alias "64" "$base64_PATH/base64.sh" 
 		rm -f "$base64_PATH/base64.sh" 
 		make_base64 $base64_PATH base64.sh
 		scripts
-	elif [[ $ans == 11 ]]; then
+	elif [[ $ans == 8 ]]; then
 		add_to_alias "a_git" "$auto_git_PATH/auto_git.sh" 
 		rm -f "$auto_git_PATH/auto_git.sh"
 		make_auto_git $auto_git_PATH auto_git.sh
