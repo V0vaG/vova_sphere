@@ -1,12 +1,39 @@
 #!/bin/bash
  
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+ 
 version='1.0.0'
+
+help(){
+echo "ssh2ec2 (aws cli ssh tool)
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
+Version: $version        
+
+This Script manages aws cli ec2 conections.
+It allow the user create instance from tamplate, open ssh conection to ec2 instance, list all ec2 instances, start/stop/terminate ec2 instance.
+It allso support gitlab ec2 and update the ip of the ec2 at all the ripositoris on the list when the gitlab ec2 starts.
+Don't forget to configure your aws cli Access keys ans the path to the .pem key file.
+
+Edit the conf file to add client IP's and users.
+
+0. Alias
+	$ ec2
+	> The script create an alias: *ec2*
+"
+}
  
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
  
@@ -51,7 +78,7 @@ fi
  
 if [ ! -f $ec2_user_file ]; then
 	echo "Creating user file..."
-	sleep 2
+	sleep 1
 	touch $ec2_user_file
 	echo "0" > $ec2_user_file
 fi
@@ -141,7 +168,7 @@ scp(){
  
             if [[ $ans -gt $i || $ans -lt 0 ]]; then
                 echo "Wrong choice!!!!! (0-$i)"
-                sleep 2
+                sleep 1
                 clear
                 show_resolt
             fi

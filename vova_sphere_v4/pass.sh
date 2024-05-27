@@ -76,9 +76,10 @@ fi
  
 help(){
 echo "pass (Password manager)
-############################
-# Author: Vladimir Glayzer #
-############################
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
 
 Version: $version        
 

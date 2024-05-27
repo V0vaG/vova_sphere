@@ -1,12 +1,34 @@
 #!/bin/bash
+
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
  
 version='1.0.1'
+ 
+help(){
+echo "google_f (Google finder)
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
+Version: $version        
+
+This Script halps search google for topics.
+
+0. Alias
+	$ f
+	> The script create an alias: *f*
+"
+}
  
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
  

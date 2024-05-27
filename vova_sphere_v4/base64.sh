@@ -1,12 +1,25 @@
 #!/bin/bash
  
 version="1.0.1"
+
+help(){
+echo "64 (base64 encoder)
+############################
+# Author: Vladimir Glayzer #
+############################
+
+Version: $version        
+
+This Script encods text to base64 and revers it.
+
+"
+}
  
 if [[ $1 == "-v" ]]; then
 	echo $version
 	exit
 elif [[ $1 == "-h" ]]; then
-	echo "help"
+	help
 	exit
 fi
  

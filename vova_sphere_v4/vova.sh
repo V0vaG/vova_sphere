@@ -1,4 +1,10 @@
 #!/bin/bash
+
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
 Setup(){
 	#echo -en "\007"
 	bashrc_file=~/.bashrc

@@ -1,12 +1,37 @@
 #!/bin/bash
  
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+ 
 version='1.0.0'
+
+help(){
+echo "ssh2 (SSh tool)
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
+Version: $version        
+
+This Script manages SSh conections.
+it allow the user conect to shell via ssh clients from list, copy files with SCP and execute commands over SSH.
+
+Edit the conf file to add client IP's and users.
+
+0. Alias
+	$ ssh2
+	> The script create an alias: *ssh2*
+"
+}
  
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
  

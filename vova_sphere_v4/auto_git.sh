@@ -5,15 +5,42 @@ version='1.0.2'
 dt=$(date '+%d/%m/%Y %H:%M:%S');
  
 help(){
-echo 'command: a_git [flag] [option]
-flags:
-> [-push] git add, commit & push to all repos from "git_list" 
-> [-pull] git fetch & pull from all repos from "git_list" 
-> [-e] edit git rpositoris list
-> [-c] add cronjob, then enter option (a_git [-c] [option])
-    options:
-    [-c -push] add push cronjob
-    [-c -pull] add pull cronjob'
+echo "a_git (auto git)
+############################
+# Author: Vladimir Glayzer #
+############################
+
+Version: $version        
+
+This Script manages multi ripository push/pull commands.
+
+0. Alias
+	$ a_git
+	> The script create an alias: *a_git*
+
+1. [-e] Edit conf file
+	$ a_git -e
+	> The conf file will be created at first start of the script.
+	> Edit the conf file before the first use to add your ripos path
+	
+2. [-push] push command
+	$ a_git -push
+	> git add, commit & push to all repos from "git_list"
+	
+3. [-pull] pull comand
+	$ a_git -pull
+	> git fetch & pull from all repos from "git_list"
+
+4. [-c] add cronjob
+	$ a_git -c [arg]
+	
+	4.1- add pull cronjob
+		$ a_git -c -pull 
+		
+	4.2- add push cronjob
+		$ a_git -c -push 
+
+"
 }
  
 logs_file="/home/$USER/my_scripts/auto_git/logs"

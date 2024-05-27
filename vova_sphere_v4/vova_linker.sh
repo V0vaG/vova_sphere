@@ -1,5 +1,10 @@
 #!/bin/bash
 
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
 target='vova_sphere_test.sh'
 target_time_stemp=$(date -r $target "+%m-%d-%Y %H:%M:%S") 
 master_file='vova.sh'

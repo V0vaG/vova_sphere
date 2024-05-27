@@ -2,11 +2,28 @@
  
 version='1.0.0'
 
+help(){
+echo "jelly (Jellyfin controller)
+############################
+# Author: Vladimir Glayzer #
+############################
+
+Version: $version        
+
+This Script halps the user controll Jellyfin app
+
+0. Alias
+	$ jelly
+	> The script create an alias: *jelly*
+
+"
+}
+
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
  

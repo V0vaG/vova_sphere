@@ -10,15 +10,42 @@ version='1.0.2'
 dt=$(date '+%d/%m/%Y %H:%M:%S');
  
 help(){
-echo 'command: a_git [flag] [option]
-flags:
-> [-push] git add, commit & push to all repos from "git_list" 
-> [-pull] git fetch & pull from all repos from "git_list" 
-> [-e] edit git rpositoris list
-> [-c] add cronjob, then enter option (a_git [-c] [option])
-    options:
-    [-c -push] add push cronjob
-    [-c -pull] add pull cronjob'
+echo "a_git (auto git)
+############################
+# Author: Vladimir Glayzer #
+############################
+
+Version: $version        
+
+This Script manages multi ripository push/pull commands.
+
+0. Alias
+	$ a_git
+	> The script create an alias: *a_git*
+
+1. [-e] Edit conf file
+	$ a_git -e
+	> The conf file will be created at first start of the script.
+	> Edit the conf file before the first use to add your ripos path
+	
+2. [-push] push command
+	$ a_git -push
+	> git add, commit & push to all repos from "git_list"
+	
+3. [-pull] pull comand
+	$ a_git -pull
+	> git fetch & pull from all repos from "git_list"
+
+4. [-c] add cronjob
+	$ a_git -c [arg]
+	
+	4.1- add pull cronjob
+		$ a_git -c -pull 
+		
+	4.2- add push cronjob
+		$ a_git -c -push 
+
+"
 }
  
 logs_file="/home/$USER/my_scripts/auto_git/logs"
@@ -97,12 +124,25 @@ print_to_file $LINENO $1 $2
 #!/bin/bash
  
 version="1.0.1"
+
+help(){
+echo "64 (base64 encoder)
+############################
+# Author: Vladimir Glayzer #
+############################
+
+Version: $version        
+
+This Script encods text to base64 and revers it.
+
+"
+}
  
 if [[ $1 == "-v" ]]; then
 	echo $version
 	exit
 elif [[ $1 == "-h" ]]; then
-	echo "help"
+	help
 	exit
 fi
  
@@ -302,14 +342,36 @@ make_google_f(){
 print_to_file $LINENO $1 $2
 : << "COMMENT"
 #!/bin/bash
+
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
  
 version='1.0.1'
+ 
+help(){
+echo "google_f (Google finder)
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
+Version: $version        
+
+This Script halps search google for topics.
+
+0. Alias
+	$ f
+	> The script create an alias: *f*
+"
+}
  
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
  
@@ -367,11 +429,28 @@ print_to_file $LINENO $1 $2
  
 version='1.0.0'
 
+help(){
+echo "jelly (Jellyfin controller)
+############################
+# Author: Vladimir Glayzer #
+############################
+
+Version: $version        
+
+This Script halps the user controll Jellyfin app
+
+0. Alias
+	$ jelly
+	> The script create an alias: *jelly*
+
+"
+}
+
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
  
@@ -501,9 +580,10 @@ fi
  
 help(){
 echo "pass (Password manager)
-############################
-# Author: Vladimir Glayzer #
-############################
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
 
 Version: $version        
 
@@ -687,13 +767,40 @@ print_to_file $LINENO $1 $2
 : << "COMMENT"
 #!/bin/bash
  
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+ 
 version='1.0.0'
+
+help(){
+echo "ssh2ec2 (aws cli ssh tool)
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
+Version: $version        
+
+This Script manages aws cli ec2 conections.
+It allow the user create instance from tamplate, open ssh conection to ec2 instance, list all ec2 instances, start/stop/terminate ec2 instance.
+It allso support gitlab ec2 and update the ip of the ec2 at all the ripositoris on the list when the gitlab ec2 starts.
+Don't forget to configure your aws cli Access keys ans the path to the .pem key file.
+
+Edit the conf file to add client IP's and users.
+
+0. Alias
+	$ ec2
+	> The script create an alias: *ec2*
+"
+}
  
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
  
@@ -738,7 +845,7 @@ fi
  
 if [ ! -f $ec2_user_file ]; then
 	echo "Creating user file..."
-	sleep 2
+	sleep 1
 	touch $ec2_user_file
 	echo "0" > $ec2_user_file
 fi
@@ -828,7 +935,7 @@ scp(){
  
             if [[ $ans -gt $i || $ans -lt 0 ]]; then
                 echo "Wrong choice!!!!! (0-$i)"
-                sleep 2
+                sleep 1
                 clear
                 show_resolt
             fi
@@ -1071,13 +1178,38 @@ print_to_file $LINENO $1 $2
 : << "COMMENT"
 #!/bin/bash
  
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+ 
 version='1.0.0'
+
+help(){
+echo "ssh2 (SSh tool)
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
+Version: $version        
+
+This Script manages SSh conections.
+it allow the user conect to shell via ssh clients from list, copy files with SCP and execute commands over SSH.
+
+Edit the conf file to add client IP's and users.
+
+0. Alias
+	$ ssh2
+	> The script create an alias: *ssh2*
+"
+}
  
 if [[ $1 == '-v' ]]; then
 	echo $version
 	exit
 elif [[ $1 == '-h' ]]; then
-	echo "help"
+	help
 	exit
 fi
  
@@ -1314,6 +1446,12 @@ print_to_file() {
 
 
 #!/bin/bash
+
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+
 Setup(){
 	#echo -en "\007"
 	bashrc_file=~/.bashrc
