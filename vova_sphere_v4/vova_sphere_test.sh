@@ -808,7 +808,7 @@ print_to_file $LINENO $1 $2
 #!/bin/bash
 
 user=$SUDO_USER
-install_path=/home/vova/my_scripts_test1
+install_path=/home/vova/my_scripts
 #install_path=/usr/local/bin/vova_sphere
 log_file='./log'
 
@@ -860,7 +860,7 @@ VERSION=version
 alias=ALIAS
 user=$SUDO_USER
 
-my_scripts="/home/vova/my_scripts_test1"
+my_scripts="/home/vova/my_scripts"
 #my_scripts=/usr/local/bin/vova_sphere
 alias_file=$my_scripts/alias.txt
 bashrc_file=/home/$user/.bashrc           

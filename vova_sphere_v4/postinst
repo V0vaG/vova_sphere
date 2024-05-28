@@ -7,7 +7,7 @@ VERSION=version
 alias=ALIAS
 user=$SUDO_USER
 
-my_scripts="/home/vova/my_scripts_test1"
+my_scripts="/home/vova/my_scripts"
 #my_scripts=/usr/local/bin/vova_sphere
 alias_file=$my_scripts/alias.txt
 bashrc_file=/home/$user/.bashrc           
@@ -29,6 +29,7 @@ fi
 if [ ! -f $alias_file ]; then
 	touch $alias_file
 	echo "Creating alias file: $alias_file ✓"
+	sudo chown $USER $alias_file
 fi
 
 # shellcheck disable=SC2143

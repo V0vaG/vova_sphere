@@ -1,7 +1,7 @@
 #!/bin/bash
 
 user=$SUDO_USER
-install_path=/home/vova/my_scripts_test1
+install_path=/home/vova/my_scripts
 #install_path=/usr/local/bin/vova_sphere
 log_file='./log'
 
