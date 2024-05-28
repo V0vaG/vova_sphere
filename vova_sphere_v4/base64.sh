@@ -1,6 +1,12 @@
 #!/bin/bash
  
 version="1.0.1"
+alias='64'
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+if [ "$0" = "$BASH_SOURCE" ] ; then 
 
 help(){
 echo "64 (base64 encoder)
@@ -52,3 +58,4 @@ main(){
 }
 
 main
+fi

@@ -1,11 +1,13 @@
 #!/bin/bash
  
+version='1.0.0'
+alias='ec2'
+install_path=/home/$USER/my_scripts
 ################################
 # Author: Vladimir Glayzer     #
 # eMail: its_a_vio@hotmail.com #
 ################################
- 
-version='1.0.0'
+if [ "$0" = "$BASH_SOURCE" ] ; then 
 
 help(){
 echo "ssh2ec2 (aws cli ssh tool)
@@ -38,8 +40,8 @@ elif [[ $1 == '-h' ]]; then
 fi
  
 file_test='FAIL'
-config_file="/home/$USER/my_scripts/ssh2ec2/config"
-ec2_user_file="/home/$USER/my_scripts/ssh2ec2/ec2_user"
+config_file="$install_path/ssh2ec2/config"
+ec2_user_file="$install_path/ssh2ec2/ec2_user"
  
 if [ ! -f $config_file ]; then
 echo "Creating config file..."
@@ -401,4 +403,5 @@ fi
  
 main
 # stop_all
+fi
 

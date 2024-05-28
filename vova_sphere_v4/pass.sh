@@ -1,15 +1,17 @@
 #!/bin/bash
   
 version='1.3.6'
-
+alias='pass'
+install_path=/home/$USER/my_scripts
 ################################
 # Author: Vladimir Glayzer     #
 # eMail: its_a_vio@hotmail.com #
 ################################
+if [ "$0" = "$BASH_SOURCE" ] ; then 
 
 file_test='FAIL'
 
-conf_file="/home/$USER/my_scripts/pass/conf"
+conf_file="$install_path/pass/conf"
 remote="no"
 
 if [[ ! -f $conf_file ]]; then
@@ -256,3 +258,4 @@ main(){
 
 main
 
+fi

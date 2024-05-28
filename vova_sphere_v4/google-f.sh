@@ -1,11 +1,13 @@
 #!/bin/bash
 
+version='1.0.1'
+alias='f'
+install_path=/home/$USER/my_scripts
 ################################
 # Author: Vladimir Glayzer     #
 # eMail: its_a_vio@hotmail.com #
 ################################
- 
-version='1.0.1'
+if [ "$0" = "$BASH_SOURCE" ] ; then 
  
 help(){
 echo "google_f (Google finder)
@@ -32,7 +34,7 @@ elif [[ $1 == '-h' ]]; then
 	exit
 fi
  
-search_file=~/my_scripts/google_f/f.txt
+search_file=$install_path/google-f/f.txt
  
 if [ ! -f $search_file ]; then
 	 touch $search_file
@@ -75,3 +77,4 @@ search(){
 	search
 }
 search
+fi

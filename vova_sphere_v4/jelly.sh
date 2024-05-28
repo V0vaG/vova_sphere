@@ -1,6 +1,12 @@
 #!/bin/bash
  
 version='1.0.0'
+alias='jelly'
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+if [ "$0" = "$BASH_SOURCE" ] ; then 
 
 help(){
 echo "jelly (Jellyfin controller)
@@ -68,3 +74,4 @@ main(){
 }
 
 main
+fi

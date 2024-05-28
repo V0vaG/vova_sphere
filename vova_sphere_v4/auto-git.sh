@@ -1,6 +1,14 @@
 #!/bin/bash
  
-version='1.0.2'
+version='1.0.3'
+alias='a_git'
+install_path=/home/$USER/my_scripts
+
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+if [ "$0" = "$BASH_SOURCE" ] ; then 
 
 dt=$(date '+%d/%m/%Y %H:%M:%S');
  
@@ -43,8 +51,8 @@ This Script manages multi ripository push/pull commands.
 "
 }
  
-logs_file="/home/$USER/my_scripts/auto_git/logs"
-conf_file="/home/$USER/my_scripts/auto_git/conf"
+logs_file="$install_path/auto-git/logs"
+conf_file="$install_path/auto-git/conf"
  
 if [[ ! -f $logs_file ]]; then
 	echo "Creating $logs_file"
@@ -62,7 +70,7 @@ git_list=(
 )
  
 EOF1
-  
+
 fi
 
 source $conf_file
@@ -108,4 +116,4 @@ elif [ $1 == "-c" -a $2 ]; then
 	fi
 fi
 
-
+fi

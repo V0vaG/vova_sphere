@@ -1,11 +1,13 @@
 #!/bin/bash
- 
+
+version='1.0.0'
+alias='ssh2'
+install_path=/home/$USER/my_scripts
 ################################
 # Author: Vladimir Glayzer     #
 # eMail: its_a_vio@hotmail.com #
 ################################
- 
-version='1.0.0'
+if [ "$0" = "$BASH_SOURCE" ] ; then 
 
 help(){
 echo "ssh2 (SSh tool)
@@ -36,8 +38,8 @@ elif [[ $1 == '-h' ]]; then
 fi
  
 file_test='FAIL'
-user_file_M="/home/$USER/my_scripts/ssh2/user_f"
-conf_file="/home/$USER/my_scripts/ssh2/conf"
+user_file_M="$install_path/ssh2/user_f"
+conf_file="$install_path/ssh2/conf"
  
 if [[ ! -f $conf_file ]]; then
 	echo "Creating conf file..."
@@ -246,4 +248,6 @@ if [ ! -f $user_file_M ]; then
 fi
 
 main
+
+fi
 

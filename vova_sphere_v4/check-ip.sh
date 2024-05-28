@@ -1,10 +1,18 @@
 #!/bin/bash
  
 version='1.0.1'
+alias='c_ip'
+install_path=/home/$USER/my_scripts
+################################
+# Author: Vladimir Glayzer     #
+# eMail: its_a_vio@hotmail.com #
+################################
+if [ "$0" = "$BASH_SOURCE" ] ; then 
   
-old_ip_file="/home/vova/my_scripts/check_ip/old_ip"
-logs_file="/home/vova/my_scripts/check_ip/logs_ip"
-slack_users_file="/home/vova/my_scripts/check_ip/conf"
+old_ip_file="$install_path/check-ip/old_ip"
+logs_file="$install_path/check-ip/logs_ip"
+slack_users_file="$install_path/check-ip/conf"
+
 source "$slack_users_file"
 old_ip=$(cat $old_ip_file)
 clear
@@ -149,4 +157,6 @@ elif [[ $1 == "-c" ]]; then
 		echo "$dt $old_ip_file Ping conjob created." >> $logs_file
 		exit
 	fi
+fi
+
 fi
