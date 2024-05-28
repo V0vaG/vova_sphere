@@ -28,12 +28,13 @@ Architecture: all
 Description: ${file%.*}" > "${file%.*}/DEBIAN/control"
 
 	cp postinst "${file%.*}/DEBIAN/postinst"
+	#sed -i "s/i_path/$install_path/g" ${file%.*}/DEBIAN/postinst
 	sed -i "s/abc_appname/${file%.*}/g" ${file%.*}/DEBIAN/postinst
 	sed -i "s/version/$version/g" ${file%.*}/DEBIAN/postinst
 	sed -i "s/ALIAS/$alias/g" ${file%.*}/DEBIAN/postinst
 	dpkg-deb --build ${file%.*}
 	#chmod +x ${file%.*}.deb
 	mv ${file%.*}.deb pkgs/
-	rm -r ${file%.*}
+	#rm -r ${file%.*}
 done
 echo "All dune!!!"
