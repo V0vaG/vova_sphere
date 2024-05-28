@@ -1,0 +1,38 @@
+#!/bin/sh
+
+app_name=abc_appname
+VERSION=version
+user=$SUDO_USER
+
+my_scripts="/usr/local/bin/vova_sphere"
+alias_file=$my_scripts/alias.txt
+bashrc_file=/home/$user/.bashrc           
+pass_PATH=$my_scripts/$app_name
+
+sed -i "s/VERSION/$VERSION/g" $pass_PATH/$app_name.sh
+
+if [ ! -f $my_scripts/bashrc.copy ]; then
+	cp ~/.bashrc $my_scripts/bashrc.copy
+	echo "Backing up .bashrc to ~/my_scripts... ✓"
+	echo "#*************Vova's Scripts****************" >> $bashrc_file
+	echo "if [ -f $alias_file ]; then" >> $bashrc_file
+	echo "    . $alias_file" >> $bashrc_file
+	echo "fi" >> $bashrc_file
+else
+	echo ".bashrc allready set ✓"
+fi
+
+if [ ! -f $alias_file ]; then
+	touch $alias_file
+	echo "Creating alias file: $alias_file ✓"
+fi
+
+# shellcheck disable=SC2143
+if [ ! $(sudo cat $alias_file | grep "$app_name=") ]; then	
+	printf "alias $app_name='bash $pass_PATH/$app_name.sh'\n" >> $alias_file	
+	echo "adding alias... ✓"
+else
+	echo "alias allredy exists... ✓"
+fi
+
+echo "All dune ✓"

@@ -18,7 +18,7 @@ printf "Master file: $master_file\n" >> $log_file
 
 echo "Welcome to vova linker"
 
-file_list=($(ls -I vova_linker.sh -I $target -I $master_file -I $log_file))
+file_list=($(ls -I vova_linker.sh -I $target -I $master_file -I $log_file -I pkg_maker.sh -I postinst))
 file_check_list=($(ls -I $target -I $log_file))
 
 for file in "${file_check_list[@]}"; do
