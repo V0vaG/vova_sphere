@@ -35,6 +35,6 @@ Description: ${file%.*}" > "${file%.*}/DEBIAN/control"
 	dpkg-deb --build ${file%.*}
 	#chmod +x ${file%.*}.deb
 	mv ${file%.*}.deb pkgs/
-	#rm -r ${file%.*}
+	rm -r ${file%.*}
 done
 echo "All dune!!!"
